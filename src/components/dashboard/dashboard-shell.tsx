@@ -87,6 +87,11 @@ function getNavSections(
           icon: CreditCard,
         },
         {
+          label: "SaaS Readiness",
+          href: "/dashboard/admin/saas-readiness",
+          icon: ShieldCheck,
+        },
+        {
           label: "Validation CRM",
           href: "/dashboard/validation",
           icon: Users,
