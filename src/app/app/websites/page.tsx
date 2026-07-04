@@ -1,10 +1,16 @@
 ﻿import Link from "next/link";
 import { redirect } from "next/navigation";
-import { ArrowLeft, Globe2, Plus, ShieldCheck } from "lucide-react";
+import { ArrowLeft, Globe2, PlayCircle, Plus, ShieldCheck } from "lucide-react";
 import { brand } from "@/config/brand";
 import { createClient } from "@/lib/supabase/server";
+import { startPassiveScan } from "./actions";
 
-export default async function WebsitesPage() {
+export default async function WebsitesPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ message?: string }>;
+}) {
+  const params = await searchParams;
   const supabase = await createClient();
 
   const {
@@ -54,6 +60,12 @@ export default async function WebsitesPage() {
           </Link>
         </div>
 
+        {params.message ? (
+          <div className="mb-5 rounded-3xl border border-amber-300/20 bg-amber-300/10 p-5 text-amber-100">
+            {params.message}
+          </div>
+        ) : null}
+
         {error ? (
           <div className="rounded-3xl border border-red-300/20 bg-red-300/10 p-6 text-red-100">
             {error.message}
@@ -65,7 +77,7 @@ export default async function WebsitesPage() {
             <Globe2 className="mx-auto mb-4 h-10 w-10 text-cyan-300" />
             <h2 className="text-2xl font-bold">No websites yet</h2>
             <p className="mx-auto mt-2 max-w-xl text-slate-400">
-              Add your first business website. In Part 4, we will connect passive scanner workflow.
+              Add your first business website. Then run a safe passive scan.
             </p>
             <Link
               href="/app/websites/new"
@@ -96,9 +108,16 @@ export default async function WebsitesPage() {
                     </p>
                   </div>
 
-                  <div className="rounded-2xl border border-white/10 px-4 py-2 text-sm text-slate-300">
-                    Scanner in Part 4
-                  </div>
+                  <form action={startPassiveScan}>
+                    <input type="hidden" name="website_id" value={website.id} />
+                    <button
+                      type="submit"
+                      className="inline-flex items-center justify-center gap-2 rounded-2xl bg-cyan-300 px-5 py-3 font-bold text-slate-950 hover:bg-cyan-200"
+                    >
+                      <PlayCircle className="h-5 w-5" />
+                      Run Passive Scan
+                    </button>
+                  </form>
                 </div>
               </div>
             ))}
