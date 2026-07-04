@@ -40,6 +40,11 @@ const primaryNav = [
     icon: FileText,
   },
   {
+    label: "Payments",
+    href: "/dashboard/payments",
+    icon: Target,
+  },
+  {
     label: "Customer Validation",
     href: "/dashboard/validation",
     icon: Target,
