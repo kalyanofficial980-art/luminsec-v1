@@ -1,4 +1,4 @@
-﻿export const brand = {
+export const brand = {
   name: "VeyraSec",
   tagline: "AI website security and privacy readiness",
   description:
@@ -6,4 +6,5 @@
   product: "Website Trust Report",
   version: "V1 Prototype",
   url: "http://localhost:3000",
+  supportEmail: "hello@veyrasec.com",
 };
