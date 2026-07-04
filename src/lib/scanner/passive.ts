@@ -1,6 +1,14 @@
 export type PassiveFindingSeverity = "high" | "medium" | "low" | "info";
 export type PassiveFindingCategory = "security" | "privacy" | "trust";
 
+export type ScoreDeduction = {
+  category: PassiveFindingCategory;
+  severity: PassiveFindingSeverity;
+  title: string;
+  points: number;
+  reason: string;
+};
+
 export type PassiveFinding = {
   category: PassiveFindingCategory;
   severity: PassiveFindingSeverity;
@@ -8,6 +16,19 @@ export type PassiveFinding = {
   description: string;
   recommendation: string;
   evidence?: string;
+  scoreImpact?: number;
+};
+
+export type ScoreBreakdown = {
+  startingScore: number;
+  securityDeductions: ScoreDeduction[];
+  privacyDeductions: ScoreDeduction[];
+  trustDeductions: ScoreDeduction[];
+  securityScore: number;
+  privacyScore: number;
+  trustScore: number;
+  overallScore: number;
+  topReasons: string[];
 };
 
 export type PassiveScanResult = {
@@ -24,7 +45,6 @@ export type PassiveScanResult = {
   findings: PassiveFinding[];
   raw: Record<string, unknown>;
 
-  // Backward-compatible snake_case fields if older actions need them.
   overall_score: number;
   security_score: number;
   privacy_score: number;
@@ -33,7 +53,7 @@ export type PassiveScanResult = {
 };
 
 const USER_AGENT =
-  "VeyraSec-V2-Passive-Readiness-Checker/2.0 (+safe passive website trust report)";
+  "VeyraSec-V2-Passive-Readiness-Checker/2.1 (+safe passive website trust report)";
 
 const FETCH_TIMEOUT_MS = 10000;
 const MAX_BODY_CHARS = 200000;
@@ -53,7 +73,6 @@ function normalizeTargetUrl(input: string) {
   }
 
   url.hash = "";
-
   return url.toString();
 }
 
@@ -83,10 +102,6 @@ function headerValue(headers: Headers, key: string) {
   return headers.get(key) || "";
 }
 
-function hasHeader(headers: Headers, key: string) {
-  return Boolean(headerValue(headers, key));
-}
-
 function pushFinding(findings: PassiveFinding[], finding: PassiveFinding) {
   const duplicate = findings.some(
     (item) => item.title === finding.title && item.category === finding.category
@@ -97,28 +112,91 @@ function pushFinding(findings: PassiveFinding[], finding: PassiveFinding) {
   }
 }
 
-function severityPenalty(severity: PassiveFindingSeverity) {
-  switch (severity) {
-    case "high":
-      return 18;
-    case "medium":
-      return 10;
-    case "low":
-      return 5;
-    case "info":
-      return 0;
-  }
+function categoryWeight(category: PassiveFindingCategory, severity: PassiveFindingSeverity) {
+  if (severity === "info") return 0;
+
+  const weights: Record<PassiveFindingCategory, Record<Exclude<PassiveFindingSeverity, "info">, number>> = {
+    security: {
+      high: 24,
+      medium: 13,
+      low: 6,
+    },
+    privacy: {
+      high: 20,
+      medium: 12,
+      low: 6,
+    },
+    trust: {
+      high: 18,
+      medium: 10,
+      low: 5,
+    },
+  };
+
+  return weights[category][severity];
 }
 
-function calculateCategoryScore(
-  findings: PassiveFinding[],
-  category: PassiveFindingCategory
-) {
-  const penalty = findings
-    .filter((finding) => finding.category === category)
-    .reduce((total, finding) => total + severityPenalty(finding.severity), 0);
+function getScoreReason(finding: PassiveFinding) {
+  const prefix =
+    finding.category === "security"
+      ? "Security"
+      : finding.category === "privacy"
+        ? "Privacy"
+        : "Trust";
 
-  return Math.max(0, Math.min(100, 100 - penalty));
+  return `${prefix}: ${finding.title}`;
+}
+
+function buildScoreBreakdown(findings: PassiveFinding[]): ScoreBreakdown {
+  const deductions: ScoreDeduction[] = findings
+    .filter((finding) => finding.severity !== "info")
+    .map((finding) => {
+      const points = categoryWeight(finding.category, finding.severity);
+
+      finding.scoreImpact = points;
+
+      return {
+        category: finding.category,
+        severity: finding.severity,
+        title: finding.title,
+        points,
+        reason: getScoreReason(finding),
+      };
+    });
+
+  const securityDeductions = deductions.filter((item) => item.category === "security");
+  const privacyDeductions = deductions.filter((item) => item.category === "privacy");
+  const trustDeductions = deductions.filter((item) => item.category === "trust");
+
+  function categoryScore(categoryDeductions: ScoreDeduction[]) {
+    const totalDeduction = categoryDeductions.reduce((total, item) => total + item.points, 0);
+    return Math.max(0, Math.min(100, 100 - totalDeduction));
+  }
+
+  const securityScore = categoryScore(securityDeductions);
+  const privacyScore = categoryScore(privacyDeductions);
+  const trustScore = categoryScore(trustDeductions);
+
+  const overallScore = Math.round(
+    securityScore * 0.45 + privacyScore * 0.25 + trustScore * 0.3
+  );
+
+  const topReasons = [...deductions]
+    .sort((a, b) => b.points - a.points)
+    .slice(0, 5)
+    .map((item) => `${item.reason} (-${item.points})`);
+
+  return {
+    startingScore: 100,
+    securityDeductions,
+    privacyDeductions,
+    trustDeductions,
+    securityScore,
+    privacyScore,
+    trustScore,
+    overallScore,
+    topReasons,
+  };
 }
 
 function calculateRiskLevel(score: number): "low" | "medium" | "high" {
@@ -131,23 +209,21 @@ function countSeverity(findings: PassiveFinding[], severity: PassiveFindingSever
   return findings.filter((finding) => finding.severity === severity).length;
 }
 
-function buildSummary(result: {
+function buildSummary(args: {
   finalUrl: string;
-  overallScore: number;
-  securityScore: number;
-  privacyScore: number;
-  trustScore: number;
+  scoreBreakdown: ScoreBreakdown;
   findings: PassiveFinding[];
 }) {
-  const high = countSeverity(result.findings, "high");
-  const medium = countSeverity(result.findings, "medium");
-  const low = countSeverity(result.findings, "low");
+  const high = countSeverity(args.findings, "high");
+  const medium = countSeverity(args.findings, "medium");
+  const low = countSeverity(args.findings, "low");
 
-  if (result.findings.length === 0) {
-    return `VeyraSec V2 passive scan found strong public trust signals for ${result.finalUrl}. The website still needs periodic review because this is not a full audit or penetration test.`;
-  }
+  const topReasonText =
+    args.scoreBreakdown.topReasons.length > 0
+      ? `Main score reasons: ${args.scoreBreakdown.topReasons.join("; ")}.`
+      : "No major public readiness issues were detected by the passive checks.";
 
-  return `VeyraSec V2 passive scan reviewed ${result.finalUrl} and found ${result.findings.length} improvement area(s): ${high} high, ${medium} medium, and ${low} low. Current scores are Security ${result.securityScore}/100, Privacy ${result.privacyScore}/100, Trust ${result.trustScore}/100. This is a safe passive readiness report, not a full audit or penetration test.`;
+  return `VeyraSec V2 reviewed ${args.finalUrl} using safe passive checks. Overall readiness is ${args.scoreBreakdown.overallScore}/100 with Security ${args.scoreBreakdown.securityScore}/100, Privacy ${args.scoreBreakdown.privacyScore}/100, and Trust ${args.scoreBreakdown.trustScore}/100. The scan found ${args.findings.length} finding(s): ${high} high, ${medium} medium, and ${low} low. ${topReasonText} This is a basic passive website trust report, not a full audit, legal advice, or penetration test.`;
 }
 
 function bodyHasLinkLike(body: string, patterns: RegExp[]) {
@@ -176,7 +252,7 @@ function analyzeSecurityHeaders(headers: Headers, findings: PassiveFinding[], fi
       description:
         "The website uses HTTPS but did not return a Strict-Transport-Security header in the public response.",
       recommendation:
-        "Ask the developer or hosting provider to enable HSTS after confirming the website is fully ready for HTTPS.",
+        "Enable HSTS after confirming all pages and subdomains are ready for HTTPS.",
       evidence: "Missing Strict-Transport-Security",
     });
   }
@@ -187,7 +263,7 @@ function analyzeSecurityHeaders(headers: Headers, findings: PassiveFinding[], fi
       severity: "medium",
       title: "Content Security Policy is missing",
       description:
-        "A Content-Security-Policy header was not visible in the public response. CSP helps reduce browser-side injection risk.",
+        "A Content-Security-Policy header was not visible. CSP helps reduce browser-side injection risk.",
       recommendation:
         "Add a carefully tested Content-Security-Policy header. Start with report-only mode if needed.",
       evidence: "Missing Content-Security-Policy",
@@ -213,7 +289,7 @@ function analyzeSecurityHeaders(headers: Headers, findings: PassiveFinding[], fi
       severity: "low",
       title: "X-Content-Type-Options nosniff is missing",
       description:
-        "The public response did not clearly show X-Content-Type-Options: nosniff.",
+        "The response did not clearly show X-Content-Type-Options: nosniff.",
       recommendation:
         "Add X-Content-Type-Options: nosniff to reduce MIME sniffing risk.",
       evidence: xContentType || "Missing X-Content-Type-Options",
@@ -228,7 +304,7 @@ function analyzeSecurityHeaders(headers: Headers, findings: PassiveFinding[], fi
       description:
         "The website did not return a Referrer-Policy header. This can leak unnecessary URL information to other websites.",
       recommendation:
-        "Add Referrer-Policy: strict-origin-when-cross-origin or a stricter policy based on business needs.",
+        "Add Referrer-Policy: strict-origin-when-cross-origin or a stricter policy.",
       evidence: "Missing Referrer-Policy",
     });
   }
@@ -259,7 +335,7 @@ function analyzeExposureHeaders(headers: Headers, findings: PassiveFinding[]) {
       description:
         "The public response exposes a Server header. This is common, but reducing version details can lower information exposure.",
       recommendation:
-        "Ask the hosting provider or developer to hide unnecessary server version details where possible.",
+        "Hide unnecessary server version details where possible.",
       evidence: `Server: ${server}`,
     });
   }
@@ -294,7 +370,7 @@ function analyzeCookies(headers: Headers, findings: PassiveFinding[], finalUrl: 
       severity: "medium",
       title: "Cookie Secure flag may be missing",
       description:
-        "The response sets cookies, but the Secure flag was not clearly visible in the Set-Cookie header.",
+        "The response sets cookies, but the Secure flag was not clearly visible.",
       recommendation:
         "Ensure sensitive cookies use the Secure flag so they are sent only over HTTPS.",
       evidence: "Set-Cookie without visible Secure flag",
@@ -401,16 +477,13 @@ function analyzeHtmlSignals(body: string, findings: PassiveFinding[], finalUrl: 
       description:
         "The HTTPS page appears to reference at least one HTTP resource in src or href attributes.",
       recommendation:
-        "Change HTTP resource links to HTTPS where possible and verify the browser does not load insecure content.",
+        "Change HTTP resource links to HTTPS and verify the browser does not load insecure content.",
       evidence: "HTTP resource reference found in HTML",
     });
   }
 }
 
-async function checkPublicFile(
-  origin: string,
-  path: string
-): Promise<{ ok: boolean; status?: number }> {
+async function checkPublicFile(origin: string, path: string) {
   try {
     const response = await fetchWithTimeout(`${origin}${path}`, {
       method: "GET",
@@ -421,7 +494,7 @@ async function checkPublicFile(
       status: response.status,
     };
   } catch {
-    return { ok: false };
+    return { ok: false, status: undefined };
   }
 }
 
@@ -436,7 +509,7 @@ async function analyzeRobotsAndSitemap(origin: string, findings: PassiveFinding[
       description:
         "A public robots.txt file was not found or did not return a successful response.",
       recommendation:
-        "Add a robots.txt file to guide search engine crawlers and reference the sitemap if available.",
+        "Add a robots.txt file to guide search engines and reference the sitemap if available.",
       evidence: robots.status ? `robots.txt status ${robots.status}` : "robots.txt unavailable",
     });
   }
@@ -458,36 +531,32 @@ async function analyzeRobotsAndSitemap(origin: string, findings: PassiveFinding[
   }
 }
 
-async function buildFailureResult(targetUrl: string, message: string): Promise<PassiveScanResult> {
-  const finding: PassiveFinding = {
-    category: "trust",
-    severity: "high",
-    title: "Website could not be reached",
-    description:
-      "VeyraSec could not complete the safe passive request for this website.",
-    recommendation:
-      "Confirm the URL is correct, the website is online, and the server allows normal browser-style requests.",
-    evidence: message,
-  };
+function buildFailureResult(targetUrl: string, message: string): PassiveScanResult {
+  const findings: PassiveFinding[] = [
+    {
+      category: "trust",
+      severity: "high",
+      title: "Website could not be reached",
+      description:
+        "VeyraSec could not complete the safe passive request for this website.",
+      recommendation:
+        "Confirm the URL is correct, the website is online, and the server allows normal browser-style requests.",
+      evidence: message,
+    },
+  ];
 
-  const findings = [finding];
-  const securityScore = calculateCategoryScore(findings, "security");
-  const privacyScore = calculateCategoryScore(findings, "privacy");
-  const trustScore = calculateCategoryScore(findings, "trust");
-  const overallScore = Math.round(
-    securityScore * 0.45 + privacyScore * 0.25 + trustScore * 0.3
-  );
-  const riskLevel = calculateRiskLevel(overallScore);
+  const scoreBreakdown = buildScoreBreakdown(findings);
+  const riskLevel = calculateRiskLevel(scoreBreakdown.overallScore);
 
   return {
     targetUrl,
     websiteUrl: targetUrl,
     finalUrl: targetUrl,
     checkedAt: new Date().toISOString(),
-    overallScore,
-    securityScore,
-    privacyScore,
-    trustScore,
+    overallScore: scoreBreakdown.overallScore,
+    securityScore: scoreBreakdown.securityScore,
+    privacyScore: scoreBreakdown.privacyScore,
+    trustScore: scoreBreakdown.trustScore,
     riskLevel,
     summary:
       "VeyraSec V2 could not reach the website using safe passive checks. Confirm the URL and try again.",
@@ -496,12 +565,13 @@ async function buildFailureResult(targetUrl: string, message: string): Promise<P
       status: "failed",
       errorMessage: message,
       targetUrl,
-      scannerVersion: "V2",
+      scoreBreakdown,
+      scannerVersion: "V2.1",
     },
-    overall_score: overallScore,
-    security_score: securityScore,
-    privacy_score: privacyScore,
-    trust_score: trustScore,
+    overall_score: scoreBreakdown.overallScore,
+    security_score: scoreBreakdown.securityScore,
+    privacy_score: scoreBreakdown.privacyScore,
+    trust_score: scoreBreakdown.trustScore,
     risk_level: riskLevel,
   };
 }
@@ -547,7 +617,7 @@ export async function runPassiveScan(inputUrl: string): Promise<PassiveScanResul
         description:
           "The public homepage response did not return a normal successful HTTP status.",
         recommendation:
-          "Ask the developer or hosting provider to review the website response status and availability.",
+          "Ask the developer or hosting provider to review website availability and response status.",
         evidence: `HTTP ${response.status}`,
       });
     }
@@ -594,34 +664,28 @@ export async function runPassiveScan(inputUrl: string): Promise<PassiveScanResul
 
     await analyzeRobotsAndSitemap(origin, findings);
 
-    const securityScore = calculateCategoryScore(findings, "security");
-    const privacyScore = calculateCategoryScore(findings, "privacy");
-    const trustScore = calculateCategoryScore(findings, "trust");
-    const overallScore = Math.round(
-      securityScore * 0.45 + privacyScore * 0.25 + trustScore * 0.3
-    );
-    const riskLevel = calculateRiskLevel(overallScore);
+    const scoreBreakdown = buildScoreBreakdown(findings);
+    const riskLevel = calculateRiskLevel(scoreBreakdown.overallScore);
 
-    const resultBase = {
+    const summary = buildSummary({
       finalUrl,
-      overallScore,
-      securityScore,
-      privacyScore,
-      trustScore,
+      scoreBreakdown,
       findings,
-    };
+    });
+
+    const checkedAt = new Date().toISOString();
 
     return {
       targetUrl,
       websiteUrl: targetUrl,
       finalUrl,
-      checkedAt: new Date().toISOString(),
-      overallScore,
-      securityScore,
-      privacyScore,
-      trustScore,
+      checkedAt,
+      overallScore: scoreBreakdown.overallScore,
+      securityScore: scoreBreakdown.securityScore,
+      privacyScore: scoreBreakdown.privacyScore,
+      trustScore: scoreBreakdown.trustScore,
       riskLevel,
-      summary: buildSummary(resultBase),
+      summary,
       findings,
       raw: {
         status: "completed",
@@ -629,13 +693,21 @@ export async function runPassiveScan(inputUrl: string): Promise<PassiveScanResul
         finalUrl,
         httpStatus: response.status,
         redirected: response.redirected,
-        scannerVersion: "V2",
-        checkedAt: new Date().toISOString(),
+        scannerVersion: "V2.1",
+        checkedAt,
+        scoreBreakdown,
+        scoreReasons: scoreBreakdown.topReasons,
+        severityCounts: {
+          high: countSeverity(findings, "high"),
+          medium: countSeverity(findings, "medium"),
+          low: countSeverity(findings, "low"),
+          info: countSeverity(findings, "info"),
+        },
       },
-      overall_score: overallScore,
-      security_score: securityScore,
-      privacy_score: privacyScore,
-      trust_score: trustScore,
+      overall_score: scoreBreakdown.overallScore,
+      security_score: scoreBreakdown.securityScore,
+      privacy_score: scoreBreakdown.privacyScore,
+      trust_score: scoreBreakdown.trustScore,
       risk_level: riskLevel,
     };
   } catch (error) {
@@ -646,7 +718,6 @@ export async function runPassiveScan(inputUrl: string): Promise<PassiveScanResul
   }
 }
 
-// Aliases keep older imports working if previous code used another name.
 export const runPassiveWebsiteScan = runPassiveScan;
 export const scanWebsitePassively = runPassiveScan;
 export const createPassiveScanReport = runPassiveScan;
