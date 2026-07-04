@@ -59,6 +59,7 @@ export default function Home() {
             <Link href="/sample-report" className="hover:text-white">Sample report</Link>
             <Link href="/pitch" className="hover:text-white">Pitch</Link>
             <Link href="/demo-script" className="hover:text-white">Demo script</Link>
+            <Link href="/contact" className="hover:text-white">Contact</Link>
             <Link href="/login" className="hover:text-white">Login</Link>
           </nav>
 

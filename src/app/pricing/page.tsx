@@ -44,8 +44,8 @@ const plans = [
       "English and Telugu-English explanations",
       "V1 pilot support",
     ],
-    cta: "Contact later",
-    href: "/signup",
+    cta: "Apply for pilot",
+    href: "/pilot",
     highlight: false,
   },
 ];
