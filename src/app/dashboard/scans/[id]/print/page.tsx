@@ -62,6 +62,12 @@ export default async function ScanPrintPage({
     .eq("user_id", user.id)
     .order("created_at", { ascending: true });
 
+  const { data: businessSettings } = await supabase
+    .from("business_settings")
+    .select("business_name, owner_name, email, phone, website, address, report_footer_note")
+    .eq("user_id", user.id)
+    .maybeSingle();
+
   const website = Array.isArray(result.websites)
     ? result.websites[0]
     : result.websites;
@@ -184,6 +190,25 @@ export default async function ScanPrintPage({
           <h2 className="text-xl font-black">{copy.executiveSummary}</h2>
           <p className="mt-3 leading-7 text-slate-700">{result.summary}</p>
         </section>
+
+        {businessSettings ? (
+          <section className="mt-6 rounded-2xl border border-slate-200 p-6">
+            <h2 className="text-xl font-black">Prepared by</h2>
+            <div className="mt-3 grid gap-2 text-sm text-slate-700 md:grid-cols-2">
+              <p><span className="font-bold">Business:</span> {businessSettings.business_name || "Not added"}</p>
+              <p><span className="font-bold">Owner:</span> {businessSettings.owner_name || "Not added"}</p>
+              <p><span className="font-bold">Email:</span> {businessSettings.email || "Not added"}</p>
+              <p><span className="font-bold">Phone:</span> {businessSettings.phone || "Not added"}</p>
+              <p><span className="font-bold">Website:</span> {businessSettings.website || "Not added"}</p>
+              <p><span className="font-bold">Address:</span> {businessSettings.address || "Not added"}</p>
+            </div>
+            {businessSettings.report_footer_note ? (
+              <p className="mt-4 rounded-xl bg-slate-100 p-4 text-sm leading-6 text-slate-700">
+                {businessSettings.report_footer_note}
+              </p>
+            ) : null}
+          </section>
+        ) : null}
 
         <section className="mt-6">
           <h2 className="text-xl font-black">{copy.findings}</h2>

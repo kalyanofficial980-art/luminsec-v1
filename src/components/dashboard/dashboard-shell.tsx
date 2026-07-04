@@ -14,6 +14,7 @@ import {
   PlusCircle,
   Rocket,
   ShieldCheck,
+  Settings,
   Target,
 } from "lucide-react";
 import { brand } from "@/config/brand";
@@ -42,6 +43,11 @@ const primaryNav = [
     label: "Customer Validation",
     href: "/dashboard/validation",
     icon: Target,
+  },
+  {
+    label: "Settings",
+    href: "/dashboard/settings",
+    icon: Settings,
   },
 ];
 

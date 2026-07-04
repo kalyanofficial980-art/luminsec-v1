@@ -68,6 +68,12 @@ export default async function ScanReportPage({
     .eq("user_id", user.id)
     .order("created_at", { ascending: true });
 
+  const { data: businessSettings } = await supabase
+    .from("business_settings")
+    .select("business_name, owner_name, email, phone, website, address, report_footer_note")
+    .eq("user_id", user.id)
+    .maybeSingle();
+
   const website = Array.isArray(result.websites)
     ? result.websites[0]
     : result.websites;
@@ -193,6 +199,18 @@ export default async function ScanReportPage({
             <p className="mt-3 leading-7 text-slate-300">{result.summary}</p>
             <p className="mt-4 text-sm text-slate-500">{copy.disclaimer}</p>
           </div>
+
+          {businessSettings ? (
+            <div className="mt-6 rounded-3xl border border-white/10 bg-slate-950 p-6">
+              <h2 className="text-xl font-bold">Prepared by</h2>
+              <div className="mt-3 grid gap-2 text-sm text-slate-300 md:grid-cols-2">
+                <p><span className="font-bold text-white">Business:</span> {businessSettings.business_name || "Not added"}</p>
+                <p><span className="font-bold text-white">Owner:</span> {businessSettings.owner_name || "Not added"}</p>
+                <p><span className="font-bold text-white">Email:</span> {businessSettings.email || "Not added"}</p>
+                <p><span className="font-bold text-white">Phone:</span> {businessSettings.phone || "Not added"}</p>
+              </div>
+            </div>
+          ) : null}
         </section>
 
         <section className="mt-8">
