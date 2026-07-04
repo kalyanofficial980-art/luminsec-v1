@@ -5,6 +5,6 @@ export const brand = {
     "VeyraSec helps small businesses understand website security, privacy, and trust risks using safe passive checks and clear AI-ready reports.",
   product: "Website Trust Report",
   version: "V1 Prototype",
-  url: "http://localhost:3000",
+  url: "https://luminsec-v1.vercel.app",
   supportEmail: "hello@veyrasec.com",
 };
