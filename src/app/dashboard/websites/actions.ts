@@ -83,12 +83,14 @@ export async function addWebsite(formData: FormData) {
   }
 
   const urlObject = new URL(normalizedUrl);
-  const websiteName = name || urlObject.hostname;
+  const websiteDomain = urlObject.hostname.toLowerCase().replace(/^www\./, "");
+  const websiteName = name || websiteDomain;
 
   const { error } = await supabase.from("websites").insert({
     user_id: user.id,
     name: websiteName,
     url: normalizedUrl,
+    domain: websiteDomain,
   });
 
   if (error) {
