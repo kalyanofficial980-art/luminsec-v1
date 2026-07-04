@@ -14,7 +14,7 @@ export type DashboardAuthContext = {
   profile: DashboardProfile;
 };
 
-export function getDashboardHomeForProfile(profile: DashboardProfile) {
+export function getDashboardHomeForProfile(_profile: DashboardProfile) {
   return "/dashboard";
 }
 

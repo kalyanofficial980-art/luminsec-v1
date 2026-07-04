@@ -92,6 +92,11 @@ function getNavSections(
           icon: ShieldCheck,
         },
         {
+          label: "Access Audit",
+          href: "/dashboard/admin/access-audit",
+          icon: ShieldCheck,
+        },
+        {
           label: "Validation CRM",
           href: "/dashboard/validation",
           icon: Users,
