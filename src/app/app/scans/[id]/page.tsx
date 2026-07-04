@@ -1,8 +1,9 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { ArrowLeft, Globe2, ShieldAlert, ShieldCheck } from "lucide-react";
+import { ArrowLeft, FileText, Globe2, ShieldAlert, ShieldCheck } from "lucide-react";
 import { brand } from "@/config/brand";
 import { createClient } from "@/lib/supabase/server";
+import { formatDateTime, getRiskBadgeClass, getRiskLabel } from "@/lib/utils/risk";
 
 const severityClasses: Record<string, string> = {
   critical: "border-red-400/30 bg-red-400/10 text-red-100",
@@ -10,14 +11,6 @@ const severityClasses: Record<string, string> = {
   medium: "border-amber-400/30 bg-amber-400/10 text-amber-100",
   low: "border-blue-400/30 bg-blue-400/10 text-blue-100",
   info: "border-slate-400/30 bg-slate-400/10 text-slate-100",
-};
-
-const riskLabels: Record<string, string> = {
-  good: "Good",
-  needs_improvement: "Needs improvement",
-  risky: "Risky",
-  high_risk: "High risk",
-  unknown: "Unknown",
 };
 
 export default async function ScanReportPage({
@@ -75,13 +68,23 @@ export default async function ScanReportPage({
   return (
     <main className="min-h-screen bg-slate-950 p-6 text-white">
       <div className="mx-auto max-w-6xl">
-        <Link
-          href="/app/websites"
-          className="mb-6 inline-flex items-center gap-2 text-sm font-semibold text-slate-300 hover:text-white"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          Back to websites
-        </Link>
+        <div className="mb-6 flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
+          <Link
+            href="/app/websites"
+            className="inline-flex items-center gap-2 text-sm font-semibold text-slate-300 hover:text-white"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Back to websites
+          </Link>
+
+          <Link
+            href="/app/scans"
+            className="inline-flex items-center gap-2 text-sm font-semibold text-cyan-300 hover:text-cyan-200"
+          >
+            <FileText className="h-4 w-4" />
+            All scan reports
+          </Link>
+        </div>
 
         <section className="rounded-3xl border border-white/10 bg-white/[0.04] p-8">
           <div className="mb-8 flex flex-col justify-between gap-5 md:flex-row md:items-start">
@@ -92,7 +95,9 @@ export default async function ScanReportPage({
                 </div>
                 <div>
                   <h1 className="text-3xl font-black">{brand.product}</h1>
-                  <p className="text-slate-400">Safe passive scan result</p>
+                  <p className="text-slate-400">
+                    Safe passive scan result • {formatDateTime(result.created_at)}
+                  </p>
                 </div>
               </div>
 
@@ -106,8 +111,12 @@ export default async function ScanReportPage({
             <div className="rounded-3xl border border-cyan-300/20 bg-cyan-300/10 p-6 text-center">
               <p className="text-sm text-cyan-100">Overall score</p>
               <p className="mt-2 text-5xl font-black text-white">{result.overall_score}</p>
-              <p className="mt-2 text-sm font-semibold text-cyan-100">
-                {riskLabels[result.risk_level] ?? result.risk_level}
+              <p
+                className={`mt-3 rounded-full border px-3 py-1 text-sm font-bold ${getRiskBadgeClass(
+                  result.risk_level
+                )}`}
+              >
+                {getRiskLabel(result.risk_level)}
               </p>
             </div>
           </div>

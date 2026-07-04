@@ -1,9 +1,10 @@
 ﻿import Link from "next/link";
 import { redirect } from "next/navigation";
-import { ArrowLeft, Globe2, PlayCircle, Plus, ShieldCheck } from "lucide-react";
+import { ArrowLeft, FileText, Globe2, PlayCircle, Plus, ShieldCheck } from "lucide-react";
 import { brand } from "@/config/brand";
 import { createClient } from "@/lib/supabase/server";
 import { startPassiveScan } from "./actions";
+import { formatDateTime, getRiskBadgeClass, getRiskLabel } from "@/lib/utils/risk";
 
 export default async function WebsitesPage({
   searchParams,
@@ -26,6 +27,20 @@ export default async function WebsitesPage({
     .select("id, url, domain, label, created_at")
     .eq("user_id", user.id)
     .order("created_at", { ascending: false });
+
+  const { data: scanResults } = await supabase
+    .from("scan_results")
+    .select("id, website_id, overall_score, risk_level, created_at")
+    .eq("user_id", user.id)
+    .order("created_at", { ascending: false });
+
+  const latestScanByWebsite = new Map<string, any>();
+
+  for (const scan of scanResults ?? []) {
+    if (!latestScanByWebsite.has(scan.website_id)) {
+      latestScanByWebsite.set(scan.website_id, scan);
+    }
+  }
 
   return (
     <main className="min-h-screen bg-slate-950 p-6 text-white">
@@ -89,38 +104,65 @@ export default async function WebsitesPage({
           </div>
         ) : (
           <div className="grid gap-4">
-            {websites.map((website) => (
-              <div
-                key={website.id}
-                className="rounded-3xl border border-white/10 bg-white/[0.04] p-6"
-              >
-                <div className="flex flex-col justify-between gap-4 md:flex-row md:items-center">
-                  <div>
-                    <div className="mb-2 flex items-center gap-2">
-                      <Globe2 className="h-5 w-5 text-cyan-300" />
-                      <h2 className="text-xl font-bold">
-                        {website.label || website.domain}
-                      </h2>
-                    </div>
-                    <p className="break-all text-slate-300">{website.url}</p>
-                    <p className="mt-2 text-sm text-slate-500">
-                      Added {new Date(website.created_at).toLocaleString()}
-                    </p>
-                  </div>
+            {websites.map((website) => {
+              const latestScan = latestScanByWebsite.get(website.id);
 
-                  <form action={startPassiveScan}>
-                    <input type="hidden" name="website_id" value={website.id} />
-                    <button
-                      type="submit"
-                      className="inline-flex items-center justify-center gap-2 rounded-2xl bg-cyan-300 px-5 py-3 font-bold text-slate-950 hover:bg-cyan-200"
-                    >
-                      <PlayCircle className="h-5 w-5" />
-                      Run Passive Scan
-                    </button>
-                  </form>
+              return (
+                <div
+                  key={website.id}
+                  className="rounded-3xl border border-white/10 bg-white/[0.04] p-6"
+                >
+                  <div className="flex flex-col justify-between gap-5 lg:flex-row lg:items-center">
+                    <div>
+                      <div className="mb-2 flex items-center gap-2">
+                        <Globe2 className="h-5 w-5 text-cyan-300" />
+                        <h2 className="text-xl font-bold">
+                          {website.label || website.domain}
+                        </h2>
+                      </div>
+                      <p className="break-all text-slate-300">{website.url}</p>
+                      <p className="mt-2 text-sm text-slate-500">
+                        Added {formatDateTime(website.created_at)}
+                      </p>
+                    </div>
+
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+                      {latestScan ? (
+                        <Link
+                          href={`/app/scans/${latestScan.id}`}
+                          className="inline-flex items-center justify-center gap-2 rounded-2xl border border-white/10 px-5 py-3 font-semibold text-white hover:bg-white/10"
+                        >
+                          <FileText className="h-5 w-5 text-cyan-300" />
+                          <span>Score {latestScan.overall_score}</span>
+                          <span
+                            className={`rounded-full border px-2 py-1 text-xs ${getRiskBadgeClass(
+                              latestScan.risk_level
+                            )}`}
+                          >
+                            {getRiskLabel(latestScan.risk_level)}
+                          </span>
+                        </Link>
+                      ) : (
+                        <div className="rounded-2xl border border-white/10 px-5 py-3 text-sm text-slate-400">
+                          No scan yet
+                        </div>
+                      )}
+
+                      <form action={startPassiveScan}>
+                        <input type="hidden" name="website_id" value={website.id} />
+                        <button
+                          type="submit"
+                          className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-cyan-300 px-5 py-3 font-bold text-slate-950 hover:bg-cyan-200"
+                        >
+                          <PlayCircle className="h-5 w-5" />
+                          Run Passive Scan
+                        </button>
+                      </form>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>
