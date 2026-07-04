@@ -82,6 +82,11 @@ function getNavSections(
           icon: CreditCard,
         },
         {
+          label: "Plan Approvals",
+          href: "/dashboard/admin/subscriptions",
+          icon: CreditCard,
+        },
+        {
           label: "Validation CRM",
           href: "/dashboard/validation",
           icon: Users,
