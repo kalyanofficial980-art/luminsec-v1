@@ -32,10 +32,6 @@ export function canShowAgencyNavigation(
     return true;
   }
 
-  if (profile.account_type === "freelancer_agency") {
-    return true;
-  }
-
   return isSubscriptionUsable(subscription.status) && subscription.agencyModeEnabled;
 }
 

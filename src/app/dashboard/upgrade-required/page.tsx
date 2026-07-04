@@ -12,11 +12,31 @@ function getMessage(feature?: string) {
     };
   }
 
-  if (feature === "agency") {
+  if (feature === "agency" || feature === "agency_mode") {
     return {
-      title: "Agency access required",
+      title: "Agency plan required",
       description:
-        "Agency mode is available only for freelancer/agency accounts or Agency plan users.",
+        "Agency mode is available only when your plan includes agency features.",
+      actionText: "View subscription",
+      actionHref: "/dashboard/subscription",
+    };
+  }
+
+  if (feature === "pdf_reports") {
+    return {
+      title: "PDF reports not included",
+      description:
+        "Your current plan does not include PDF report access. Upgrade your plan to export client-ready PDF reports.",
+      actionText: "View subscription",
+      actionHref: "/dashboard/subscription",
+    };
+  }
+
+  if (feature === "public_share") {
+    return {
+      title: "Public sharing not included",
+      description:
+        "Your current plan does not include public report links. Upgrade your plan to share reports with clients using public links.",
       actionText: "View subscription",
       actionHref: "/dashboard/subscription",
     };
