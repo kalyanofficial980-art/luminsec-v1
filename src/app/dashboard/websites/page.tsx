@@ -1,17 +1,25 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { ArrowLeft, FileText, Globe2, PlayCircle, Plus, ShieldCheck } from "lucide-react";
-import { brand } from "@/config/brand";
+import {
+  ArrowRight,
+  BarChart3,
+  ExternalLink,
+  FileText,
+  Globe2,
+  Plus,
+  ShieldCheck,
+} from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
+import { formatDateTime } from "@/lib/utils/risk";
 import { startPassiveScan } from "./actions";
-import { formatDateTime, getRiskBadgeClass, getRiskLabel } from "@/lib/utils/risk";
 
-export default async function WebsitesPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ message?: string }>;
-}) {
-  const params = await searchParams;
+function scoreClass(score: number) {
+  if (score >= 80) return "border-emerald-400/20 bg-emerald-400/10 text-emerald-100";
+  if (score >= 60) return "border-amber-400/20 bg-amber-400/10 text-amber-100";
+  return "border-red-400/20 bg-red-400/10 text-red-100";
+}
+
+export default async function WebsitesPage() {
   const supabase = await createClient();
 
   const {
@@ -22,21 +30,28 @@ export default async function WebsitesPage({
     redirect("/login");
   }
 
-  const { data: websites, error } = await supabase
+  const { data: websites } = await supabase
     .from("websites")
-    .select("id, url, domain, label, created_at")
+    .select("id, name, url, created_at")
     .eq("user_id", user.id)
     .order("created_at", { ascending: false });
 
-  const { data: scanResults } = await supabase
-    .from("scan_results")
-    .select("id, website_id, overall_score, risk_level, created_at")
-    .eq("user_id", user.id)
-    .order("created_at", { ascending: false });
+  const websiteRows = websites ?? [];
+  const websiteIds = websiteRows.map((website) => website.id);
+
+  const { data: scans } =
+    websiteIds.length > 0
+      ? await supabase
+          .from("scan_results")
+          .select("id, website_id, overall_score, created_at")
+          .eq("user_id", user.id)
+          .in("website_id", websiteIds)
+          .order("created_at", { ascending: false })
+      : { data: [] };
 
   const latestScanByWebsite = new Map<string, any>();
 
-  for (const scan of scanResults ?? []) {
+  for (const scan of scans ?? []) {
     if (!latestScanByWebsite.has(scan.website_id)) {
       latestScanByWebsite.set(scan.website_id, scan);
     }
@@ -44,68 +59,53 @@ export default async function WebsitesPage({
 
   return (
     <main className="min-h-screen bg-slate-950 p-6 text-white">
-      <div className="mx-auto max-w-6xl">
-        <div className="mb-8 flex flex-col justify-between gap-4 md:flex-row md:items-center">
-          <div>
-            <Link
-              href="/dashboard"
-              className="mb-4 inline-flex items-center gap-2 text-sm font-semibold text-slate-300 hover:text-white"
-            >
-              <ArrowLeft className="h-4 w-4" />
-              Back to dashboard
-            </Link>
+      <div className="mx-auto max-w-7xl">
+        <section className="rounded-3xl border border-white/10 bg-white/[0.04] p-8">
+          <div className="flex flex-col justify-between gap-6 md:flex-row md:items-start">
+            <div>
+              <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-cyan-400/10 ring-1 ring-cyan-300/30">
+                <Globe2 className="h-8 w-8 text-cyan-300" />
+              </div>
 
-            <div className="flex items-center gap-3">
-              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-cyan-400/10 ring-1 ring-cyan-300/30">
-                <ShieldCheck className="h-6 w-6 text-cyan-300" />
-              </div>
-              <div>
-                <h1 className="text-3xl font-black">Websites</h1>
-                <p className="text-slate-400">{brand.name} website workspace</p>
-              </div>
+              <h1 className="text-4xl font-black tracking-tight md:text-5xl">
+                Websites
+              </h1>
+              <p className="mt-4 max-w-3xl leading-8 text-slate-300">
+                Manage customer websites, open website workspaces, and run safe passive trust reports.
+              </p>
             </div>
-          </div>
 
-          <Link
-            href="/dashboard/websites/new"
-            className="inline-flex items-center justify-center gap-2 rounded-2xl bg-cyan-300 px-5 py-3 font-bold text-slate-950 hover:bg-cyan-200"
-          >
-            <Plus className="h-5 w-5" />
-            Add website
-          </Link>
-        </div>
-
-        {params.message ? (
-          <div className="mb-5 rounded-3xl border border-amber-300/20 bg-amber-300/10 p-5 text-amber-100">
-            {params.message}
-          </div>
-        ) : null}
-
-        {error ? (
-          <div className="rounded-3xl border border-red-300/20 bg-red-300/10 p-6 text-red-100">
-            {error.message}
-          </div>
-        ) : null}
-
-        {!websites || websites.length === 0 ? (
-          <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-10 text-center">
-            <Globe2 className="mx-auto mb-4 h-10 w-10 text-cyan-300" />
-            <h2 className="text-2xl font-bold">No websites yet</h2>
-            <p className="mx-auto mt-2 max-w-xl text-slate-400">
-              Add your first business website. Then run a safe passive scan.
-            </p>
             <Link
               href="/dashboard/websites/new"
-              className="mt-6 inline-flex items-center justify-center gap-2 rounded-2xl bg-cyan-300 px-5 py-3 font-bold text-slate-950 hover:bg-cyan-200"
+              className="inline-flex items-center justify-center gap-2 rounded-2xl bg-cyan-300 px-5 py-4 font-bold text-slate-950 hover:bg-cyan-200"
+            >
+              <Plus className="h-5 w-5" />
+              Add website
+            </Link>
+          </div>
+        </section>
+
+        {websiteRows.length === 0 ? (
+          <section className="mt-8 rounded-3xl border border-cyan-300/20 bg-cyan-300/10 p-8 text-center">
+            <ShieldCheck className="mx-auto mb-4 h-12 w-12 text-cyan-300" />
+            <h2 className="text-3xl font-black text-cyan-100">No websites yet</h2>
+            <p className="mx-auto mt-3 max-w-2xl leading-8 text-cyan-50/90">
+              Add your first customer or demo website to generate a VeyraSec trust report.
+            </p>
+
+            <Link
+              href="/dashboard/websites/new"
+              className="mt-6 inline-flex items-center justify-center gap-2 rounded-2xl bg-cyan-300 px-6 py-4 font-bold text-slate-950 hover:bg-cyan-200"
             >
               <Plus className="h-5 w-5" />
               Add first website
             </Link>
-          </div>
+          </section>
         ) : (
-          <div className="grid gap-4">
-            {websites.map((website) => {
+          <section className="mt-8 grid gap-5">
+            {websiteRows.map((website) => {
               const latestScan = latestScanByWebsite.get(website.id);
+              const latestScore = Number(latestScan?.overall_score ?? 0);
 
               return (
                 <div
@@ -114,14 +114,25 @@ export default async function WebsitesPage({
                 >
                   <div className="flex flex-col justify-between gap-5 lg:flex-row lg:items-center">
                     <div>
-                      <div className="mb-2 flex items-center gap-2">
-                        <Globe2 className="h-5 w-5 text-cyan-300" />
-                        <h2 className="text-xl font-bold">
-                          {website.label || website.domain}
-                        </h2>
-                      </div>
-                      <p className="break-all text-slate-300">{website.url}</p>
-                      <p className="mt-2 text-sm text-slate-500">
+                      <Link
+                        href={`/dashboard/websites/${website.id}`}
+                        className="group inline-flex items-center gap-3"
+                      >
+                        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-cyan-400/10 ring-1 ring-cyan-300/30">
+                          <Globe2 className="h-6 w-6 text-cyan-300" />
+                        </div>
+
+                        <div>
+                          <h2 className="break-all text-2xl font-black group-hover:text-cyan-300">
+                            {website.name || website.url}
+                          </h2>
+                          <p className="mt-1 break-all text-sm text-slate-400">
+                            {website.url}
+                          </p>
+                        </div>
+                      </Link>
+
+                      <p className="mt-4 text-sm text-slate-500">
                         Added {formatDateTime(website.created_at)}
                       </p>
                     </div>
@@ -130,40 +141,51 @@ export default async function WebsitesPage({
                       {latestScan ? (
                         <Link
                           href={`/dashboard/scans/${latestScan.id}`}
-                          className="inline-flex items-center justify-center gap-2 rounded-2xl border border-white/10 px-5 py-3 font-semibold text-white hover:bg-white/10"
+                          className={`inline-flex items-center justify-center gap-2 rounded-2xl border px-4 py-3 text-sm font-bold ${scoreClass(latestScore)}`}
                         >
-                          <FileText className="h-5 w-5 text-cyan-300" />
-                          <span>Score {latestScan.overall_score}</span>
-                          <span
-                            className={`rounded-full border px-2 py-1 text-xs ${getRiskBadgeClass(
-                              latestScan.risk_level
-                            )}`}
-                          >
-                            {getRiskLabel(latestScan.risk_level)}
-                          </span>
+                          <BarChart3 className="h-4 w-4" />
+                          {latestScore}/100 latest score
                         </Link>
                       ) : (
-                        <div className="rounded-2xl border border-white/10 px-5 py-3 text-sm text-slate-400">
+                        <span className="inline-flex items-center justify-center gap-2 rounded-2xl border border-slate-400/20 bg-slate-400/10 px-4 py-3 text-sm font-bold text-slate-200">
+                          <FileText className="h-4 w-4" />
                           No scan yet
-                        </div>
+                        </span>
                       )}
 
                       <form action={startPassiveScan}>
                         <input type="hidden" name="website_id" value={website.id} />
                         <button
                           type="submit"
-                          className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-cyan-300 px-5 py-3 font-bold text-slate-950 hover:bg-cyan-200"
+                          className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-cyan-300 px-4 py-3 text-sm font-bold text-slate-950 hover:bg-cyan-200"
                         >
-                          <PlayCircle className="h-5 w-5" />
-                          Run Passive Scan
+                          Run scan
                         </button>
                       </form>
+
+                      <Link
+                        href={`/dashboard/websites/${website.id}`}
+                        className="inline-flex items-center justify-center gap-2 rounded-2xl border border-white/10 px-4 py-3 text-sm font-bold text-white hover:bg-white/10"
+                      >
+                        Open
+                        <ArrowRight className="h-4 w-4" />
+                      </Link>
+
+                      <a
+                        href={website.url}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex items-center justify-center gap-2 rounded-2xl border border-white/10 px-4 py-3 text-sm font-bold text-white hover:bg-white/10"
+                      >
+                        Visit
+                        <ExternalLink className="h-4 w-4" />
+                      </a>
                     </div>
                   </div>
                 </div>
               );
             })}
-          </div>
+          </section>
         )}
       </div>
     </main>
