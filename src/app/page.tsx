@@ -54,6 +54,8 @@ export default function Home() {
           <nav className="hidden items-center gap-6 text-sm text-slate-300 md:flex">
             <a href="#features" className="hover:text-white">Features</a>
             <Link href="/pricing" className="hover:text-white">Pricing</Link>
+            <Link href="/launch-checklist" className="hover:text-white">Launch</Link>
+            <Link href="/outreach" className="hover:text-white">Outreach</Link>
             <Link href="/sample-report" className="hover:text-white">Sample report</Link>
             <Link href="/pitch" className="hover:text-white">Pitch</Link>
             <Link href="/demo-script" className="hover:text-white">Demo script</Link>
