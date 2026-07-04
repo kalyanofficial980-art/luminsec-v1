@@ -17,11 +17,13 @@ export type SubscriptionAccess = {
   plan: PlanLimit;
   status: string;
   isUsable: boolean;
+  currentPeriodStart: string | null;
+  currentPeriodEnd: string | null;
 };
 
 export type UsageCounts = {
   websiteCount: number;
-  scansThisMonth: number;
+  scansThisPeriod: number;
 };
 
 export type LimitDecision = {
@@ -89,6 +91,13 @@ function normalizeJoinedPlan(value: unknown): PlanLimit | null {
   return normalizePlan(value);
 }
 
+function monthStartIso() {
+  const date = new Date();
+  date.setUTCDate(1);
+  date.setUTCHours(0, 0, 0, 0);
+  return date.toISOString();
+}
+
 async function getPlanById(
   supabase: SupabaseServerClient,
   planId: string
@@ -107,6 +116,7 @@ async function createTrialIfMissing(supabase: SupabaseServerClient, userId: stri
     user_id: userId,
     plan_id: "trial",
     status: "trial",
+    current_period_start: new Date().toISOString(),
     current_period_end: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString(),
   });
 }
@@ -132,7 +142,7 @@ export async function getUserSubscriptionAccess(
 ): Promise<SubscriptionAccess> {
   let { data: subscriptionData } = await supabase
     .from("user_subscriptions")
-    .select("id, user_id, plan_id, status, subscription_plans(*)")
+    .select("id, user_id, plan_id, status, current_period_start, current_period_end, subscription_plans(*)")
     .eq("user_id", userId)
     .maybeSingle();
 
@@ -141,7 +151,7 @@ export async function getUserSubscriptionAccess(
 
     const retry = await supabase
       .from("user_subscriptions")
-      .select("id, user_id, plan_id, status, subscription_plans(*)")
+      .select("id, user_id, plan_id, status, current_period_start, current_period_end, subscription_plans(*)")
       .eq("user_id", userId)
       .maybeSingle();
 
@@ -159,6 +169,8 @@ export async function getUserSubscriptionAccess(
     plan: fetchedPlan ?? fallbackTrialPlan,
     status,
     isUsable: status === "trial" || status === "active",
+    currentPeriodStart: text(subscriptionRow?.current_period_start, "") || null,
+    currentPeriodEnd: text(subscriptionRow?.current_period_end, "") || null,
   };
 }
 
@@ -166,24 +178,30 @@ export async function getUserUsageCounts(
   supabase: SupabaseServerClient,
   userId: string
 ): Promise<UsageCounts> {
-  const monthStart = new Date();
-  monthStart.setUTCDate(1);
-  monthStart.setUTCHours(0, 0, 0, 0);
+  const access = await getUserSubscriptionAccess(supabase, userId);
+  const periodStart = access.currentPeriodStart || monthStartIso();
+  const periodEnd = access.currentPeriodEnd;
 
   const { count: websiteCount } = await supabase
     .from("websites")
     .select("id", { count: "exact", head: true })
     .eq("user_id", userId);
 
-  const { count: scansThisMonth } = await supabase
+  let scanQuery = supabase
     .from("scan_results")
     .select("id", { count: "exact", head: true })
     .eq("user_id", userId)
-    .gte("created_at", monthStart.toISOString());
+    .gte("created_at", periodStart);
+
+  if (periodEnd) {
+    scanQuery = scanQuery.lt("created_at", periodEnd);
+  }
+
+  const { count: scansThisPeriod } = await scanQuery;
 
   return {
     websiteCount: websiteCount ?? 0,
-    scansThisMonth: scansThisMonth ?? 0,
+    scansThisPeriod: scansThisPeriod ?? 0,
   };
 }
 
@@ -222,10 +240,10 @@ export function canRunScan(
     };
   }
 
-  if (usage.scansThisMonth >= access.plan.maxScansPerMonth) {
+  if (usage.scansThisPeriod >= access.plan.maxScansPerMonth) {
     return {
       allowed: false,
-      message: `${access.plan.name} plan scan limit reached. You can run ${access.plan.maxScansPerMonth} scan(s) this month. Please upgrade to run more scans.`,
+      message: `${access.plan.name} plan scan limit reached. You can run ${access.plan.maxScansPerMonth} scan(s) in this subscription period. Please upgrade to run more scans.`,
     };
   }
 

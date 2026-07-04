@@ -59,6 +59,17 @@ export async function addWebsite(formData: FormData) {
     redirect("/login");
   }
 
+  const { data: existingWebsite } = await supabase
+    .from("websites")
+    .select("id")
+    .eq("user_id", user.id)
+    .eq("url", normalizedUrl)
+    .maybeSingle();
+
+  if (existingWebsite) {
+    redirect("/dashboard/websites?message=Website already exists");
+  }
+
   const isAdminUser = await getUserIsAdmin(supabase, user.id);
 
   if (!isAdminUser) {

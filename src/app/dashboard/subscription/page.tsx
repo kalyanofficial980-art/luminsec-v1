@@ -95,20 +95,35 @@ export default async function SubscriptionPage({
   const currentPlanId = subscriptionData?.plan_id || currentPlan?.id || "trial";
   const currentStatus = subscriptionData?.status || "trial";
 
-  const monthStart = new Date();
-  monthStart.setUTCDate(1);
-  monthStart.setUTCHours(0, 0, 0, 0);
+  const periodStart = subscriptionData?.current_period_start
+    ? new Date(subscriptionData.current_period_start)
+    : new Date();
+
+  if (!subscriptionData?.current_period_start) {
+    periodStart.setUTCDate(1);
+    periodStart.setUTCHours(0, 0, 0, 0);
+  }
+
+  const periodEnd = subscriptionData?.current_period_end
+    ? new Date(subscriptionData.current_period_end)
+    : null;
 
   const { count: websiteCount } = await supabase
     .from("websites")
     .select("id", { count: "exact", head: true })
     .eq("user_id", user.id);
 
-  const { count: scanCount } = await supabase
+  let scanUsageQuery = supabase
     .from("scan_results")
     .select("id", { count: "exact", head: true })
     .eq("user_id", user.id)
-    .gte("created_at", monthStart.toISOString());
+    .gte("created_at", periodStart.toISOString());
+
+  if (periodEnd) {
+    scanUsageQuery = scanUsageQuery.lt("created_at", periodEnd.toISOString());
+  }
+
+  const { count: scanCount } = await scanUsageQuery;
 
   const { data: requestsData } = await supabase
     .from("subscription_requests")
@@ -180,7 +195,7 @@ export default async function SubscriptionPage({
 
           <div className={`rounded-3xl border p-6 ${isLimitReached(usedScans, currentPlan?.max_scans_per_month ?? 3) ? "border-red-400/20 bg-red-400/10 text-red-100" : "border-cyan-400/20 bg-cyan-400/10 text-cyan-100"}`}>
             <FileText className="mb-4 h-7 w-7" />
-            <p className="text-sm opacity-80">Scans this month</p>
+            <p className="text-sm opacity-80">Scans this period</p>
             <p className="mt-2 text-3xl font-black">
               {usedScans}/{currentPlan?.max_scans_per_month ?? 3}
             </p>
