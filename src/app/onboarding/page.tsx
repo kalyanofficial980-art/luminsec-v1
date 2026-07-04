@@ -199,7 +199,7 @@ export default async function OnboardingPage({
         </section>
 
         <p className="mt-6 text-center text-sm text-slate-500">
-          Safe passive website trust reports only. Not a penetration testing platform.
+          Safe passive website trust reports only. Not advanced security testing.
         </p>
       </div>
     </main>

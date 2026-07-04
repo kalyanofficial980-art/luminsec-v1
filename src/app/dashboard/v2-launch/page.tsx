@@ -362,7 +362,7 @@ export default async function V2LaunchReadinessPage() {
         <section className="mt-8 rounded-3xl border border-amber-300/20 bg-amber-300/10 p-8">
           <h2 className="text-2xl font-black text-amber-100">Final safety note</h2>
           <p className="mt-3 max-w-4xl leading-8 text-amber-50/90">
-            VeyraSec V2 is a safe passive website trust report SaaS. It is not a penetration testing platform,
+            VeyraSec V2 is a safe passive website trust report SaaS. It is not advanced security testing,
             not a vulnerability exploitation tool, not a legal compliance certificate, and not a replacement for
             professional legal, tax, or cybersecurity advice.
           </p>

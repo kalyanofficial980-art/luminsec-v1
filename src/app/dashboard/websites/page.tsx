@@ -71,7 +71,7 @@ export default async function WebsitesPage() {
                 Websites
               </h1>
               <p className="mt-4 max-w-3xl leading-8 text-slate-300">
-                Manage customer websites, open website workspaces, and run safe passive trust reports.
+                Manage websites, open website workspaces, and run safe passive trust reports.
               </p>
             </div>
 

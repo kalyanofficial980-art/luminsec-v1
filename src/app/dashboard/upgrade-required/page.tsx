@@ -92,7 +92,7 @@ export default async function UpgradeRequiredPage({
           </div>
 
           <p className="mt-8 text-sm text-amber-50/70">
-            Safe passive website trust reports only. Not a penetration testing platform.
+            Safe passive website trust reports only. Not advanced security testing.
           </p>
         </section>
       </div>

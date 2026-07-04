@@ -32,8 +32,55 @@ function normalizeWebsiteUrl(input: string) {
   }
 
   url.hash = "";
+  url.hostname = url.hostname.toLowerCase();
 
   return url.toString();
+}
+
+function getDomain(input: string) {
+  const url = new URL(input);
+  return url.hostname.toLowerCase().replace(/^www\./, "");
+}
+
+function clampScore(value: unknown) {
+  const score = Number(value);
+
+  if (!Number.isFinite(score)) {
+    return 0;
+  }
+
+  return Math.max(0, Math.min(100, Math.round(score)));
+}
+
+function riskLevelFromScore(score: number) {
+  if (score >= 80) return "low";
+  if (score >= 60) return "medium";
+  if (score >= 40) return "high";
+  return "critical";
+}
+
+function normalizeRiskLevel(value: unknown, score: number) {
+  const raw = String(value ?? "").toLowerCase();
+
+  if (raw.includes("critical")) return "critical";
+  if (raw.includes("high")) return "high";
+  if (raw.includes("medium")) return "medium";
+  if (raw.includes("moderate")) return "medium";
+  if (raw.includes("low")) return "low";
+
+  return riskLevelFromScore(score);
+}
+
+function normalizeSeverity(value: unknown) {
+  const raw = String(value ?? "info").toLowerCase();
+
+  if (raw.includes("critical")) return "critical";
+  if (raw.includes("high")) return "high";
+  if (raw.includes("medium")) return "medium";
+  if (raw.includes("moderate")) return "medium";
+  if (raw.includes("low")) return "low";
+
+  return "info";
 }
 
 export async function addWebsite(formData: FormData) {
@@ -59,11 +106,14 @@ export async function addWebsite(formData: FormData) {
     redirect("/login");
   }
 
+  const websiteDomain = getDomain(normalizedUrl);
+  const websiteName = name || websiteDomain;
+
   const { data: existingWebsite } = await supabase
     .from("websites")
     .select("id")
     .eq("user_id", user.id)
-    .eq("url", normalizedUrl)
+    .eq("domain", websiteDomain)
     .maybeSingle();
 
   if (existingWebsite) {
@@ -82,15 +132,12 @@ export async function addWebsite(formData: FormData) {
     }
   }
 
-  const urlObject = new URL(normalizedUrl);
-  const websiteDomain = urlObject.hostname.toLowerCase().replace(/^www\./, "");
-  const websiteName = name || websiteDomain;
-
   const { error } = await supabase.from("websites").insert({
     user_id: user.id,
     name: websiteName,
     url: normalizedUrl,
     domain: websiteDomain,
+    status: "active",
   });
 
   if (error) {
@@ -136,7 +183,7 @@ export async function startPassiveScan(formData: FormData) {
 
   const { data: website, error: websiteError } = await supabase
     .from("websites")
-    .select("id, url")
+    .select("id, name, url, domain")
     .eq("id", websiteId)
     .eq("user_id", user.id)
     .maybeSingle();
@@ -145,20 +192,41 @@ export async function startPassiveScan(formData: FormData) {
     redirect("/dashboard/websites?message=Website not found");
   }
 
-  const scan = await runPassiveScan(website.url);
+  let scan;
+
+  try {
+    scan = await runPassiveScan(website.url);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Scan failed";
+    redirect(`/dashboard/websites?message=${encodeURIComponent(message)}`);
+  }
+
+  const websiteDomain = website.domain || getDomain(website.url);
+  const overallScore = clampScore(scan.overallScore);
+  const securityScore = clampScore(scan.securityScore);
+  const privacyScore = clampScore(scan.privacyScore);
+  const trustScore = clampScore(scan.trustScore);
+  const riskLevel = normalizeRiskLevel(scan.riskLevel, overallScore);
 
   const { data: scanResult, error: scanError } = await supabase
     .from("scan_results")
     .insert({
       user_id: user.id,
       website_id: website.id,
-      overall_score: scan.overallScore,
-      security_score: scan.securityScore,
-      privacy_score: scan.privacyScore,
-      trust_score: scan.trustScore,
-      risk_level: scan.riskLevel,
-      summary: scan.summary,
-      raw_result: scan.raw,
+      scan_job_id: crypto.randomUUID(),
+      url: website.url,
+      domain: websiteDomain,
+      status: "completed",
+      overall_score: overallScore,
+      score: overallScore,
+      security_score: securityScore,
+      privacy_score: privacyScore,
+      trust_score: trustScore,
+      risk_level: riskLevel,
+      summary: scan.summary || "Passive website trust scan completed.",
+      raw_result: scan.raw || {},
+      raw: scan.raw || {},
+      is_public: false,
     })
     .select("id")
     .single();
@@ -169,12 +237,15 @@ export async function startPassiveScan(formData: FormData) {
 
   if (scan.findings.length > 0) {
     const findingRows = scan.findings.map((finding) => ({
+      user_id: user.id,
+      website_id: website.id,
       scan_result_id: scanResult.id,
-      category: finding.category,
-      severity: finding.severity,
-      title: finding.title,
-      description: finding.description,
-      recommendation: finding.recommendation,
+      scan_id: scanResult.id,
+      category: String(finding.category || "general").toLowerCase(),
+      severity: normalizeSeverity(finding.severity),
+      title: finding.title || "Finding",
+      description: finding.description || null,
+      recommendation: finding.recommendation || null,
       evidence: finding.evidence || null,
     }));
 

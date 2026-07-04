@@ -223,7 +223,7 @@ function buildSummary(args: {
       ? `Main score reasons: ${args.scoreBreakdown.topReasons.join("; ")}.`
       : "No major public readiness issues were detected by the passive checks.";
 
-  return `VeyraSec V2 reviewed ${args.finalUrl} using safe passive checks. Overall readiness is ${args.scoreBreakdown.overallScore}/100 with Security ${args.scoreBreakdown.securityScore}/100, Privacy ${args.scoreBreakdown.privacyScore}/100, and Trust ${args.scoreBreakdown.trustScore}/100. The scan found ${args.findings.length} finding(s): ${high} high, ${medium} medium, and ${low} low. ${topReasonText} This is a basic passive website trust report, not a full audit, legal advice, or penetration test.`;
+  return `VeyraSec reviewed ${args.finalUrl} using safe passive checks. Overall readiness is ${args.scoreBreakdown.overallScore}/100 with Security ${args.scoreBreakdown.securityScore}/100, Privacy ${args.scoreBreakdown.privacyScore}/100, and Trust ${args.scoreBreakdown.trustScore}/100. The scan found ${args.findings.length} finding(s): ${high} high, ${medium} medium, and ${low} low. ${topReasonText} This is a basic passive website trust report, not a full audit, legal advice, or penetration test.`;
 }
 
 function bodyHasLinkLike(body: string, patterns: RegExp[]) {

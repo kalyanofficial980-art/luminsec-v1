@@ -19,7 +19,7 @@ export default async function LoginPage({
           </div>
           <div>
             <h1 className="text-2xl font-bold">Login to {brand.name}</h1>
-            <p className="text-sm text-slate-400">Access your V2.1 SaaS dashboard.</p>
+            <p className="text-sm text-slate-400">Access your website trust reports.</p>
           </div>
         </div>
 

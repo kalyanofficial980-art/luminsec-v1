@@ -250,11 +250,9 @@ export function DashboardShell({
             </div>
           ))}
         </nav>
-
-        <div className="absolute bottom-5 left-5 right-5 rounded-3xl border border-cyan-300/20 bg-cyan-300/10 p-4 text-xs leading-6 text-cyan-50/90">
-          Safe passive website trust reports only. Not a penetration testing platform.
-        </div>
-      </aside>
+        <div className="mt-5 rounded-3xl border border-cyan-300/20 bg-cyan-300/10 p-4 text-xs leading-6 text-cyan-50/90">
+          Passive website trust reports only. Not advanced security testing.
+        </div></aside>
 
       <div className="border-b border-white/10 bg-slate-950/95 p-4 backdrop-blur lg:hidden">
         <Link href="/dashboard" className="mb-4 flex items-center gap-3">

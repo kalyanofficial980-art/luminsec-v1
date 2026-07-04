@@ -480,7 +480,7 @@ export default async function AgencyPage({
           >
             <Globe2 className="mb-4 h-7 w-7 text-cyan-300" />
             <h2 className="text-2xl font-black">Websites</h2>
-            <p className="mt-3 text-slate-400">Add and scan customer websites.</p>
+            <p className="mt-3 text-slate-400">Add and scan websites.</p>
           </Link>
 
           <Link
@@ -510,7 +510,7 @@ export default async function AgencyPage({
 
           <p className="max-w-4xl leading-8 text-amber-50/90">
             Agency mode is only for managing clients and passive website trust reports.
-            It is not a penetration testing platform, not an automated vulnerability scanner,
+            It is not advanced security testing, not an automated vulnerability scanner,
             and not a legal compliance certification system.
           </p>
         </section>

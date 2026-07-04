@@ -365,7 +365,7 @@ export default async function SubscriptionPage({
               </h1>
 
               <p className="mt-4 max-w-3xl leading-8 text-slate-300">
-                Choose a plan, submit a request, and the founder/admin can upgrade your account manually.
+                Choose a plan, submit a request, and the account team can review your upgrade request manually.
               </p>
             </div>
 
@@ -539,7 +539,7 @@ export default async function SubscriptionPage({
             <h2 className="text-2xl font-black text-amber-100">Important subscription note</h2>
             <p className="mt-4 leading-8 text-amber-50/90">
               This is manual subscription logic only. It does not collect money, does not verify
-              payment, and does not use Razorpay. The founder/admin must manually approve upgrades
+              payment, and does not use Razorpay. The account team will review upgrade requests manually
               after payment/legal setup is handled properly.
             </p>
           </div>

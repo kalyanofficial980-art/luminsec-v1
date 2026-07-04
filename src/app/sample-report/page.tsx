@@ -96,7 +96,7 @@ export default function SampleReportPage() {
           </div>
 
           <div className="mt-6 rounded-3xl border border-cyan-300/20 bg-cyan-300/10 p-6">
-            <h2 className="text-xl font-bold text-cyan-100">AI-style simple explanation</h2>
+            <h2 className="text-xl font-bold text-cyan-100">Plain-language summary</h2>
             <p className="mt-3 leading-7 text-cyan-50/90">
               This website is usable but needs improvement. The main weak area is security. Share this report with the website developer to improve security headers and privacy wording.
             </p>
