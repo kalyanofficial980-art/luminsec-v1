@@ -3,36 +3,87 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
+  Activity,
+  BriefcaseBusiness,
+  CreditCard,
   FileText,
   Globe2,
   Home,
+  Rocket,
   Settings,
   ShieldCheck,
+  Target,
+  Users,
 } from "lucide-react";
 import { brand } from "@/config/brand";
+import type { DashboardProfile } from "@/lib/auth/profile";
+import { accountTypeLabel, isAdmin, isAgencyAccount } from "@/lib/auth/profile";
 
-const navItems = [
-  {
-    label: "Dashboard",
-    href: "/dashboard",
-    icon: Home,
-  },
-  {
-    label: "Websites",
-    href: "/dashboard/websites",
-    icon: Globe2,
-  },
-  {
-    label: "Reports",
-    href: "/dashboard/scans",
-    icon: FileText,
-  },
-  {
-    label: "Settings",
-    href: "/dashboard/settings",
-    icon: Settings,
-  },
-];
+function getNavItems(profile: DashboardProfile) {
+  const baseItems = [
+    {
+      label: "Dashboard",
+      href: "/dashboard",
+      icon: Home,
+    },
+    {
+      label: "Websites",
+      href: "/dashboard/websites",
+      icon: Globe2,
+    },
+    {
+      label: "Reports",
+      href: "/dashboard/scans",
+      icon: FileText,
+    },
+  ];
+
+  const agencyItems = isAgencyAccount(profile)
+    ? [
+        {
+          label: "Agency",
+          href: "/dashboard/agency",
+          icon: BriefcaseBusiness,
+        },
+      ]
+    : [];
+
+  const adminItems = isAdmin(profile)
+    ? [
+        {
+          label: "Payments",
+          href: "/dashboard/payments",
+          icon: CreditCard,
+        },
+        {
+          label: "Validation CRM",
+          href: "/dashboard/validation",
+          icon: Users,
+        },
+        {
+          label: "Production Status",
+          href: "/dashboard/status",
+          icon: Activity,
+        },
+        {
+          label: "V2 Launch",
+          href: "/dashboard/v2-launch",
+          icon: Rocket,
+        },
+      ]
+    : [];
+
+  return [
+    ...baseItems,
+    ...agencyItems,
+    ...adminItems,
+    {
+      label: "Settings",
+      href: "/dashboard/settings",
+      icon: Settings,
+    },
+  ];
+}
 
 function isActive(pathname: string, href: string) {
   if (href === "/dashboard") {
@@ -42,15 +93,22 @@ function isActive(pathname: string, href: string) {
   return pathname.startsWith(href);
 }
 
-export function DashboardShell({ children }: { children: React.ReactNode }) {
+export function DashboardShell({
+  children,
+  profile,
+}: {
+  children: React.ReactNode;
+  profile: DashboardProfile;
+}) {
   const pathname = usePathname();
+  const navItems = getNavItems(profile);
 
   return (
     <div className="min-h-screen bg-slate-950 text-white">
       <aside className="fixed left-0 top-0 z-40 hidden h-screen w-72 border-r border-white/10 bg-slate-950/95 p-5 backdrop-blur lg:block">
         <Link
           href="/dashboard"
-          className="mb-8 flex items-center gap-3 rounded-3xl border border-white/10 bg-white/[0.04] p-4"
+          className="mb-6 flex items-center gap-3 rounded-3xl border border-white/10 bg-white/[0.04] p-4"
         >
           <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-cyan-300 text-slate-950">
             <ShieldCheck className="h-6 w-6" />
@@ -60,6 +118,14 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
             <p className="text-xs text-slate-400">{brand.version}</p>
           </div>
         </Link>
+
+        <div className="mb-6 rounded-3xl border border-cyan-300/20 bg-cyan-300/10 p-4">
+          <p className="text-xs uppercase tracking-[0.2em] text-cyan-100/70">Account</p>
+          <p className="mt-2 font-black text-cyan-100">{accountTypeLabel(profile.account_type)}</p>
+          <p className="mt-1 text-xs text-cyan-50/70">
+            {profile.role === "admin" ? "Founder admin" : "SaaS user"}
+          </p>
+        </div>
 
         <nav className="grid gap-2">
           {navItems.map((item) => {
@@ -95,7 +161,9 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
           </div>
           <div>
             <p className="font-black">{brand.name}</p>
-            <p className="text-xs text-slate-400">{brand.version}</p>
+            <p className="text-xs text-slate-400">
+              {accountTypeLabel(profile.account_type)} · {profile.role === "admin" ? "Admin" : "User"}
+            </p>
           </div>
         </Link>
 
