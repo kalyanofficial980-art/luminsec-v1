@@ -126,9 +126,9 @@ export default async function AppDashboardPage() {
         </div>
 
         <div className="mt-6 rounded-3xl border border-cyan-300/20 bg-cyan-300/10 p-6">
-          <h2 className="text-xl font-bold text-cyan-100">Part 5 active</h2>
+          <h2 className="text-xl font-bold text-cyan-100">SaaS dashboard active</h2>
           <p className="mt-2 text-cyan-50/80">
-            Scan history and latest reports are now part of the V1 dashboard.
+            Scan history, customer reports, and website trust workflows are active in this SaaS dashboard.
           </p>
         </div>
 
