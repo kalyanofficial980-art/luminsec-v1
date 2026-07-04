@@ -73,13 +73,7 @@ export default async function CustomerValidationPage({
   return (
     <main className="min-h-screen bg-slate-950 p-6 text-white">
       <div className="mx-auto max-w-7xl">
-        <Link
-          href="/dashboard"
-          className="mb-6 inline-flex items-center gap-2 text-sm font-semibold text-slate-300 hover:text-white"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          Back to SaaS dashboard
-        </Link>
+
 
         <section className="rounded-3xl border border-white/10 bg-white/[0.04] p-8">
           <div className="mb-6 flex items-center gap-3">
