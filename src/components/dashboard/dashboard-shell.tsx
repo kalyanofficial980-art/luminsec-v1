@@ -36,6 +36,11 @@ function getNavItems(profile: DashboardProfile) {
       href: "/dashboard/scans",
       icon: FileText,
     },
+    {
+      label: "Subscription",
+      href: "/dashboard/subscription",
+      icon: CreditCard,
+    },
   ];
 
   const agencyItems = isAgencyAccount(profile)
