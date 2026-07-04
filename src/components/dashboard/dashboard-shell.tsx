@@ -3,17 +3,11 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
-  Activity,
-  BriefcaseBusiness,
-  CreditCard,
   FileText,
   Globe2,
   Home,
-  Rocket,
   Settings,
   ShieldCheck,
-  Target,
-  Users,
 } from "lucide-react";
 import { brand } from "@/config/brand";
 
@@ -32,31 +26,6 @@ const navItems = [
     label: "Reports",
     href: "/dashboard/scans",
     icon: FileText,
-  },
-  {
-    label: "Agency",
-    href: "/dashboard/agency",
-    icon: BriefcaseBusiness,
-  },
-  {
-    label: "Payments",
-    href: "/dashboard/payments",
-    icon: CreditCard,
-  },
-  {
-    label: "Validation CRM",
-    href: "/dashboard/validation",
-    icon: Users,
-  },
-  {
-    label: "Production Status",
-    href: "/dashboard/status",
-    icon: Activity,
-  },
-  {
-    label: "V2 Launch",
-    href: "/dashboard/v2-launch",
-    icon: Rocket,
   },
   {
     label: "Settings",
@@ -79,7 +48,10 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen bg-slate-950 text-white">
       <aside className="fixed left-0 top-0 z-40 hidden h-screen w-72 border-r border-white/10 bg-slate-950/95 p-5 backdrop-blur lg:block">
-        <Link href="/dashboard" className="mb-8 flex items-center gap-3 rounded-3xl border border-white/10 bg-white/[0.04] p-4">
+        <Link
+          href="/dashboard"
+          className="mb-8 flex items-center gap-3 rounded-3xl border border-white/10 bg-white/[0.04] p-4"
+        >
           <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-cyan-300 text-slate-950">
             <ShieldCheck className="h-6 w-6" />
           </div>
@@ -111,7 +83,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
           })}
         </nav>
 
-        <div className="absolute bottom-5 left-5 right-5 rounded-3xl border border-amber-300/20 bg-amber-300/10 p-4 text-xs leading-6 text-amber-50/90">
+        <div className="absolute bottom-5 left-5 right-5 rounded-3xl border border-cyan-300/20 bg-cyan-300/10 p-4 text-xs leading-6 text-cyan-50/90">
           Safe passive website trust reports only. Not a penetration testing platform.
         </div>
       </aside>
