@@ -8,13 +8,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/sample-report",
     "/contact",
     "/pilot",
-    "/legal/disclaimer",
-    "/pitch",
-    "/demo-script",
-    "/launch-checklist",
-    "/outreach",
     "/security",
-    "/production-qa",
+    "/legal/disclaimer",
   ];
 
   return routes.map((route) => ({

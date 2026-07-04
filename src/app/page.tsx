@@ -1,234 +1,297 @@
 import Link from "next/link";
 import {
   ArrowRight,
+  Building2,
   CheckCircle2,
   FileText,
   Globe2,
+  Languages,
   Lock,
-  Radar,
   ShieldCheck,
   Sparkles,
+  Users,
 } from "lucide-react";
 import { brand } from "@/config/brand";
 
-const checks = [
-  "HTTPS and SSL readiness",
-  "Security headers visibility",
-  "Privacy policy presence",
-  "Contact form risk signals",
-  "Basic trust score",
-  "Printable PDF report",
+const features = [
+  {
+    title: "Safe passive checks",
+    text: "Review public website trust signals without exploitation, brute force, password testing, or intrusive scanning.",
+    icon: Lock,
+  },
+  {
+    title: "Client-ready reports",
+    text: "Generate clear security, privacy, and trust readiness reports that business owners can understand.",
+    icon: FileText,
+  },
+  {
+    title: "Agency-friendly workflow",
+    text: "Useful for freelancers and web agencies who want before-after website improvement reports for clients.",
+    icon: Building2,
+  },
+  {
+    title: "English + Telugu-English",
+    text: "Explain report findings in simple language for Indian small business customers.",
+    icon: Languages,
+  },
 ];
 
-const audiences = [
-  "Small business websites",
-  "Clinics and coaching centers",
-  "Agencies and freelancers",
-  "Early-stage startups",
+const useCases = [
+  "Small business website trust report",
+  "Web agency before-after client report",
+  "Freelancer website improvement checklist",
+  "Clinic, coaching center, local service website review",
 ];
 
-const steps = [
-  "Add website URL",
-  "Run safe passive scan",
-  "Review scores and findings",
-  "Download client-ready PDF",
+const safetyRules = [
+  "No exploitation",
+  "No brute force",
+  "No login testing",
+  "No password testing",
+  "No intrusive scanning",
 ];
 
-export default function Home() {
+export default function HomePage() {
   return (
     <main className="min-h-screen bg-slate-950 text-white">
-      <section className="mx-auto flex min-h-screen w-full max-w-7xl flex-col px-6 py-8">
-        <header className="flex items-center justify-between gap-4">
+      <header className="border-b border-white/10 px-6 py-5">
+        <div className="mx-auto flex max-w-7xl items-center justify-between gap-4">
           <Link href="/" className="flex items-center gap-3">
             <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-cyan-400/10 ring-1 ring-cyan-300/30">
               <ShieldCheck className="h-6 w-6 text-cyan-300" />
             </div>
             <div>
-              <p className="text-lg font-bold tracking-tight">{brand.name}</p>
-              <p className="text-xs uppercase tracking-[0.3em] text-cyan-200/70">
+              <p className="text-xl font-black tracking-tight">{brand.name}</p>
+              <p className="text-xs uppercase tracking-[0.24em] text-cyan-200/70">
                 {brand.version}
               </p>
             </div>
           </Link>
 
-          <nav className="hidden items-center gap-6 text-sm text-slate-300 md:flex">
-            <a href="#features" className="hover:text-white">Features</a>
-            <Link href="/pricing" className="hover:text-white">Pricing</Link>
-            <Link href="/launch-checklist" className="hover:text-white">Launch</Link>
-            <Link href="/outreach" className="hover:text-white">Outreach</Link>
-            <Link href="/sample-report" className="hover:text-white">Sample report</Link>
-            <Link href="/pitch" className="hover:text-white">Pitch</Link>
-            <Link href="/demo-script" className="hover:text-white">Demo script</Link>
-            <Link href="/contact" className="hover:text-white">Contact</Link>
-            <Link href="/login" className="hover:text-white">Login</Link>
+          <nav className="hidden items-center gap-6 text-sm font-semibold text-slate-300 md:flex">
+            <Link href="/pricing" className="hover:text-white">
+              Pricing
+            </Link>
+            <Link href="/sample-report" className="hover:text-white">
+              Sample report
+            </Link>
+            <Link href="/security" className="hover:text-white">
+              Security
+            </Link>
+            <Link href="/contact" className="hover:text-white">
+              Contact
+            </Link>
           </nav>
 
-          <Link
-            href="/signup"
-            className="rounded-2xl bg-cyan-300 px-5 py-3 text-sm font-bold text-slate-950 hover:bg-cyan-200"
-          >
-            Start free
-          </Link>
-        </header>
+          <div className="flex items-center gap-3">
+            <Link
+              href="/login"
+              className="hidden rounded-2xl border border-white/10 px-4 py-3 text-sm font-bold text-slate-200 hover:bg-white/10 sm:inline-flex"
+            >
+              Login
+            </Link>
+            <Link
+              href="/pilot"
+              className="inline-flex items-center justify-center gap-2 rounded-2xl bg-cyan-300 px-4 py-3 text-sm font-bold text-slate-950 hover:bg-cyan-200"
+            >
+              Apply for pilot
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+          </div>
+        </div>
+      </header>
 
-        <div className="grid flex-1 items-center gap-12 py-16 lg:grid-cols-[1.05fr_0.95fr]">
+      <section className="px-6 py-20 md:py-28">
+        <div className="mx-auto grid max-w-7xl gap-12 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
           <div>
-            <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-cyan-300/20 bg-cyan-300/10 px-4 py-2 text-sm text-cyan-100">
+            <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-cyan-300/20 bg-cyan-300/10 px-4 py-2 text-sm font-semibold text-cyan-100">
               <Sparkles className="h-4 w-4" />
-              Passive website trust checks for modern small businesses
+              Website trust reports for pilot customers
             </div>
 
-            <h1 className="max-w-4xl text-5xl font-black tracking-tight text-white md:text-7xl">
-              Turn website security and privacy risks into clear reports.
+            <h1 className="max-w-5xl text-5xl font-black tracking-tight md:text-7xl">
+              Turn a website into a clear security, privacy, and trust readiness report.
             </h1>
 
-            <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-300">
-              {brand.description}
+            <p className="mt-6 max-w-3xl text-lg leading-8 text-slate-300">
+              {brand.name} helps small businesses, freelancers, and web agencies explain
+              basic website trust risks using safe passive checks and client-ready reports.
             </p>
 
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               <Link
-                href="/signup"
-                className="inline-flex items-center justify-center gap-2 rounded-2xl bg-cyan-300 px-6 py-4 font-semibold text-slate-950 transition hover:bg-cyan-200"
+                href="/pilot"
+                className="inline-flex items-center justify-center gap-2 rounded-2xl bg-cyan-300 px-6 py-4 font-bold text-slate-950 hover:bg-cyan-200"
               >
-                Create account
+                Request pilot report
                 <ArrowRight className="h-5 w-5" />
               </Link>
               <Link
                 href="/sample-report"
-                className="inline-flex items-center justify-center rounded-2xl border border-white/10 px-6 py-4 font-semibold text-white transition hover:bg-white/10"
+                className="inline-flex items-center justify-center rounded-2xl border border-white/10 px-6 py-4 font-bold text-white hover:bg-white/10"
               >
                 View sample report
               </Link>
             </div>
 
-            <p className="mt-5 text-sm text-slate-500">
-              V1 uses safe passive checks only. Not legal advice. Not a full penetration test.
+            <p className="mt-5 text-sm leading-6 text-slate-500">
+              VeyraSec V2 Beta is for controlled pilot use. It is not a full cybersecurity audit,
+              not legal advice, and not a penetration test.
             </p>
           </div>
 
-          <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-5 shadow-2xl shadow-cyan-950/40">
-            <div className="rounded-2xl border border-white/10 bg-slate-900 p-5">
-              <div className="mb-6 flex items-center justify-between gap-4">
+          <div className="rounded-[2rem] border border-white/10 bg-white/[0.04] p-6 shadow-2xl shadow-cyan-950/20">
+            <div className="rounded-[1.5rem] border border-cyan-300/20 bg-cyan-300/10 p-6">
+              <div className="mb-5 flex items-center justify-between gap-4">
                 <div>
-                  <p className="text-sm text-slate-400">Sample website score</p>
-                  <p className="text-5xl font-black">78</p>
+                  <p className="text-sm text-cyan-100/80">Website Trust Score</p>
+                  <p className="mt-2 text-6xl font-black text-white">78</p>
                 </div>
-                <div className="rounded-2xl bg-amber-400/10 px-4 py-2 text-sm font-semibold text-amber-200">
-                  Needs improvement
+                <div className="rounded-2xl bg-slate-950/70 p-4">
+                  <Globe2 className="h-9 w-9 text-cyan-300" />
                 </div>
               </div>
 
-              <div className="space-y-3">
+              <div className="grid gap-3">
                 {[
-                  ["HTTPS", "Good", "text-emerald-300"],
-                  ["Security Headers", "Missing CSP", "text-amber-300"],
-                  ["Privacy Policy", "Found", "text-emerald-300"],
-                  ["Contact Form", "Review required", "text-amber-300"],
-                ].map(([label, value, color]) => (
-                  <div
-                    key={label}
-                    className="flex items-center justify-between rounded-2xl border border-white/10 bg-white/[0.03] p-4"
-                  >
-                    <span className="text-slate-300">{label}</span>
-                    <span className={color}>{value}</span>
+                  ["Security readiness", "72/100"],
+                  ["Privacy readiness", "80/100"],
+                  ["Trust signals", "83/100"],
+                ].map(([label, value]) => (
+                  <div key={label} className="flex items-center justify-between rounded-2xl bg-slate-950/70 p-4">
+                    <span className="text-cyan-50/90">{label}</span>
+                    <span className="font-black text-white">{value}</span>
                   </div>
                 ))}
               </div>
+            </div>
 
-              <div className="mt-5 rounded-2xl bg-cyan-300/10 p-4 text-sm leading-6 text-cyan-100">
-                AI-style summary: This website has a good HTTPS setup but should improve browser security headers and contact-form privacy wording.
-              </div>
+            <div className="mt-5 grid gap-3">
+              {[
+                "HTTPS detected",
+                "Privacy policy found",
+                "Security headers need improvement",
+                "Client-ready PDF available",
+              ].map((item) => (
+                <div key={item} className="flex gap-3 rounded-2xl border border-white/10 bg-slate-950 p-4">
+                  <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-cyan-300" />
+                  <span className="text-slate-300">{item}</span>
+                </div>
+              ))}
             </div>
           </div>
         </div>
       </section>
 
-      <section id="features" className="border-t border-white/10 bg-slate-950 px-6 py-20">
-        <div className="mx-auto max-w-7xl">
-          <div className="mb-10 flex items-center gap-3">
-            <Radar className="h-6 w-6 text-cyan-300" />
-            <h2 className="text-3xl font-bold">V1 feature scope</h2>
-          </div>
+      <section className="border-y border-white/10 bg-white/[0.03] px-6 py-14">
+        <div className="mx-auto grid max-w-7xl gap-5 md:grid-cols-4">
+          {features.map((feature) => {
+            const Icon = feature.icon;
 
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {checks.map((item) => (
-              <div key={item} className="rounded-3xl border border-white/10 bg-white/[0.04] p-6">
-                <CheckCircle2 className="mb-4 h-6 w-6 text-cyan-300" />
-                <p className="font-semibold">{item}</p>
+            return (
+              <div key={feature.title} className="rounded-3xl border border-white/10 bg-slate-950 p-6">
+                <Icon className="mb-4 h-7 w-7 text-cyan-300" />
+                <h2 className="text-xl font-black">{feature.title}</h2>
+                <p className="mt-3 leading-7 text-slate-400">{feature.text}</p>
               </div>
-            ))}
-          </div>
+            );
+          })}
         </div>
       </section>
 
-      <section className="border-t border-white/10 bg-slate-900/50 px-6 py-20">
+      <section className="px-6 py-16">
         <div className="mx-auto grid max-w-7xl gap-8 lg:grid-cols-2">
-          <div>
-            <FileText className="mb-5 h-8 w-8 text-cyan-300" />
-            <h2 className="text-3xl font-bold">Simple workflow for owners and agencies.</h2>
-            <p className="mt-4 text-slate-300">
-              VeyraSec converts public website signals into a clear dashboard and PDF report.
-            </p>
-          </div>
+          <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-8">
+            <div className="mb-6 flex items-center gap-3">
+              <Users className="h-7 w-7 text-cyan-300" />
+              <h2 className="text-3xl font-black">Best-fit use cases</h2>
+            </div>
 
-          <div className="grid gap-4 sm:grid-cols-2">
-            {steps.map((item, index) => (
-              <div key={item} className="rounded-3xl border border-white/10 bg-slate-950 p-6">
-                <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-2xl bg-cyan-300 text-lg font-black text-slate-950">
-                  {index + 1}
+            <div className="grid gap-3">
+              {useCases.map((item) => (
+                <div key={item} className="flex gap-3 rounded-2xl border border-white/10 bg-slate-950 p-4">
+                  <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-cyan-300" />
+                  <span className="text-slate-300">{item}</span>
                 </div>
-                <p className="font-semibold">{item}</p>
-              </div>
-            ))}
+              ))}
+            </div>
+          </div>
+
+          <div className="rounded-3xl border border-cyan-300/20 bg-cyan-300/10 p-8">
+            <div className="mb-6 flex items-center gap-3">
+              <Lock className="h-7 w-7 text-cyan-300" />
+              <h2 className="text-3xl font-black text-cyan-100">Safe V2 scope</h2>
+            </div>
+
+            <div className="grid gap-3">
+              {safetyRules.map((item) => (
+                <div key={item} className="rounded-2xl bg-slate-950/70 p-4 font-semibold text-cyan-50">
+                  {item}
+                </div>
+              ))}
+            </div>
+
+            <Link
+              href="/security"
+              className="mt-6 inline-flex items-center justify-center rounded-2xl border border-cyan-300/20 px-5 py-3 font-bold text-cyan-100 hover:bg-cyan-300/10"
+            >
+              Read security scope
+            </Link>
           </div>
         </div>
       </section>
 
-      <section className="border-t border-white/10 bg-slate-950 px-6 py-20">
-        <div className="mx-auto max-w-7xl">
-          <div className="mb-10">
-            <Globe2 className="mb-5 h-8 w-8 text-cyan-300" />
-            <h2 className="text-3xl font-bold">Built for businesses without a security team.</h2>
-          </div>
+      <section className="px-6 pb-16">
+        <div className="mx-auto rounded-[2rem] border border-white/10 bg-white/[0.04] p-8 text-center md:max-w-5xl md:p-12">
+          <h2 className="text-4xl font-black">Ready to test VeyraSec on a real website?</h2>
+          <p className="mx-auto mt-4 max-w-3xl leading-8 text-slate-300">
+            Start with one website. Get a basic trust report, PDF output, and a simple explanation call.
+          </p>
 
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {audiences.map((item) => (
-              <div key={item} className="rounded-3xl border border-white/10 bg-white/[0.04] p-6">
-                <Lock className="mb-4 h-5 w-5 text-cyan-300" />
-                <p className="font-semibold">{item}</p>
-              </div>
-            ))}
+          <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
+            <Link
+              href="/pilot"
+              className="inline-flex items-center justify-center gap-2 rounded-2xl bg-cyan-300 px-6 py-4 font-bold text-slate-950 hover:bg-cyan-200"
+            >
+              Apply for pilot
+              <ArrowRight className="h-5 w-5" />
+            </Link>
+            <Link
+              href="/pricing"
+              className="inline-flex items-center justify-center rounded-2xl border border-white/10 px-6 py-4 font-bold text-white hover:bg-white/10"
+            >
+              See pricing
+            </Link>
           </div>
         </div>
       </section>
 
-      <section className="border-t border-white/10 px-6 py-16 text-center">
-        <h2 className="text-3xl font-black">Ready to try VeyraSec V1?</h2>
-        <p className="mx-auto mt-3 max-w-2xl text-slate-400">
-          Add a website, run a safe passive scan, and download a client-ready report.
-        </p>
-        <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
-          <Link
-            href="/signup"
-            className="inline-flex items-center justify-center rounded-2xl bg-cyan-300 px-6 py-4 font-bold text-slate-950 hover:bg-cyan-200"
-          >
-            Start free
-          </Link>
-          <Link
-            href="/pricing"
-            className="inline-flex items-center justify-center rounded-2xl border border-white/10 px-6 py-4 font-bold text-white hover:bg-white/10"
-          >
-            View pricing
-          </Link>
-        </div>
-      </section>
+      <footer className="border-t border-white/10 px-6 py-8 text-sm text-slate-500">
+        <div className="mx-auto flex max-w-7xl flex-col justify-between gap-4 md:flex-row md:items-center">
+          <p>© {new Date().getFullYear()} {brand.name}. Safe passive website trust reports.</p>
 
-      <footer className="border-t border-white/10 px-6 py-10 text-center text-sm text-slate-500">
-        © 2026 {brand.name}. Basic passive readiness checks only.{" "}
-        <Link href="/legal/disclaimer" className="text-cyan-300 hover:text-cyan-200">
-          Disclaimer
-        </Link>
+          <div className="flex flex-wrap gap-3">
+            <Link href="/pricing" className="text-cyan-300 hover:text-cyan-200">
+              Pricing
+            </Link>
+            <span>·</span>
+            <Link href="/sample-report" className="text-cyan-300 hover:text-cyan-200">
+              Sample report
+            </Link>
+            <span>·</span>
+            <Link href="/contact" className="text-cyan-300 hover:text-cyan-200">
+              Contact
+            </Link>
+            <span>·</span>
+            <Link href="/security" className="text-cyan-300 hover:text-cyan-200">
+              Security
+            </Link>
+            <span>·</span>
+            <Link href="/legal/disclaimer" className="text-cyan-300 hover:text-cyan-200">
+              Disclaimer
+            </Link>
+          </div>
+        </div>
       </footer>
     </main>
   );
