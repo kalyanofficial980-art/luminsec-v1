@@ -4,6 +4,14 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { runPassiveScan } from "@/lib/scanner/passive";
+import {
+  canAddWebsite,
+  canRunScan,
+  encodeLimitMessage,
+  getUserIsAdmin,
+  getUserSubscriptionAccess,
+  getUserUsageCounts,
+} from "@/lib/subscription/enforce";
 
 function clean(value: FormDataEntryValue | null) {
   return String(value ?? "").trim();
@@ -51,6 +59,18 @@ export async function addWebsite(formData: FormData) {
     redirect("/login");
   }
 
+  const isAdminUser = await getUserIsAdmin(supabase, user.id);
+
+  if (!isAdminUser) {
+    const access = await getUserSubscriptionAccess(supabase, user.id);
+    const usage = await getUserUsageCounts(supabase, user.id);
+    const decision = canAddWebsite(access, usage);
+
+    if (!decision.allowed) {
+      redirect(`/dashboard/subscription?message=${encodeLimitMessage(decision.message)}`);
+    }
+  }
+
   const urlObject = new URL(normalizedUrl);
   const websiteName = name || urlObject.hostname;
 
@@ -66,6 +86,7 @@ export async function addWebsite(formData: FormData) {
 
   revalidatePath("/dashboard");
   revalidatePath("/dashboard/websites");
+  revalidatePath("/dashboard/subscription");
   revalidatePath("/dashboard/agency");
 
   redirect("/dashboard/websites?message=Website added");
@@ -86,6 +107,18 @@ export async function startPassiveScan(formData: FormData) {
 
   if (!user) {
     redirect("/login");
+  }
+
+  const isAdminUser = await getUserIsAdmin(supabase, user.id);
+
+  if (!isAdminUser) {
+    const access = await getUserSubscriptionAccess(supabase, user.id);
+    const usage = await getUserUsageCounts(supabase, user.id);
+    const decision = canRunScan(access, usage);
+
+    if (!decision.allowed) {
+      redirect(`/dashboard/subscription?message=${encodeLimitMessage(decision.message)}`);
+    }
   }
 
   const { data: website, error: websiteError } = await supabase
@@ -144,6 +177,7 @@ export async function startPassiveScan(formData: FormData) {
   revalidatePath("/dashboard");
   revalidatePath("/dashboard/websites");
   revalidatePath("/dashboard/scans");
+  revalidatePath("/dashboard/subscription");
   revalidatePath(`/dashboard/websites/${website.id}`);
 
   redirect(`/dashboard/scans/${scanResult.id}`);
