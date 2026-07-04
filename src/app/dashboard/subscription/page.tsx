@@ -1,5 +1,7 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import {
+  ArrowRight,
   CheckCircle2,
   CreditCard,
   FileText,
@@ -11,6 +13,7 @@ import {
   Users,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
+import { normalizeProfile } from "@/lib/auth/profile";
 import {
   featureRows,
   isLimitReached,
@@ -27,6 +30,21 @@ type SubscriptionRequestRow = {
   requested_plan_id: string;
   status: string;
   created_at: string;
+};
+
+const adminFeaturePlan: SubscriptionPlan = {
+  id: "admin",
+  name: "Admin",
+  description: "Founder/admin full access for internal VeyraSec operations.",
+  monthly_price: 0,
+  currency: "INR",
+  max_websites: 9999,
+  max_scans_per_month: 9999,
+  pdf_reports_enabled: true,
+  public_share_enabled: true,
+  agency_mode_enabled: true,
+  manual_payments_enabled: true,
+  priority_support_enabled: true,
 };
 
 function progressClass(percent: number) {
@@ -61,11 +79,203 @@ export default async function SubscriptionPage({
     redirect("/login");
   }
 
+  const { data: profileData } = await supabase
+    .from("profiles")
+    .select("id, email, full_name, business_name, website_url, role, account_type, onboarding_completed")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  const profile = normalizeProfile(profileData);
+
+  if (!profile?.onboarding_completed) {
+    redirect("/onboarding");
+  }
+
+  const isAdminUser = profile.role === "admin";
+
   const { data: plansData } = await supabase
     .from("subscription_plans")
     .select("*")
     .eq("is_active", true)
     .order("sort_order", { ascending: true });
+
+  const plans = (plansData ?? []) as SubscriptionPlan[];
+
+  if (isAdminUser) {
+    const { count: pendingRequestCount } = await supabase
+      .from("subscription_requests")
+      .select("id", { count: "exact", head: true })
+      .eq("status", "pending");
+
+    const { count: activeSubscriptionCount } = await supabase
+      .from("user_subscriptions")
+      .select("id", { count: "exact", head: true })
+      .eq("status", "active");
+
+    return (
+      <main className="min-h-screen bg-slate-950 p-6 text-white">
+        <div className="mx-auto max-w-7xl">
+          <section className="rounded-3xl border border-cyan-300/20 bg-cyan-300/10 p-8">
+            <div className="flex flex-col justify-between gap-6 lg:flex-row lg:items-start">
+              <div>
+                <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-cyan-300 text-slate-950">
+                  <ShieldCheck className="h-8 w-8" />
+                </div>
+
+                <p className="mb-3 text-sm font-black uppercase tracking-[0.25em] text-cyan-100/80">
+                  Founder admin mode
+                </p>
+
+                <h1 className="text-4xl font-black tracking-tight md:text-5xl">
+                  Admin subscription control
+                </h1>
+
+                <p className="mt-4 max-w-3xl leading-8 text-cyan-50/90">
+                  You are logged in as VeyraSec admin. Your account bypasses customer plan limits.
+                  Use this page to monitor plans, approvals, and SaaS readiness.
+                </p>
+              </div>
+
+              <div className="rounded-3xl border border-emerald-400/20 bg-emerald-400/10 p-6 text-center text-emerald-100">
+                <Sparkles className="mx-auto mb-3 h-9 w-9" />
+                <p className="text-sm opacity-80">Access</p>
+                <p className="mt-2 text-4xl font-black">Full</p>
+                <p className="mt-2 text-sm font-bold">Admin bypass active</p>
+              </div>
+            </div>
+          </section>
+
+          {params.message ? (
+            <div className="mt-6 rounded-3xl border border-cyan-300/20 bg-cyan-300/10 p-5 text-cyan-100">
+              {params.message}
+            </div>
+          ) : null}
+
+          <section className="mt-8 grid gap-4 md:grid-cols-3">
+            <div className="rounded-3xl border border-amber-400/20 bg-amber-400/10 p-6 text-amber-100">
+              <CreditCard className="mb-4 h-7 w-7" />
+              <p className="text-sm opacity-80">Pending plan requests</p>
+              <p className="mt-2 text-4xl font-black">{pendingRequestCount ?? 0}</p>
+            </div>
+
+            <div className="rounded-3xl border border-emerald-400/20 bg-emerald-400/10 p-6 text-emerald-100">
+              <CheckCircle2 className="mb-4 h-7 w-7" />
+              <p className="text-sm opacity-80">Active subscriptions</p>
+              <p className="mt-2 text-4xl font-black">{activeSubscriptionCount ?? 0}</p>
+            </div>
+
+            <div className="rounded-3xl border border-cyan-400/20 bg-cyan-400/10 p-6 text-cyan-100">
+              <Rocket className="mb-4 h-7 w-7" />
+              <p className="text-sm opacity-80">Available plans</p>
+              <p className="mt-2 text-4xl font-black">{plans.length}</p>
+            </div>
+          </section>
+
+          <section className="mt-8 grid gap-5 md:grid-cols-3">
+            <Link
+              href="/dashboard/admin/subscriptions"
+              className="rounded-3xl border border-white/10 bg-white/[0.04] p-6 hover:bg-white/[0.07]"
+            >
+              <CreditCard className="mb-4 h-8 w-8 text-cyan-300" />
+              <h2 className="text-2xl font-black">Plan approvals</h2>
+              <p className="mt-3 text-sm leading-6 text-slate-400">
+                Approve, reject, or manually change customer plans.
+              </p>
+              <p className="mt-5 inline-flex items-center gap-2 text-sm font-bold text-cyan-300">
+                Open approvals <ArrowRight className="h-4 w-4" />
+              </p>
+            </Link>
+
+            <Link
+              href="/dashboard/admin/saas-readiness"
+              className="rounded-3xl border border-white/10 bg-white/[0.04] p-6 hover:bg-white/[0.07]"
+            >
+              <ShieldCheck className="mb-4 h-8 w-8 text-cyan-300" />
+              <h2 className="text-2xl font-black">SaaS readiness</h2>
+              <p className="mt-3 text-sm leading-6 text-slate-400">
+                Check database, environment, product logic, and production readiness.
+              </p>
+              <p className="mt-5 inline-flex items-center gap-2 text-sm font-bold text-cyan-300">
+                Open readiness <ArrowRight className="h-4 w-4" />
+              </p>
+            </Link>
+
+            <Link
+              href="/dashboard/settings"
+              className="rounded-3xl border border-white/10 bg-white/[0.04] p-6 hover:bg-white/[0.07]"
+            >
+              <Users className="mb-4 h-8 w-8 text-cyan-300" />
+              <h2 className="text-2xl font-black">Admin settings</h2>
+              <p className="mt-3 text-sm leading-6 text-slate-400">
+                Update profile, account type, report branding, and plan visibility.
+              </p>
+              <p className="mt-5 inline-flex items-center gap-2 text-sm font-bold text-cyan-300">
+                Open settings <ArrowRight className="h-4 w-4" />
+              </p>
+            </Link>
+          </section>
+
+          <section className="mt-8 rounded-3xl border border-white/10 bg-white/[0.04] p-8">
+            <div className="mb-6 flex items-center gap-3">
+              <ShieldCheck className="h-7 w-7 text-cyan-300" />
+              <h2 className="text-3xl font-black">Admin feature access</h2>
+            </div>
+
+            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+              {featureRows(adminFeaturePlan).map((feature) => (
+                <div
+                  key={feature.label}
+                  className="rounded-3xl border border-emerald-400/20 bg-emerald-400/10 p-5 text-emerald-100"
+                >
+                  <CheckCircle2 className="mb-4 h-6 w-6" />
+                  <p className="text-sm opacity-80">{feature.label}</p>
+                  <p className="mt-2 text-2xl font-black">{feature.value}</p>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          <section className="mt-8 rounded-3xl border border-white/10 bg-white/[0.04] p-8">
+            <div className="mb-6 flex items-center gap-3">
+              <Rocket className="h-7 w-7 text-cyan-300" />
+              <h2 className="text-3xl font-black">Customer plan preview</h2>
+            </div>
+
+            <div className="grid gap-5 xl:grid-cols-4">
+              {plans.map((plan) => (
+                <div key={plan.id} className={`rounded-3xl border p-6 ${planBadgeClass(plan.id)}`}>
+                  <h3 className="text-3xl font-black">{plan.name}</h3>
+                  <p className="mt-2 text-sm leading-6 opacity-80">{plan.description}</p>
+                  <p className="mt-6 text-4xl font-black">{priceText(plan)}</p>
+
+                  <div className="mt-6 grid gap-3">
+                    {featureRows(plan).map((feature) => (
+                      <div
+                        key={feature.label}
+                        className="flex items-center justify-between gap-3 rounded-2xl bg-slate-950/40 p-3 text-sm"
+                      >
+                        <span>{feature.label}</span>
+                        <span className="font-bold">{feature.value}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          <section className="mt-8 rounded-3xl border border-amber-300/20 bg-amber-300/10 p-8">
+            <h2 className="text-2xl font-black text-amber-100">Admin rule</h2>
+            <p className="mt-4 max-w-4xl leading-8 text-amber-50/90">
+              Admin accounts should not request plans. Admin accounts exist only for founder operations,
+              testing, plan approvals, support, and product management. Customer access is controlled by
+              subscription plan and approval status.
+            </p>
+          </section>
+        </div>
+      </main>
+    );
+  }
 
   let { data: subscriptionData } = await supabase
     .from("user_subscriptions")
@@ -78,6 +288,7 @@ export default async function SubscriptionPage({
       user_id: user.id,
       plan_id: "trial",
       status: "trial",
+      current_period_start: new Date().toISOString(),
       current_period_end: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString(),
     });
 
@@ -90,7 +301,6 @@ export default async function SubscriptionPage({
     subscriptionData = retry.data;
   }
 
-  const plans = (plansData ?? []) as SubscriptionPlan[];
   const currentPlan = getJoinedPlan(subscriptionData) || plans.find((plan) => plan.id === "trial") || null;
   const currentPlanId = subscriptionData?.plan_id || currentPlan?.id || "trial";
   const currentStatus = subscriptionData?.status || "trial";
@@ -155,8 +365,7 @@ export default async function SubscriptionPage({
               </h1>
 
               <p className="mt-4 max-w-3xl leading-8 text-slate-300">
-                VeyraSec currently uses manual subscription approval. Choose a plan, submit a request,
-                and the founder/admin can upgrade your account manually.
+                Choose a plan, submit a request, and the founder/admin can upgrade your account manually.
               </p>
             </div>
 

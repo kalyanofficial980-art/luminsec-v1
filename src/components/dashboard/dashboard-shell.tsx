@@ -225,7 +225,7 @@ export function DashboardShell({
         <div className="mb-5 rounded-3xl border border-cyan-300/20 bg-cyan-300/10 p-4">
           <p className="text-xs uppercase tracking-[0.2em] text-cyan-100/70">Account</p>
           <p className="mt-2 font-black text-cyan-100">{accountTypeLabel(profile.account_type)}</p>
-          <p className="mt-1 text-xs text-cyan-50/70">{planStatusLabel(subscription)}</p>
+          <p className="mt-1 text-xs text-cyan-50/70">{profile.role === "admin" ? "Admin full access" : planStatusLabel(subscription)}</p>
           <p className="mt-1 text-xs text-cyan-50/70">
             {profile.role === "admin" ? "Founder admin" : "SaaS user"}
           </p>
@@ -264,7 +264,7 @@ export function DashboardShell({
           <div>
             <p className="font-black">{brand.name}</p>
             <p className="text-xs text-slate-400">
-              {accountTypeLabel(profile.account_type)} · {planStatusLabel(subscription)}
+              {accountTypeLabel(profile.account_type)} · {profile.role === "admin" ? "Admin full access" : planStatusLabel(subscription)}
             </p>
           </div>
         </Link>

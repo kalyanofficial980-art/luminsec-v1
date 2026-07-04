@@ -1,4 +1,4 @@
-﻿import Link from "next/link";
+import Link from "next/link";
 import { ShieldCheck } from "lucide-react";
 import { login } from "./actions";
 import { brand } from "@/config/brand";
@@ -19,7 +19,7 @@ export default async function LoginPage({
           </div>
           <div>
             <h1 className="text-2xl font-bold">Login to {brand.name}</h1>
-            <p className="text-sm text-slate-400">Access your V1 dashboard.</p>
+            <p className="text-sm text-slate-400">Access your V2.1 SaaS dashboard.</p>
           </div>
         </div>
 
