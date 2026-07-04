@@ -1,5 +1,6 @@
 "use client";
 
+import type { ReactNode } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -12,15 +13,35 @@ import {
   Rocket,
   Settings,
   ShieldCheck,
-  Target,
   Users,
 } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import { brand } from "@/config/brand";
 import type { DashboardProfile } from "@/lib/auth/profile";
-import { accountTypeLabel, isAdmin, isAgencyAccount } from "@/lib/auth/profile";
+import { accountTypeLabel } from "@/lib/auth/profile";
+import type { DashboardNavSubscription } from "@/lib/subscription/navigation";
+import {
+  canShowAgencyNavigation,
+  canShowFounderNavigation,
+  planStatusLabel,
+} from "@/lib/subscription/navigation";
 
-function getNavItems(profile: DashboardProfile) {
-  const baseItems = [
+type NavItem = {
+  label: string;
+  href: string;
+  icon: LucideIcon;
+};
+
+type NavSection = {
+  title: string;
+  items: NavItem[];
+};
+
+function getNavSections(
+  profile: DashboardProfile,
+  subscription: DashboardNavSubscription
+): NavSection[] {
+  const mainItems: NavItem[] = [
     {
       label: "Dashboard",
       href: "/dashboard",
@@ -43,7 +64,7 @@ function getNavItems(profile: DashboardProfile) {
     },
   ];
 
-  const agencyItems = isAgencyAccount(profile)
+  const agencyItems: NavItem[] = canShowAgencyNavigation(profile, subscription)
     ? [
         {
           label: "Agency",
@@ -53,7 +74,7 @@ function getNavItems(profile: DashboardProfile) {
       ]
     : [];
 
-  const adminItems = isAdmin(profile)
+  const founderItems: NavItem[] = canShowFounderNavigation(profile)
     ? [
         {
           label: "Payments",
@@ -78,16 +99,32 @@ function getNavItems(profile: DashboardProfile) {
       ]
     : [];
 
-  return [
-    ...baseItems,
-    ...agencyItems,
-    ...adminItems,
+  const settingsItems: NavItem[] = [
     {
       label: "Settings",
       href: "/dashboard/settings",
       icon: Settings,
     },
   ];
+
+  return [
+    {
+      title: "Main",
+      items: mainItems,
+    },
+    {
+      title: "Agency",
+      items: agencyItems,
+    },
+    {
+      title: "Founder tools",
+      items: founderItems,
+    },
+    {
+      title: "Account",
+      items: settingsItems,
+    },
+  ].filter((section) => section.items.length > 0);
 }
 
 function isActive(pathname: string, href: string) {
@@ -98,22 +135,73 @@ function isActive(pathname: string, href: string) {
   return pathname.startsWith(href);
 }
 
+function NavLink({
+  item,
+  active,
+}: {
+  item: NavItem;
+  active: boolean;
+}) {
+  const Icon = item.icon;
+
+  return (
+    <Link
+      href={item.href}
+      className={`flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-bold transition ${
+        active
+          ? "bg-cyan-300 text-slate-950"
+          : "text-slate-300 hover:bg-white/10 hover:text-white"
+      }`}
+    >
+      <Icon className="h-5 w-5" />
+      {item.label}
+    </Link>
+  );
+}
+
+function MobileNavLink({
+  item,
+  active,
+}: {
+  item: NavItem;
+  active: boolean;
+}) {
+  const Icon = item.icon;
+
+  return (
+    <Link
+      href={item.href}
+      className={`flex shrink-0 items-center gap-2 rounded-2xl px-4 py-2 text-xs font-bold ${
+        active
+          ? "bg-cyan-300 text-slate-950"
+          : "border border-white/10 text-slate-300"
+      }`}
+    >
+      <Icon className="h-4 w-4" />
+      {item.label}
+    </Link>
+  );
+}
+
 export function DashboardShell({
   children,
   profile,
+  subscription,
 }: {
-  children: React.ReactNode;
+  children: ReactNode;
   profile: DashboardProfile;
+  subscription: DashboardNavSubscription;
 }) {
   const pathname = usePathname();
-  const navItems = getNavItems(profile);
+  const navSections = getNavSections(profile, subscription);
+  const mobileItems = navSections.flatMap((section) => section.items);
 
   return (
     <div className="min-h-screen bg-slate-950 text-white">
       <aside className="fixed left-0 top-0 z-40 hidden h-screen w-72 border-r border-white/10 bg-slate-950/95 p-5 backdrop-blur lg:block">
         <Link
           href="/dashboard"
-          className="mb-6 flex items-center gap-3 rounded-3xl border border-white/10 bg-white/[0.04] p-4"
+          className="mb-5 flex items-center gap-3 rounded-3xl border border-white/10 bg-white/[0.04] p-4"
         >
           <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-cyan-300 text-slate-950">
             <ShieldCheck className="h-6 w-6" />
@@ -124,34 +212,33 @@ export function DashboardShell({
           </div>
         </Link>
 
-        <div className="mb-6 rounded-3xl border border-cyan-300/20 bg-cyan-300/10 p-4">
+        <div className="mb-5 rounded-3xl border border-cyan-300/20 bg-cyan-300/10 p-4">
           <p className="text-xs uppercase tracking-[0.2em] text-cyan-100/70">Account</p>
           <p className="mt-2 font-black text-cyan-100">{accountTypeLabel(profile.account_type)}</p>
+          <p className="mt-1 text-xs text-cyan-50/70">{planStatusLabel(subscription)}</p>
           <p className="mt-1 text-xs text-cyan-50/70">
             {profile.role === "admin" ? "Founder admin" : "SaaS user"}
           </p>
         </div>
 
-        <nav className="grid gap-2">
-          {navItems.map((item) => {
-            const Icon = item.icon;
-            const active = isActive(pathname, item.href);
+        <nav className="grid gap-5">
+          {navSections.map((section) => (
+            <div key={section.title}>
+              <p className="mb-2 px-4 text-[11px] font-black uppercase tracking-[0.2em] text-slate-500">
+                {section.title}
+              </p>
 
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={`flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-bold transition ${
-                  active
-                    ? "bg-cyan-300 text-slate-950"
-                    : "text-slate-300 hover:bg-white/10 hover:text-white"
-                }`}
-              >
-                <Icon className="h-5 w-5" />
-                {item.label}
-              </Link>
-            );
-          })}
+              <div className="grid gap-2">
+                {section.items.map((item) => (
+                  <NavLink
+                    key={item.href}
+                    item={item}
+                    active={isActive(pathname, item.href)}
+                  />
+                ))}
+              </div>
+            </div>
+          ))}
         </nav>
 
         <div className="absolute bottom-5 left-5 right-5 rounded-3xl border border-cyan-300/20 bg-cyan-300/10 p-4 text-xs leading-6 text-cyan-50/90">
@@ -167,31 +254,19 @@ export function DashboardShell({
           <div>
             <p className="font-black">{brand.name}</p>
             <p className="text-xs text-slate-400">
-              {accountTypeLabel(profile.account_type)} · {profile.role === "admin" ? "Admin" : "User"}
+              {accountTypeLabel(profile.account_type)} · {planStatusLabel(subscription)}
             </p>
           </div>
         </Link>
 
         <nav className="flex gap-2 overflow-x-auto pb-1">
-          {navItems.map((item) => {
-            const Icon = item.icon;
-            const active = isActive(pathname, item.href);
-
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={`flex shrink-0 items-center gap-2 rounded-2xl px-4 py-2 text-xs font-bold ${
-                  active
-                    ? "bg-cyan-300 text-slate-950"
-                    : "border border-white/10 text-slate-300"
-                }`}
-              >
-                <Icon className="h-4 w-4" />
-                {item.label}
-              </Link>
-            );
-          })}
+          {mobileItems.map((item) => (
+            <MobileNavLink
+              key={item.href}
+              item={item}
+              active={isActive(pathname, item.href)}
+            />
+          ))}
         </nav>
       </div>
 

@@ -13,6 +13,22 @@ export type DashboardAuthContext = {
   profile: DashboardProfile;
 };
 
+function asRecord(value: unknown) {
+  if (!value || typeof value !== "object") {
+    return null;
+  }
+
+  return value as Record<string, unknown>;
+}
+
+function getJoinedPlan(value: unknown) {
+  if (Array.isArray(value)) {
+    return asRecord(value[0]);
+  }
+
+  return asRecord(value);
+}
+
 export function getDashboardHomeForProfile(profile: DashboardProfile) {
   if (profile.role === "admin") {
     return "/dashboard";
@@ -71,13 +87,20 @@ export async function requireAdmin() {
 export async function hasAgencyPlan(supabase: SupabaseServerClient, userId: string) {
   const { data } = await supabase
     .from("user_subscriptions")
-    .select("plan_id, status")
+    .select("plan_id, status, subscription_plans(agency_mode_enabled)")
     .eq("user_id", userId)
     .maybeSingle();
 
-  return (
-    data?.plan_id === "agency" &&
-    (data.status === "trial" || data.status === "active")
+  const row = asRecord(data);
+  const plan = getJoinedPlan(row?.subscription_plans);
+  const status = row?.status;
+
+  const subscriptionUsable = status === "trial" || status === "active";
+  const planId = row?.plan_id;
+
+  return Boolean(
+    subscriptionUsable &&
+      (planId === "agency" || plan?.agency_mode_enabled === true)
   );
 }
 
