@@ -96,7 +96,7 @@ export default async function ScanReportPage({
                 <div>
                   <h1 className="text-3xl font-black">{brand.product}</h1>
                   <p className="text-slate-400">
-                    Safe passive scan result • {formatDateTime(result.created_at)}
+                    Safe passive scan result - {formatDateTime(result.created_at)}
                   </p>
                 </div>
               </div>
