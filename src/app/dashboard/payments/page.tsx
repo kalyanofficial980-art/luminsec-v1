@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import {
   Banknote,
@@ -369,6 +370,14 @@ export default async function PaymentsPage({
                         <p className="text-sm leading-6 text-slate-400">{payment.notes}</p>
                       </div>
                     ) : null}
+
+                    <Link
+                      href={`/dashboard/payments/${payment.id}/receipt`}
+                      className="mt-5 inline-flex items-center justify-center gap-2 rounded-2xl border border-white/10 px-4 py-3 text-sm font-bold text-white hover:bg-white/10"
+                    >
+                      <ReceiptText className="h-4 w-4" />
+                      Open invoice / receipt
+                    </Link>
 
                     <form action={updateManualPaymentStatus} className="mt-5 rounded-2xl border border-white/10 bg-white/[0.03] p-4">
                       <input type="hidden" name="payment_id" value={payment.id} />
