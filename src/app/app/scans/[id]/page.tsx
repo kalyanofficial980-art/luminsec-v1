@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { ArrowLeft, FileText, Globe2, ShieldAlert, ShieldCheck } from "lucide-react";
+import { ArrowLeft, Download, FileText, Globe2, ShieldAlert, ShieldCheck } from "lucide-react";
 import { brand } from "@/config/brand";
 import { createClient } from "@/lib/supabase/server";
 import { formatDateTime, getRiskBadgeClass, getRiskLabel } from "@/lib/utils/risk";
@@ -77,13 +77,23 @@ export default async function ScanReportPage({
             Back to websites
           </Link>
 
-          <Link
-            href="/app/scans"
-            className="inline-flex items-center gap-2 text-sm font-semibold text-cyan-300 hover:text-cyan-200"
-          >
-            <FileText className="h-4 w-4" />
-            All scan reports
-          </Link>
+          <div className="flex flex-col gap-3 sm:flex-row">
+            <Link
+              href="/app/scans"
+              className="inline-flex items-center justify-center gap-2 rounded-2xl border border-white/10 px-5 py-3 text-sm font-semibold text-white hover:bg-white/10"
+            >
+              <FileText className="h-4 w-4" />
+              All reports
+            </Link>
+
+            <Link
+              href={`/app/scans/${result.id}/print`}
+              className="inline-flex items-center justify-center gap-2 rounded-2xl bg-cyan-300 px-5 py-3 text-sm font-bold text-slate-950 hover:bg-cyan-200"
+            >
+              <Download className="h-4 w-4" />
+              Download PDF
+            </Link>
+          </div>
         </div>
 
         <section className="rounded-3xl border border-white/10 bg-white/[0.04] p-8">
