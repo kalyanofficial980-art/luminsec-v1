@@ -55,6 +55,8 @@ export default function Home() {
             <a href="#features" className="hover:text-white">Features</a>
             <Link href="/pricing" className="hover:text-white">Pricing</Link>
             <Link href="/sample-report" className="hover:text-white">Sample report</Link>
+            <Link href="/pitch" className="hover:text-white">Pitch</Link>
+            <Link href="/demo-script" className="hover:text-white">Demo script</Link>
             <Link href="/login" className="hover:text-white">Login</Link>
           </nav>
 
