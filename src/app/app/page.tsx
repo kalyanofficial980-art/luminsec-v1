@@ -1,4 +1,4 @@
-﻿import Link from "next/link";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { FileText, Globe2, LogOut, Plus, ShieldCheck } from "lucide-react";
 import { brand } from "@/config/brand";
@@ -69,12 +69,19 @@ export default async function AppDashboardPage() {
               <ShieldCheck className="h-6 w-6 text-cyan-300" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold">{brand.name} Dashboard</h1>
+              <h1 className="text-2xl font-bold">{brand.name} SaaS Dashboard</h1>
               <p className="text-slate-400">Logged in as {user.email}</p>
             </div>
           </div>
 
           <div className="flex flex-col gap-3 sm:flex-row">
+            <Link
+              href="/app/validation"
+              className="inline-flex items-center justify-center gap-2 rounded-2xl border border-white/10 px-4 py-3 text-sm font-bold text-white hover:bg-white/10"
+            >
+              Customer Validation
+            </Link>
+
             <Link
               href="/app/websites/new"
               className="inline-flex items-center justify-center gap-2 rounded-2xl bg-cyan-300 px-4 py-3 text-sm font-bold text-slate-950 hover:bg-cyan-200"
