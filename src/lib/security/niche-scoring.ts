@@ -1,0 +1,495 @@
+export type NicheModuleKey =
+  | "customer_data_security"
+  | "dpdp_readiness"
+  | "cert_in_readiness"
+  | "website_trust_security";
+
+export type NicheFindingInput = {
+  id?: string | null;
+  title?: string | null;
+  category?: string | null;
+  severity?: string | null;
+  description?: string | null;
+  recommendation?: string | null;
+  evidence?: string | null;
+};
+
+export type NicheScoreModule = {
+  key: NicheModuleKey;
+  label: string;
+  shortLabel: string;
+  maxWeight: number;
+  score: number;
+  penalty: number;
+  findingCount: number;
+  highPriorityCount: number;
+  explanation: string;
+};
+
+export type DeduplicatedFindingGroup = {
+  id: string;
+  module: NicheModuleKey;
+  title: string;
+  severity: "info" | "low" | "medium" | "high" | "critical";
+  confidence: "low" | "medium" | "high";
+  findingCount: number;
+  penalty: number;
+  evidenceSamples: string[];
+  recommendation: string;
+  businessImpact: string;
+  developerAction: string;
+};
+
+export type NicheScoringResult = {
+  overallScore: number;
+  customerDataSecurityScore: number;
+  dpdpReadinessScore: number;
+  certInReadinessScore: number;
+  websiteTrustScore: number;
+  modules: NicheScoreModule[];
+  groupedFindings: DeduplicatedFindingGroup[];
+  topFixes: DeduplicatedFindingGroup[];
+  summary: {
+    totalRawFindings: number;
+    deduplicatedFindingGroups: number;
+    criticalOrHighGroups: number;
+    mediumGroups: number;
+    lowOrInfoGroups: number;
+    scoreExplanation: string[];
+    customerMessage: string;
+  };
+};
+
+const MODULE_WEIGHTS: Record<NicheModuleKey, number> = {
+  customer_data_security: 35,
+  dpdp_readiness: 30,
+  cert_in_readiness: 20,
+  website_trust_security: 15,
+};
+
+const MODULE_LABELS: Record<NicheModuleKey, { label: string; shortLabel: string; explanation: string }> = {
+  customer_data_security: {
+    label: "Customer Data Security",
+    shortLabel: "Customer Data",
+    explanation:
+      "Measures visible safeguards around forms, cookies, tracking, payments, password fields, and third-party scripts.",
+  },
+  dpdp_readiness: {
+    label: "DPDP Readiness",
+    shortLabel: "DPDP",
+    explanation:
+      "Measures visible privacy, consent, grievance/contact, data request, vendor disclosure, and breach-readiness signals.",
+  },
+  cert_in_readiness: {
+    label: "CERT-In Readiness",
+    shortLabel: "CERT-In",
+    explanation:
+      "Measures basic incident-readiness signals such as security contact, log retention readiness, reporting readiness, backup, and audit readiness.",
+  },
+  website_trust_security: {
+    label: "Website Trust & Security",
+    shortLabel: "Website Trust",
+    explanation:
+      "Measures visible website security posture such as HTTPS, security headers, security.txt, mixed content, and public page hygiene.",
+  },
+};
+
+function text(value: unknown) {
+  return String(value ?? "").trim();
+}
+
+function lower(value: unknown) {
+  return text(value).toLowerCase();
+}
+
+function clamp(value: number, min: number, max: number) {
+  return Math.max(min, Math.min(max, value));
+}
+
+function normalizedSeverity(value: unknown): DeduplicatedFindingGroup["severity"] {
+  const raw = lower(value);
+
+  if (raw.includes("critical")) return "critical";
+  if (raw.includes("high")) return "high";
+  if (raw.includes("medium")) return "medium";
+  if (raw.includes("low")) return "low";
+  if (raw.includes("info")) return "info";
+
+  return "low";
+}
+
+function severityPenalty(severity: DeduplicatedFindingGroup["severity"]) {
+  if (severity === "critical") return 18;
+  if (severity === "high") return 14;
+  if (severity === "medium") return 8;
+  if (severity === "low") return 4;
+  return 1;
+}
+
+function severityRank(severity: DeduplicatedFindingGroup["severity"]) {
+  if (severity === "critical") return 5;
+  if (severity === "high") return 4;
+  if (severity === "medium") return 3;
+  if (severity === "low") return 2;
+  return 1;
+}
+
+function highestSeverity(
+  a: DeduplicatedFindingGroup["severity"],
+  b: DeduplicatedFindingGroup["severity"]
+) {
+  return severityRank(b) > severityRank(a) ? b : a;
+}
+
+function confidenceForFinding(finding: NicheFindingInput): DeduplicatedFindingGroup["confidence"] {
+  const haystack = [
+    finding.title,
+    finding.category,
+    finding.description,
+    finding.recommendation,
+    finding.evidence,
+  ]
+    .map(lower)
+    .join(" ");
+
+  if (
+    haystack.includes("missing") ||
+    haystack.includes("not found") ||
+    haystack.includes("detected") ||
+    haystack.includes("header") ||
+    haystack.includes("cookie") ||
+    haystack.includes("password field") ||
+    haystack.includes("form")
+  ) {
+    return "high";
+  }
+
+  if (
+    haystack.includes("review") ||
+    haystack.includes("potential") ||
+    haystack.includes("known-risk") ||
+    haystack.includes("technology")
+  ) {
+    return "medium";
+  }
+
+  return "medium";
+}
+
+function confidenceMultiplier(confidence: DeduplicatedFindingGroup["confidence"]) {
+  if (confidence === "high") return 1;
+  if (confidence === "medium") return 0.65;
+  return 0.35;
+}
+
+function classifyModule(finding: NicheFindingInput): NicheModuleKey {
+  const haystack = [
+    finding.title,
+    finding.category,
+    finding.description,
+    finding.recommendation,
+    finding.evidence,
+  ]
+    .map(lower)
+    .join(" ");
+
+  if (
+    /cert|incident|log retention|180 day|180-day|six hour|6 hour|6-hour|time sync|ntp|backup|restore|security contact|incident owner|audit log/.test(
+      haystack
+    )
+  ) {
+    return "cert_in_readiness";
+  }
+
+  if (
+    /dpdp|privacy policy|privacy|consent|purpose|grievance|data deletion|data request|processor|vendor disclosure|breach notification|personal data/.test(
+      haystack
+    )
+  ) {
+    return "dpdp_readiness";
+  }
+
+  if (
+    /form|password field|cookie|payment|razorpay|stripe|paypal|tracking|analytics|tag manager|meta pixel|hotjar|third-party|third party|customer data|checkout/.test(
+      haystack
+    )
+  ) {
+    return "customer_data_security";
+  }
+
+  return "website_trust_security";
+}
+
+function classifyRootCause(finding: NicheFindingInput) {
+  const haystack = [
+    finding.title,
+    finding.category,
+    finding.description,
+    finding.recommendation,
+    finding.evidence,
+  ]
+    .map(lower)
+    .join(" ");
+
+  const rules: Array<[string, RegExp]> = [
+    ["https_transport", /https|http to https|redirect|hsts|strict-transport-security/],
+    ["content_security_policy", /\bcsp\b|content-security-policy/],
+    ["clickjacking_headers", /x-frame-options|frame-ancestors|clickjack/],
+    ["content_type_header", /x-content-type-options|nosniff/],
+    ["referrer_policy", /referrer-policy/],
+    ["permissions_policy", /permissions-policy/],
+    ["security_txt", /security\.txt/],
+    ["privacy_policy", /privacy policy|privacy signal|privacy link/],
+    ["contact_grievance", /contact|support|grievance/],
+    ["consent_purpose", /consent|purpose/],
+    ["data_request_deletion", /data deletion|data request|delete data|access request/],
+    ["breach_readiness", /breach|notification/],
+    ["cert_incident_reporting", /cert|incident reporting|6 hour|6-hour|six hour/],
+    ["log_retention", /log retention|180 day|180-day|logs/],
+    ["security_contact", /security contact|incident contact/],
+    ["backup_restore", /backup|restore|recovery/],
+    ["forms_customer_data", /form|lead|appointment|booking/],
+    ["password_fields", /password field|login/],
+    ["cookie_security", /cookie|secure flag|httponly|samesite/],
+    ["payment_scripts", /payment|razorpay|stripe|paypal|checkout/],
+    ["tracking_scripts", /tracking|analytics|tag manager|meta pixel|hotjar/],
+    ["third_party_scripts", /third-party|third party|external script|script count/],
+    ["mixed_content", /mixed content|http asset|insecure asset/],
+    ["technology_review", /wordpress|woocommerce|shopify|next\.js|react|vercel|netlify|cloudflare|nginx|apache|technology|x-powered-by|generator/],
+    ["page_metadata", /title tag|meta description|page title/],
+    ["public_page_error", /page error|broken link|404|availability/],
+  ];
+
+  for (const [key, pattern] of rules) {
+    if (pattern.test(haystack)) {
+      return key;
+    }
+  }
+
+  return lower(finding.category) || "general_review";
+}
+
+function firstNonEmpty(...values: Array<unknown>) {
+  for (const value of values) {
+    const raw = text(value);
+    if (raw) return raw;
+  }
+
+  return "";
+}
+
+function shortEvidence(value: unknown) {
+  const raw = text(value).replace(/\s+/g, " ");
+  return raw.length > 180 ? `${raw.slice(0, 180)}...` : raw;
+}
+
+function recommendationForGroup(module: NicheModuleKey, title: string, fallback: string) {
+  const cleanFallback = text(fallback);
+
+  if (cleanFallback.length > 0) {
+    return cleanFallback.length > 360 ? `${cleanFallback.slice(0, 360)}...` : cleanFallback;
+  }
+
+  if (module === "customer_data_security") {
+    return "Review the customer-data collection point, ensure HTTPS, add clear privacy context, and ask the developer to verify cookies, forms, tracking scripts, and payment scripts.";
+  }
+
+  if (module === "dpdp_readiness") {
+    return "Add or improve visible DPDP readiness signals such as privacy policy, consent/purpose language, grievance contact, data request process, and breach-readiness process.";
+  }
+
+  if (module === "cert_in_readiness") {
+    return "Define incident owner, security contact, log retention process, reporting readiness, backup/recovery process, and audit evidence.";
+  }
+
+  return `Review and fix: ${title}`;
+}
+
+function businessImpactForModule(module: NicheModuleKey) {
+  if (module === "customer_data_security") {
+    return "Customer data trust may be reduced if forms, cookies, tracking, payment scripts, or password fields are not clearly protected.";
+  }
+
+  if (module === "dpdp_readiness") {
+    return "DPDP readiness may be weak if privacy, consent, grievance, data request, and breach-readiness signals are unclear.";
+  }
+
+  if (module === "cert_in_readiness") {
+    return "Incident readiness may be weak if the business cannot quickly identify, log, escalate, and report cyber incidents.";
+  }
+
+  return "Website trust may be reduced if visible security headers, HTTPS posture, public hygiene, or technology signals are weak.";
+}
+
+function developerActionForModule(module: NicheModuleKey) {
+  if (module === "customer_data_security") {
+    return "Developer should review forms, cookies, third-party scripts, payment/tracking scripts, HTTPS, and privacy link placement.";
+  }
+
+  if (module === "dpdp_readiness") {
+    return "Developer/business owner should add visible privacy, consent/purpose, grievance/contact, data request, and breach-readiness pages or sections.";
+  }
+
+  if (module === "cert_in_readiness") {
+    return "Business owner/developer should document incident contact, log retention, backup/recovery, reporting workflow, and audit evidence.";
+  }
+
+  return "Developer should apply the recommended website security or trust configuration and retest.";
+}
+
+function groupFindings(findings: NicheFindingInput[]) {
+  const groups = new Map<string, DeduplicatedFindingGroup>();
+
+  for (const finding of findings) {
+    const module = classifyModule(finding);
+    const rootCause = classifyRootCause(finding);
+    const groupId = `${module}:${rootCause}`;
+    const severity = normalizedSeverity(finding.severity);
+    const confidence = confidenceForFinding(finding);
+    const basePenalty = severityPenalty(severity) * confidenceMultiplier(confidence);
+    const evidence = shortEvidence(firstNonEmpty(finding.evidence, finding.description, finding.title));
+    const title = firstNonEmpty(finding.title, rootCause.replace(/_/g, " "));
+    const recommendation = recommendationForGroup(module, title, finding.recommendation || "");
+
+    const existing = groups.get(groupId);
+
+    if (!existing) {
+      groups.set(groupId, {
+        id: groupId,
+        module,
+        title,
+        severity,
+        confidence,
+        findingCount: 1,
+        penalty: basePenalty,
+        evidenceSamples: evidence ? [evidence] : [],
+        recommendation,
+        businessImpact: businessImpactForModule(module),
+        developerAction: developerActionForModule(module),
+      });
+      continue;
+    }
+
+    existing.findingCount += 1;
+    existing.severity = highestSeverity(existing.severity, severity);
+
+    if (confidenceMultiplier(confidence) > confidenceMultiplier(existing.confidence)) {
+      existing.confidence = confidence;
+    }
+
+    existing.penalty = Math.max(existing.penalty, basePenalty) + Math.min(2, basePenalty * 0.15);
+
+    if (evidence && existing.evidenceSamples.length < 3 && !existing.evidenceSamples.includes(evidence)) {
+      existing.evidenceSamples.push(evidence);
+    }
+  }
+
+  return [...groups.values()].map((group) => ({
+    ...group,
+    penalty: Math.round(group.penalty * 10) / 10,
+  }));
+}
+
+function moduleScore(
+  key: NicheModuleKey,
+  groupedFindings: DeduplicatedFindingGroup[]
+): NicheScoreModule {
+  const moduleWeight = MODULE_WEIGHTS[key];
+  const moduleFindings = groupedFindings.filter((finding) => finding.module === key);
+
+  const rawPenalty = moduleFindings.reduce((sum, finding) => sum + finding.penalty, 0);
+  const cappedPenalty = clamp(rawPenalty, 0, moduleWeight);
+  const score = Math.round(100 - (cappedPenalty / moduleWeight) * 100);
+  const labels = MODULE_LABELS[key];
+
+  return {
+    key,
+    label: labels.label,
+    shortLabel: labels.shortLabel,
+    maxWeight: moduleWeight,
+    score: clamp(score, 0, 100),
+    penalty: Math.round(cappedPenalty * 10) / 10,
+    findingCount: moduleFindings.length,
+    highPriorityCount: moduleFindings.filter(
+      (finding) => finding.severity === "critical" || finding.severity === "high"
+    ).length,
+    explanation: labels.explanation,
+  };
+}
+
+function prioritySort(a: DeduplicatedFindingGroup, b: DeduplicatedFindingGroup) {
+  const severityDiff = severityRank(b.severity) - severityRank(a.severity);
+
+  if (severityDiff !== 0) {
+    return severityDiff;
+  }
+
+  return b.penalty - a.penalty;
+}
+
+function customerMessage(overallScore: number) {
+  if (overallScore >= 85) {
+    return "The website shows strong visible readiness signals. Continue monitoring and retest after changes.";
+  }
+
+  if (overallScore >= 70) {
+    return "The website is usable but has important readiness gaps to fix before relying on it for customer-data trust.";
+  }
+
+  if (overallScore >= 50) {
+    return "The website needs focused improvements before it should be considered customer-data ready.";
+  }
+
+  return "The website has major visible readiness gaps. Fix the top-priority items before using this report as a trust signal.";
+}
+
+export function calculateNicheScoring(findings: NicheFindingInput[]): NicheScoringResult {
+  const safeFindings = Array.isArray(findings) ? findings : [];
+  const groupedFindings = groupFindings(safeFindings).sort(prioritySort);
+
+  const modules: NicheScoreModule[] = [
+    moduleScore("customer_data_security", groupedFindings),
+    moduleScore("dpdp_readiness", groupedFindings),
+    moduleScore("cert_in_readiness", groupedFindings),
+    moduleScore("website_trust_security", groupedFindings),
+  ];
+
+  const weightedPenalty = modules.reduce((sum, module) => sum + module.penalty, 0);
+  const overallScore = clamp(Math.round(100 - weightedPenalty), 0, 100);
+
+  const scoreByKey = Object.fromEntries(modules.map((module) => [module.key, module.score])) as Record<
+    NicheModuleKey,
+    number
+  >;
+
+  const topFixes = groupedFindings.slice(0, 5);
+
+  return {
+    overallScore,
+    customerDataSecurityScore: scoreByKey.customer_data_security,
+    dpdpReadinessScore: scoreByKey.dpdp_readiness,
+    certInReadinessScore: scoreByKey.cert_in_readiness,
+    websiteTrustScore: scoreByKey.website_trust_security,
+    modules,
+    groupedFindings,
+    topFixes,
+    summary: {
+      totalRawFindings: safeFindings.length,
+      deduplicatedFindingGroups: groupedFindings.length,
+      criticalOrHighGroups: groupedFindings.filter(
+        (finding) => finding.severity === "critical" || finding.severity === "high"
+      ).length,
+      mediumGroups: groupedFindings.filter((finding) => finding.severity === "medium").length,
+      lowOrInfoGroups: groupedFindings.filter(
+        (finding) => finding.severity === "low" || finding.severity === "info"
+      ).length,
+      scoreExplanation: modules.map(
+        (module) =>
+          `${module.shortLabel}: ${module.score}/100 with ${module.findingCount} grouped issue${
+            module.findingCount === 1 ? "" : "s"
+          }.`
+      ),
+      customerMessage: customerMessage(overallScore),
+    },
+  };
+}
