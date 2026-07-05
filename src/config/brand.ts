@@ -1,8 +1,8 @@
 export const brand = {
   name: "VeyraSec",
-  tagline: "Website trust reports for small businesses and agencies",
+  tagline: "Customer-data security readiness for Indian small businesses",
   description:
-    "VeyraSec helps small businesses and web agencies understand website security, privacy, and trust readiness using safe passive checks and clear client-ready reports.",
+    "VeyraSec helps Indian small businesses understand customer-data security, DPDP readiness, and CERT-In readiness using safe checks and clear business-ready reports.",
   product: "Website Trust Report",
   version: "V2.1 SaaS Ready",
   url: "https://luminsec-v1.vercel.app",
