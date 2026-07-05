@@ -1,264 +1,527 @@
 import Link from "next/link";
-import { redirect } from "next/navigation";
-import { ArrowLeft, Download, FileText, Globe2, Languages, ShieldAlert, ShieldCheck } from "lucide-react";
-import { brand } from "@/config/brand";
-import { createClient } from "@/lib/supabase/server";
-import { getAiStyleSummary, explainFinding, getReportCopy, getReportLanguage } from "@/lib/report/explain";
-import { formatDateTime, getRiskBadgeClass, getRiskLabel } from "@/lib/utils/risk";
+import { notFound } from "next/navigation";
+import {
+  AlertTriangle,
+  ArrowLeft,
+  CheckCircle2,
+  ClipboardCheck,
+  ExternalLink,
+  FileText,
+  Gauge,
+  Lightbulb,
+  ShieldCheck,
+  Wrench,
+} from "lucide-react";
+import { requireDashboardUser } from "@/lib/auth/route-access";
 
-const severityClasses: Record<string, string> = {
-  critical: "border-red-400/30 bg-red-400/10 text-red-100",
-  high: "border-orange-400/30 bg-orange-400/10 text-orange-100",
-  medium: "border-amber-400/30 bg-amber-400/10 text-amber-100",
-  low: "border-blue-400/30 bg-blue-400/10 text-blue-100",
-  info: "border-slate-400/30 bg-slate-400/10 text-slate-100",
+type PageProps = {
+  params: Promise<{
+    id: string;
+  }>;
 };
 
-export default async function ScanReportPage({
-  params,
-  searchParams,
-}: {
-  params: Promise<{ id: string }>;
-  searchParams: Promise<{ lang?: string }>;
-}) {
+function clampScore(value: unknown) {
+  const score = Number(value);
+
+  if (!Number.isFinite(score)) {
+    return 0;
+  }
+
+  return Math.max(0, Math.min(100, Math.round(score)));
+}
+
+function normalizeText(value: unknown, fallback = "") {
+  const text = String(value ?? "").trim();
+  return text.length > 0 ? text : fallback;
+}
+
+function normalizeRisk(value: unknown) {
+  const risk = String(value ?? "unknown").toLowerCase();
+
+  if (risk.includes("critical")) return "critical";
+  if (risk.includes("high")) return "high";
+  if (risk.includes("medium") || risk.includes("moderate")) return "medium";
+  if (risk.includes("low")) return "low";
+
+  return "unknown";
+}
+
+function riskLabel(value: unknown) {
+  const risk = normalizeRisk(value);
+
+  if (risk === "critical") return "Critical";
+  if (risk === "high") return "High";
+  if (risk === "medium") return "Medium";
+  if (risk === "low") return "Low";
+
+  return "Review";
+}
+
+function riskClass(value: unknown) {
+  const risk = normalizeRisk(value);
+
+  if (risk === "critical") return "border-red-400/30 bg-red-400/10 text-red-100";
+  if (risk === "high") return "border-orange-400/30 bg-orange-400/10 text-orange-100";
+  if (risk === "medium") return "border-amber-400/30 bg-amber-400/10 text-amber-100";
+  if (risk === "low") return "border-emerald-400/30 bg-emerald-400/10 text-emerald-100";
+
+  return "border-slate-400/30 bg-slate-400/10 text-slate-200";
+}
+
+function severityClass(value: unknown) {
+  const severity = normalizeRisk(value);
+
+  if (severity === "critical") return "border-red-400/30 bg-red-400/10 text-red-100";
+  if (severity === "high") return "border-orange-400/30 bg-orange-400/10 text-orange-100";
+  if (severity === "medium") return "border-amber-400/30 bg-amber-400/10 text-amber-100";
+  if (severity === "low") return "border-emerald-400/30 bg-emerald-400/10 text-emerald-100";
+
+  return "border-cyan-400/30 bg-cyan-400/10 text-cyan-100";
+}
+
+function scoreClass(score: number) {
+  if (score >= 85) return "text-emerald-300";
+  if (score >= 65) return "text-amber-300";
+  if (score >= 40) return "text-orange-300";
+  return "text-red-300";
+}
+
+function escapeRegExp(value: string) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function extractSection(body: unknown, label: string) {
+  const text = normalizeText(body);
+  const pattern = new RegExp(
+    `${escapeRegExp(label)}:\\s*([\\s\\S]*?)(?=\\n\\n[A-Z][A-Za-z\\s]+:|$)`,
+    "i"
+  );
+  const match = text.match(pattern);
+
+  return normalizeText(match?.[1]);
+}
+
+function safeArray(value: unknown) {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  return value.map((item) => String(item ?? "").trim()).filter(Boolean);
+}
+
+function evidenceLines(value: unknown) {
+  const text = normalizeText(value);
+
+  if (!text) {
+    return [];
+  }
+
+  return text
+    .split(/\n+/)
+    .map((line) => line.trim())
+    .filter(Boolean);
+}
+
+function scoreCard(label: string, value: number) {
+  return (
+    <div className="rounded-3xl border border-white/10 bg-slate-950/70 p-5">
+      <p className="text-sm font-bold text-slate-400">{label}</p>
+      <p className={`mt-3 text-4xl font-black ${scoreClass(value)}`}>{value}</p>
+      <p className="mt-1 text-xs font-bold text-slate-500">out of 100</p>
+    </div>
+  );
+}
+
+function actionList(title: string, items: string[], icon: "owner" | "developer" | "fast") {
+  const Icon = icon === "developer" ? Wrench : icon === "fast" ? Lightbulb : ClipboardCheck;
+
+  return (
+    <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-6">
+      <div className="mb-5 flex items-center gap-3">
+        <Icon className="h-6 w-6 text-cyan-300" />
+        <h2 className="text-xl font-black text-white">{title}</h2>
+      </div>
+
+      {items.length > 0 ? (
+        <div className="grid gap-3">
+          {items.map((item) => (
+            <div key={item} className="rounded-2xl border border-white/10 bg-slate-950 p-4">
+              <div className="flex gap-3">
+                <CheckCircle2 className="mt-1 h-5 w-5 shrink-0 text-emerald-300" />
+                <p className="leading-7 text-slate-300">{item}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <p className="leading-7 text-slate-400">No specific items in this section for this scan.</p>
+      )}
+    </div>
+  );
+}
+
+export default async function ScanReportPage({ params }: PageProps) {
   const { id } = await params;
-  const { lang } = await searchParams;
-  const language = getReportLanguage(lang);
-  const copy = getReportCopy(language);
+  const { supabase, user, profile } = await requireDashboardUser();
 
-  const supabase = await createClient();
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    redirect("/login");
-  }
-
-  const { data: result, error } = await supabase
+  let scanQuery = supabase
     .from("scan_results")
-    .select(`
-      id,
-      overall_score,
-      security_score,
-      privacy_score,
-      trust_score,
-      risk_level,
-      summary,
-      created_at,
-      websites (
-        url,
-        domain,
-        label
-      )
-    `)
-    .eq("id", id)
-    .eq("user_id", user.id)
-    .single();
+    .select(
+      "id, user_id, website_id, url, domain, status, overall_score, score, security_score, privacy_score, trust_score, risk_level, summary, raw_result, raw, created_at, is_public, public_share_id"
+    )
+    .eq("id", id);
 
-  if (error || !result) {
-    redirect("/dashboard/websites?message=Scan report not found");
+  if (profile.role !== "admin") {
+    scanQuery = scanQuery.eq("user_id", user.id);
   }
 
-  const { data: findings } = await supabase
+  const { data: scan } = await scanQuery.maybeSingle();
+
+  if (!scan) {
+    notFound();
+  }
+
+  let findingsQuery = supabase
     .from("scan_findings")
     .select("id, category, severity, title, description, recommendation, evidence, created_at")
-    .eq("scan_result_id", result.id)
-    .eq("user_id", user.id)
+    .eq("scan_result_id", scan.id)
     .order("created_at", { ascending: true });
 
-  const { data: businessSettings } = await supabase
-    .from("business_settings")
-    .select("business_name, owner_name, email, phone, website, address, report_footer_note")
-    .eq("user_id", user.id)
-    .maybeSingle();
+  if (profile.role !== "admin") {
+    findingsQuery = findingsQuery.eq("user_id", user.id);
+  }
 
-  const website = Array.isArray(result.websites)
-    ? result.websites[0]
-    : result.websites;
+  const { data: findings } = await findingsQuery;
 
-  const aiSummary = getAiStyleSummary({
-    overallScore: result.overall_score,
-    securityScore: result.security_score,
-    privacyScore: result.privacy_score,
-    trustScore: result.trust_score,
-    riskLevel: result.risk_level,
-    findings: findings ?? [],
-    language,
-  });
+  let websiteName = scan.domain || "Website";
+
+  if (scan.website_id) {
+    let websiteQuery = supabase
+      .from("websites")
+      .select("name, url, domain")
+      .eq("id", scan.website_id);
+
+    if (profile.role !== "admin") {
+      websiteQuery = websiteQuery.eq("user_id", user.id);
+    }
+
+    const { data: website } = await websiteQuery.maybeSingle();
+
+    websiteName = website?.name || website?.domain || scan.domain || "Website";
+  }
+
+  const rawResult = (scan.raw_result || scan.raw || {}) as {
+    professional?: {
+      summary?: {
+        score?: {
+          overall?: number;
+          security?: number;
+          privacy?: number;
+          trust?: number;
+          exposure?: number;
+          technicalHygiene?: number;
+        };
+        topRisks?: string[];
+        fastestFixes?: string[];
+        ownerActions?: string[];
+        developerActions?: string[];
+      };
+    };
+  };
+
+  const professionalSummary = rawResult.professional?.summary;
+
+  const overallScore = clampScore(
+    professionalSummary?.score?.overall ?? scan.overall_score ?? scan.score
+  );
+  const securityScore = clampScore(
+    professionalSummary?.score?.security ?? scan.security_score
+  );
+  const privacyScore = clampScore(
+    professionalSummary?.score?.privacy ?? scan.privacy_score
+  );
+  const trustScore = clampScore(
+    professionalSummary?.score?.trust ?? scan.trust_score
+  );
+  const exposureScore = clampScore(professionalSummary?.score?.exposure ?? 0);
+  const hygieneScore = clampScore(professionalSummary?.score?.technicalHygiene ?? 0);
+
+  const topRisks = safeArray(professionalSummary?.topRisks);
+  const fastestFixes = safeArray(professionalSummary?.fastestFixes);
+  const ownerActions = safeArray(professionalSummary?.ownerActions);
+  const developerActions = safeArray(professionalSummary?.developerActions);
+
+  const reportUrl = scan.url || `https://${scan.domain}`;
 
   return (
     <main className="min-h-screen bg-slate-950 p-6 text-white">
-      <div className="mx-auto max-w-6xl">
-        <div className="mb-6 flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
+      <div className="mx-auto max-w-7xl">
+        <div className="mb-6 flex flex-col justify-between gap-4 lg:flex-row lg:items-center">
           <Link
-            href="/dashboard/websites"
-            className="inline-flex items-center gap-2 text-sm font-semibold text-slate-300 hover:text-white"
+            href="/dashboard/scans"
+            className="inline-flex items-center gap-2 text-sm font-bold text-cyan-300 hover:text-cyan-200"
           >
             <ArrowLeft className="h-4 w-4" />
-            {copy.backToWebsites}
+            Back to reports
           </Link>
 
-          <div className="flex flex-col gap-3 sm:flex-row">
-            <div className="inline-flex items-center gap-2 rounded-2xl border border-white/10 p-1">
-              <Languages className="ml-3 h-4 w-4 text-cyan-300" />
-              <Link
-                href={`/dashboard/scans/${result.id}?lang=en`}
-                className={`rounded-xl px-3 py-2 text-sm font-bold ${
-                  language === "en" ? "bg-cyan-300 text-slate-950" : "text-slate-300 hover:bg-white/10"
-                }`}
-              >
-                EN
-              </Link>
-              <Link
-                href={`/dashboard/scans/${result.id}?lang=te`}
-                className={`rounded-xl px-3 py-2 text-sm font-bold ${
-                  language === "te" ? "bg-cyan-300 text-slate-950" : "text-slate-300 hover:bg-white/10"
-                }`}
-              >
-                TE-EN
-              </Link>
-            </div>
-
+          <div className="flex flex-wrap gap-3">
             <Link
-              href="/dashboard/scans"
-              className="inline-flex items-center justify-center gap-2 rounded-2xl border border-white/10 px-5 py-3 text-sm font-semibold text-white hover:bg-white/10"
+              href={`/dashboard/scans/${scan.id}/action-plan`}
+              className="rounded-2xl border border-white/10 px-4 py-3 text-sm font-black text-white hover:bg-white/10"
             >
-              <FileText className="h-4 w-4" />
-              {copy.allReports}
+              Action plan
             </Link>
-
             <Link
-              href={`/dashboard/scans/${result.id}/print?lang=${language}`}
-              className="inline-flex items-center justify-center gap-2 rounded-2xl bg-cyan-300 px-5 py-3 text-sm font-bold text-slate-950 hover:bg-cyan-200"
+              href={`/dashboard/scans/${scan.id}/comparison`}
+              className="rounded-2xl border border-white/10 px-4 py-3 text-sm font-black text-white hover:bg-white/10"
             >
-              <Download className="h-4 w-4" />
-              {copy.downloadPdf}
+              Comparison
+            </Link>
+            <Link
+              href={`/dashboard/scans/${scan.id}/print`}
+              className="rounded-2xl bg-cyan-300 px-4 py-3 text-sm font-black text-slate-950 hover:bg-cyan-200"
+            >
+              Print / PDF
+            </Link>
+            <Link
+              href={`/dashboard/scans/${scan.id}/share`}
+              className="rounded-2xl border border-cyan-300/30 bg-cyan-300/10 px-4 py-3 text-sm font-black text-cyan-100 hover:bg-cyan-300/20"
+            >
+              Share
             </Link>
           </div>
         </div>
 
         <section className="rounded-3xl border border-white/10 bg-white/[0.04] p-8">
-          <div className="mb-8 flex flex-col justify-between gap-5 md:flex-row md:items-start">
+          <div className="flex flex-col justify-between gap-8 xl:flex-row xl:items-start">
             <div>
-              <div className="mb-3 flex items-center gap-3">
-                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-cyan-400/10 ring-1 ring-cyan-300/30">
-                  <ShieldCheck className="h-6 w-6 text-cyan-300" />
-                </div>
-                <div>
-                  <h1 className="text-3xl font-black">{brand.product}</h1>
-                  <p className="text-slate-400">
-                    {copy.safePassiveResult} - {formatDateTime(result.created_at)} - {copy.modeLabel}
-                  </p>
-                </div>
+              <div className="mb-5 flex h-16 w-16 items-center justify-center rounded-3xl bg-cyan-400/10 ring-1 ring-cyan-300/30">
+                <ShieldCheck className="h-9 w-9 text-cyan-300" />
               </div>
 
-              <div className="mt-5 flex items-center gap-2 text-slate-300">
-                <Globe2 className="h-5 w-5 text-cyan-300" />
-                <span className="break-all">{website?.label || website?.domain}</span>
-              </div>
-              <p className="mt-1 break-all text-sm text-slate-500">{website?.url}</p>
+              <p className="text-sm font-black uppercase tracking-[0.3em] text-cyan-300">
+                Security posture report
+              </p>
+
+              <h1 className="mt-4 text-4xl font-black tracking-tight md:text-6xl">
+                {websiteName}
+              </h1>
+
+              <a
+                href={reportUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="mt-4 inline-flex items-center gap-2 break-all text-sm font-bold text-slate-300 hover:text-cyan-200"
+              >
+                {reportUrl}
+                <ExternalLink className="h-4 w-4 shrink-0" />
+              </a>
+
+              <p className="mt-6 max-w-3xl text-lg leading-8 text-slate-300">
+                {normalizeText(
+                  scan.summary,
+                  "VeyraSec reviewed visible website security posture signals and generated a fix-first report."
+                )}
+              </p>
+
+              <p className="mt-4 text-sm text-slate-500">
+                Scan date: {scan.created_at ? new Date(scan.created_at).toLocaleString("en-IN") : "Not available"}
+              </p>
             </div>
 
-            <div className="rounded-3xl border border-cyan-300/20 bg-cyan-300/10 p-6 text-center">
-              <p className="text-sm text-cyan-100">{copy.overallScore}</p>
-              <p className="mt-2 text-5xl font-black text-white">{result.overall_score}</p>
-              <p
-                className={`mt-3 rounded-full border px-3 py-1 text-sm font-bold ${getRiskBadgeClass(
-                  result.risk_level
-                )}`}
-              >
-                {getRiskLabel(result.risk_level)}
+            <div className="rounded-3xl border border-white/10 bg-slate-950 p-6 text-center">
+              <p className="text-sm font-bold text-slate-400">Overall score</p>
+              <p className={`mt-3 text-7xl font-black ${scoreClass(overallScore)}`}>
+                {overallScore}
+              </p>
+              <p className="mt-2 text-sm font-bold text-slate-500">out of 100</p>
+
+              <div className={`mt-5 rounded-full border px-5 py-3 text-sm font-black ${riskClass(scan.risk_level)}`}>
+                {riskLabel(scan.risk_level)} risk
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="mt-8 grid gap-4 md:grid-cols-3 xl:grid-cols-6">
+          {scoreCard("Security", securityScore)}
+          {scoreCard("Privacy", privacyScore)}
+          {scoreCard("Trust", trustScore)}
+          {scoreCard("Exposure", exposureScore)}
+          {scoreCard("Technical hygiene", hygieneScore)}
+          {scoreCard("Overall", overallScore)}
+        </section>
+
+        <section className="mt-8 grid gap-8 lg:grid-cols-2">
+          <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-6">
+            <div className="mb-5 flex items-center gap-3">
+              <AlertTriangle className="h-6 w-6 text-amber-300" />
+              <h2 className="text-xl font-black">Top risks</h2>
+            </div>
+
+            {topRisks.length > 0 ? (
+              <div className="grid gap-3">
+                {topRisks.map((risk) => (
+                  <div key={risk} className="rounded-2xl border border-amber-300/20 bg-amber-300/10 p-4">
+                    <p className="leading-7 text-amber-50">{risk}</p>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="leading-7 text-slate-400">No top risks available for this scan.</p>
+            )}
+          </div>
+
+          {actionList("Fastest fixes", fastestFixes, "fast")}
+        </section>
+
+        <section className="mt-8 grid gap-8 lg:grid-cols-2">
+          {actionList("Business owner actions", ownerActions, "owner")}
+          {actionList("Developer actions", developerActions, "developer")}
+        </section>
+
+        <section className="mt-8 rounded-3xl border border-white/10 bg-white/[0.04] p-8">
+          <div className="mb-6 flex items-center gap-3">
+            <FileText className="h-7 w-7 text-cyan-300" />
+            <h2 className="text-3xl font-black">Findings</h2>
+          </div>
+
+          {(findings ?? []).length > 0 ? (
+            <div className="grid gap-6">
+              {(findings ?? []).map((finding, index) => {
+                const whatWeFound =
+                  extractSection(finding.description, "What we found") ||
+                  normalizeText(finding.description, "This item should be reviewed.");
+
+                const whyItMatters = extractSection(finding.description, "Why it matters");
+                const businessImpact = extractSection(finding.description, "Business impact");
+                const technicalImpact = extractSection(finding.description, "Technical impact");
+                const confidence = extractSection(finding.description, "Confidence");
+
+                const priority = extractSection(finding.recommendation, "Priority");
+                const effort = extractSection(finding.recommendation, "Estimated effort");
+                const fixSummary = extractSection(finding.recommendation, "Fix summary");
+                const developerFix = extractSection(finding.recommendation, "Developer fix");
+                const retest = extractSection(finding.recommendation, "Retest");
+
+                const evidence = evidenceLines(finding.evidence);
+
+                return (
+                  <article
+                    key={finding.id}
+                    className="rounded-3xl border border-white/10 bg-slate-950 p-6"
+                  >
+                    <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-start">
+                      <div>
+                        <div className="mb-3 flex flex-wrap gap-2">
+                          <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-black text-slate-300">
+                            #{index + 1}
+                          </span>
+                          <span className={`rounded-full border px-3 py-1 text-xs font-black ${severityClass(finding.severity)}`}>
+                            {riskLabel(finding.severity)}
+                          </span>
+                          <span className="rounded-full border border-cyan-300/20 bg-cyan-300/10 px-3 py-1 text-xs font-black text-cyan-100">
+                            {normalizeText(finding.category, "general").replaceAll("_", " ")}
+                          </span>
+                        </div>
+
+                        <h3 className="text-2xl font-black text-white">
+                          {normalizeText(finding.title, "Finding")}
+                        </h3>
+                      </div>
+
+                      {confidence ? (
+                        <div className="rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-sm font-bold text-slate-300">
+                          Confidence: {confidence}
+                        </div>
+                      ) : null}
+                    </div>
+
+                    <div className="mt-6 grid gap-4 lg:grid-cols-2">
+                      <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
+                        <h4 className="font-black text-cyan-100">What we found</h4>
+                        <p className="mt-3 leading-7 text-slate-300">{whatWeFound}</p>
+                      </div>
+
+                      <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
+                        <h4 className="font-black text-cyan-100">Why it matters</h4>
+                        <p className="mt-3 leading-7 text-slate-300">
+                          {whyItMatters || "This item can affect website security posture, trust, or technical hygiene."}
+                        </p>
+                      </div>
+
+                      <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
+                        <h4 className="font-black text-cyan-100">Business impact</h4>
+                        <p className="mt-3 leading-7 text-slate-300">
+                          {businessImpact || "This may reduce customer confidence or make the website look less security-ready."}
+                        </p>
+                      </div>
+
+                      <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
+                        <h4 className="font-black text-cyan-100">Technical impact</h4>
+                        <p className="mt-3 leading-7 text-slate-300">
+                          {technicalImpact || "Ask your developer to review this item in the website configuration."}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="mt-4 rounded-2xl border border-emerald-300/20 bg-emerald-300/10 p-5">
+                      <h4 className="font-black text-emerald-100">Fix-first guidance</h4>
+                      <div className="mt-3 grid gap-3 text-sm leading-7 text-emerald-50/90">
+                        {priority ? <p><strong>Priority:</strong> {priority}</p> : null}
+                        {effort ? <p><strong>Estimated effort:</strong> {effort}</p> : null}
+                        <p><strong>Fix summary:</strong> {fixSummary || normalizeText(finding.recommendation, "Review and fix this issue.")}</p>
+                        {developerFix ? <p><strong>Developer fix:</strong> {developerFix}</p> : null}
+                        {retest ? <p><strong>Retest:</strong> {retest}</p> : null}
+                      </div>
+                    </div>
+
+                    <div className="mt-4 rounded-2xl border border-white/10 bg-white/[0.03] p-5">
+                      <h4 className="font-black text-slate-100">Evidence</h4>
+                      {evidence.length > 0 ? (
+                        <div className="mt-3 grid gap-2">
+                          {evidence.map((line) => (
+                            <p key={line} className="break-words rounded-xl bg-slate-900 px-3 py-2 font-mono text-xs leading-6 text-slate-300">
+                              {line}
+                            </p>
+                          ))}
+                        </div>
+                      ) : (
+                        <p className="mt-3 leading-7 text-slate-400">
+                          Evidence was not stored for this item.
+                        </p>
+                      )}
+                    </div>
+                  </article>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="rounded-3xl border border-emerald-300/20 bg-emerald-300/10 p-6">
+              <CheckCircle2 className="h-8 w-8 text-emerald-300" />
+              <h3 className="mt-4 text-2xl font-black text-emerald-100">
+                No visible findings saved
+              </h3>
+              <p className="mt-3 leading-7 text-emerald-50/90">
+                This scan did not store visible security posture findings.
+              </p>
+            </div>
+          )}
+        </section>
+
+        <section className="mt-8 rounded-3xl border border-amber-300/20 bg-amber-300/10 p-8">
+          <div className="flex gap-4">
+            <Gauge className="mt-1 h-7 w-7 shrink-0 text-amber-200" />
+            <div>
+              <h2 className="text-2xl font-black text-amber-100">Important scope note</h2>
+              <p className="mt-4 max-w-4xl leading-8 text-amber-50/90">
+                This is a passive website security posture report based on visible public signals.
+                It is not legal advice, compliance certification, exploit testing, vulnerability exploitation,
+                login testing, brute force testing, or a penetration test.
               </p>
             </div>
           </div>
-
-          <div className="grid gap-4 md:grid-cols-3">
-            <div className="rounded-3xl border border-white/10 bg-slate-950 p-5">
-              <p className="text-sm text-slate-400">{copy.securityScore}</p>
-              <p className="mt-2 text-4xl font-black">{result.security_score}</p>
-            </div>
-            <div className="rounded-3xl border border-white/10 bg-slate-950 p-5">
-              <p className="text-sm text-slate-400">{copy.privacyScore}</p>
-              <p className="mt-2 text-4xl font-black">{result.privacy_score}</p>
-            </div>
-            <div className="rounded-3xl border border-white/10 bg-slate-950 p-5">
-              <p className="text-sm text-slate-400">{copy.trustScore}</p>
-              <p className="mt-2 text-4xl font-black">{result.trust_score}</p>
-            </div>
-          </div>
-
-          <div className="mt-6 rounded-3xl border border-cyan-300/20 bg-cyan-300/10 p-6">
-            <h2 className="text-xl font-bold text-cyan-100">{copy.aiSummaryTitle}</h2>
-            <p className="mt-3 leading-7 text-cyan-50/90">{aiSummary}</p>
-          </div>
-
-          <div className="mt-6 rounded-3xl border border-white/10 bg-slate-950 p-6">
-            <h2 className="text-xl font-bold">{copy.executiveSummary}</h2>
-            <p className="mt-3 leading-7 text-slate-300">{result.summary}</p>
-            <p className="mt-4 text-sm text-slate-500">{copy.disclaimer}</p>
-          </div>
-
-          {businessSettings ? (
-            <div className="mt-6 rounded-3xl border border-white/10 bg-slate-950 p-6">
-              <h2 className="text-xl font-bold">Prepared by</h2>
-              <div className="mt-3 grid gap-2 text-sm text-slate-300 md:grid-cols-2">
-                <p><span className="font-bold text-white">Business:</span> {businessSettings.business_name || "Not added"}</p>
-                <p><span className="font-bold text-white">Owner:</span> {businessSettings.owner_name || "Not added"}</p>
-                <p><span className="font-bold text-white">Email:</span> {businessSettings.email || "Not added"}</p>
-                <p><span className="font-bold text-white">Phone:</span> {businessSettings.phone || "Not added"}</p>
-              </div>
-            </div>
-          ) : null}
-        </section>
-
-        <section className="mt-8">
-          <div className="mb-4 flex items-center gap-3">
-            <ShieldAlert className="h-6 w-6 text-cyan-300" />
-            <h2 className="text-2xl font-bold">{copy.findings}</h2>
-          </div>
-
-          {!findings || findings.length === 0 ? (
-            <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-8 text-center text-slate-300">
-              No findings saved for this scan.
-            </div>
-          ) : (
-            <div className="grid gap-4">
-              {findings.map((finding) => (
-                <div
-                  key={finding.id}
-                  className="rounded-3xl border border-white/10 bg-white/[0.04] p-6"
-                >
-                  <div className="mb-3 flex flex-col justify-between gap-3 md:flex-row md:items-center">
-                    <h3 className="text-xl font-bold">{finding.title}</h3>
-                    <span
-                      className={`w-fit rounded-full border px-3 py-1 text-xs font-bold uppercase tracking-wide ${
-                        severityClasses[finding.severity] ?? severityClasses.info
-                      }`}
-                    >
-                      {finding.severity}
-                    </span>
-                  </div>
-
-                  <div className="mb-4 rounded-2xl border border-cyan-300/20 bg-cyan-300/10 p-4">
-                    <p className="text-sm font-bold text-cyan-100">{copy.plainExplanation}</p>
-                    <p className="mt-1 text-sm leading-6 text-cyan-50/90">
-                      {explainFinding(finding, language)}
-                    </p>
-                  </div>
-
-                  <p className="leading-7 text-slate-300">{finding.description}</p>
-                  <div className="mt-4 rounded-2xl border border-cyan-300/20 bg-cyan-300/10 p-4">
-                    <p className="text-sm font-bold text-cyan-100">{copy.recommendation}</p>
-                    <p className="mt-1 text-sm leading-6 text-cyan-50/90">
-                      {finding.recommendation}
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
         </section>
       </div>
     </main>
