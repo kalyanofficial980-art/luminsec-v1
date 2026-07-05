@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { runPassiveScan } from "@/lib/scanner/passive";
 import { buildProfessionalReportSummary } from "@/lib/security/report-summary";
+import { runAdvancedPassiveSecurityChecks } from "@/lib/security/passive-checks";
 import {
   professionalFindingToDatabaseFinding,
   professionalizeLegacyFindings,
@@ -207,9 +208,15 @@ export async function startPassiveScan(formData: FormData) {
   }
 
   const websiteDomain = website.domain || getDomain(website.url);
-  const professionalFindings = professionalizeLegacyFindings({
+  const advancedPassiveScan = await runAdvancedPassiveSecurityChecks(website.url);
+    const combinedFindings = [
+      ...((Array.isArray(scan.findings) ? scan.findings : [])),
+      ...advancedPassiveScan.findings,
+    ];
+
+    const professionalFindings = professionalizeLegacyFindings({
     checkedUrl: website.url,
-    findings: scan.findings,
+    findings: combinedFindings,
   });
   const professionalSummary = buildProfessionalReportSummary(professionalFindings);
 
@@ -237,6 +244,7 @@ export async function startPassiveScan(formData: FormData) {
       summary: professionalSummary.executiveSummary,
       raw_result: {
         legacy: scan.raw || {},
+        advancedPassive: advancedPassiveScan.raw,
         professional: {
           summary: professionalSummary,
           findings: professionalFindings,
@@ -244,6 +252,7 @@ export async function startPassiveScan(formData: FormData) {
       },
       raw: {
         legacy: scan.raw || {},
+        advancedPassive: advancedPassiveScan.raw,
         professional: {
           summary: professionalSummary,
           findings: professionalFindings,
