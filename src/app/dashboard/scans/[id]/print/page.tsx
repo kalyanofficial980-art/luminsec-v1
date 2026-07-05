@@ -125,8 +125,8 @@ function ListBlock({
 
       {items.length > 0 ? (
         <ol className="number-list">
-          {items.map((item) => (
-            <li key={item}>{item}</li>
+          {items.map((item, index) => (
+            <li key={`${item}-${index}`}>{item}</li>
           ))}
         </ol>
       ) : (

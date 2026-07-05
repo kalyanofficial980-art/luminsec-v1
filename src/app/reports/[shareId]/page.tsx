@@ -142,8 +142,8 @@ function ListSection({
 
       {items.length > 0 ? (
         <div className="grid gap-3">
-          {items.map((item) => (
-            <div key={item} className="rounded-2xl border border-white/10 bg-slate-950 p-4">
+          {items.map((item, index) => (
+            <div key={`${item}-${index}`} className="rounded-2xl border border-white/10 bg-slate-950 p-4">
               <p className="leading-7 text-slate-300">{item}</p>
             </div>
           ))}
@@ -315,8 +315,8 @@ export default async function PublicReportPage({ params }: PageProps) {
             <div className="rounded-2xl border border-white/10 bg-slate-950 p-5">
               <h3 className="font-black text-white">How score was decided</h3>
               <div className="mt-4 grid gap-3">
-                {(scoreExplanation.length > 0 ? scoreExplanation : ["Score is based on visible website security posture signals."]).map((item) => (
-                  <p key={item} className="leading-7 text-slate-300">{item}</p>
+                {(scoreExplanation.length > 0 ? scoreExplanation : ["Score is based on visible website security posture signals."]).map((item, index) => (
+                  <p key={`${item}-${index}`} className="leading-7 text-slate-300">{item}</p>
                 ))}
               </div>
             </div>
@@ -324,8 +324,8 @@ export default async function PublicReportPage({ params }: PageProps) {
             <div className="rounded-2xl border border-white/10 bg-slate-950 p-5">
               <h3 className="font-black text-white">What reduced score</h3>
               <div className="mt-4 grid gap-3">
-                {(scoreDrivers.length > 0 ? scoreDrivers : ["No score drivers were stored for this scan."]).map((item) => (
-                  <p key={item} className="leading-7 text-slate-300">{item}</p>
+                {(scoreDrivers.length > 0 ? scoreDrivers : ["No score drivers were stored for this scan."]).map((item, index) => (
+                  <p key={`${item}-${index}`} className="leading-7 text-slate-300">{item}</p>
                 ))}
               </div>
             </div>
@@ -333,8 +333,8 @@ export default async function PublicReportPage({ params }: PageProps) {
             <div className="rounded-2xl border border-white/10 bg-slate-950 p-5">
               <h3 className="font-black text-white">How to improve score</h3>
               <div className="mt-4 grid gap-3">
-                {(scoreImprovements.length > 0 ? scoreImprovements : ["Fix the highest-priority findings and run a retest."]).map((item) => (
-                  <p key={item} className="leading-7 text-slate-300">{item}</p>
+                {(scoreImprovements.length > 0 ? scoreImprovements : ["Fix the highest-priority findings and run a retest."]).map((item, index) => (
+                  <p key={`${item}-${index}`} className="leading-7 text-slate-300">{item}</p>
                 ))}
               </div>
             </div>

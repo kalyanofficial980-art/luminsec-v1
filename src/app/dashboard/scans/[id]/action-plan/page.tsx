@@ -300,8 +300,8 @@ function ActionList({
 
       {items.length > 0 ? (
         <div className="grid gap-3">
-          {items.map((item) => (
-            <div key={item} className="rounded-2xl border border-white/10 bg-slate-950 p-4">
+          {items.map((item, index) => (
+            <div key={`${item}-${index}`} className="rounded-2xl border border-white/10 bg-slate-950 p-4">
               <div className="flex gap-3">
                 <CheckCircle2 className="mt-1 h-5 w-5 shrink-0 text-emerald-300" />
                 <p className="leading-7 text-slate-300">{item}</p>
@@ -484,8 +484,8 @@ export default async function ActionPlanPage({ params }: PageProps) {
           </p>
 
           <div className="mt-5 grid gap-3 md:grid-cols-2">
-            {(scoreImprovements.length > 0 ? scoreImprovements : ["Fix highest-priority findings and retest the website."]).map((item) => (
-              <div key={item} className="rounded-2xl border border-cyan-200/20 bg-slate-950/60 p-4">
+            {(scoreImprovements.length > 0 ? scoreImprovements : ["Fix highest-priority findings and retest the website."]).map((item, index) => (
+              <div key={`${item}-${index}`} className="rounded-2xl border border-cyan-200/20 bg-slate-950/60 p-4">
                 <p className="leading-7 text-cyan-50/90">{item}</p>
               </div>
             ))}
