@@ -5,10 +5,10 @@ import {
   CheckCircle2,
   ExternalLink,
   FileText,
-  Printer,
   ShieldCheck,
 } from "lucide-react";
 import { requireDashboardUser } from "@/lib/auth/route-access";
+import { PrintReportButton } from "@/components/reports/print-report-button";
 
 type PageProps = {
   params: Promise<{
@@ -756,11 +756,7 @@ export default async function PrintReportPage({ params }: PageProps) {
           <ArrowLeft size={16} />
           Back to report
         </Link>
-
-        <button type="button" onClick={() => globalThis.print()} className="print-button">
-          <Printer size={16} />
-          Print / Save PDF
-        </button>
+        <PrintReportButton />
       </div>
 
       <article className="report-sheet">
