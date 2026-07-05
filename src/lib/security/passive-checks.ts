@@ -1,3 +1,8 @@
+import {
+  detectTechnologySignals,
+  technologyFindingsFromSignals,
+} from "./technology-detection";
+
 export type PassiveCheckSeverity = "info" | "low" | "medium" | "high" | "critical";
 
 export type PassiveCheckFinding = {
@@ -515,6 +520,15 @@ export async function runAdvancedPassiveSecurityChecks(inputUrl: string): Promis
     fetchWithTimeout(sitemapXmlUrl, {}, 6000),
   ]);
 
+  const technologyDetection = detectTechnologySignals({
+    url: normalized.toString(),
+    finalUrl: targetResult.finalUrl,
+    headers: targetResult.headers,
+    body: targetResult.body,
+  });
+
+  findings.push(...technologyFindingsFromSignals(technologyDetection));
+
   checkHttps(normalized, targetResult, findings);
   checkHttpRedirect(normalized, httpResult, findings);
   checkSecurityHeaders(targetResult, findings);
@@ -584,6 +598,8 @@ export async function runAdvancedPassiveSecurityChecks(inputUrl: string): Promis
         robotsTxtStatus: robotsTxtResult.status,
         sitemapXmlStatus: sitemapXmlResult.status,
         findingCount: findings.length,
+        technologySummary: technologyDetection.summary,
+        technologyDetection: technologyDetection.raw,
       },
     },
   };
