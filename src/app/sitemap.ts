@@ -1,21 +1,14 @@
 import type { MetadataRoute } from "next";
-import { brand } from "@/config/brand";
 
-const publicRoutes = [
-  "",
-  "/pricing",
-  "/sample-report",
-  "/contact",
-  "/pilot",
-  "/security",
-  "/legal/disclaimer",
-];
+const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://luminsec-v1.vercel.app";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  return publicRoutes.map((route) => ({
-    url: `${brand.url}${route}`,
+  const routes = ["", "/sample-report", "/security"];
+
+  return routes.map((route) => ({
+    url: `${baseUrl}${route}`,
     lastModified: new Date(),
-    changeFrequency: "weekly" as const,
+    changeFrequency: "weekly",
     priority: route === "" ? 1 : 0.7,
   }));
 }

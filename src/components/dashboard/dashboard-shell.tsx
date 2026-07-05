@@ -97,6 +97,11 @@ function getNavSections(
           icon: ShieldCheck,
         },
         {
+          label: "Launch Checklist",
+          href: "/dashboard/admin/launch-checklist",
+          icon: ShieldCheck,
+        },
+        {
           label: "Validation CRM",
           href: "/dashboard/validation",
           icon: Users,
