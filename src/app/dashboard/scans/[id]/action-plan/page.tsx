@@ -383,6 +383,12 @@ export default async function ActionPlanPage({ params }: PageProps) {
   const ownerActions = safeArray(professionalSummary?.ownerActions);
   const developerActions = safeArray(professionalSummary?.developerActions);
   const fastestFixes = safeArray(professionalSummary?.fastestFixes);
+  const professionalMeta = professionalSummary as unknown as {
+    riskReason?: unknown;
+    scoreImprovements?: unknown;
+  } | undefined;
+  const riskReason = text(professionalMeta?.riskReason);
+  const scoreImprovements = safeArray(professionalMeta?.scoreImprovements);
 
   const fixNow = findings.filter((finding) => getPriority(finding) === "fix_now");
   const fixThisWeek = findings.filter((finding) => getPriority(finding) === "fix_this_week");
@@ -468,6 +474,21 @@ export default async function ActionPlanPage({ params }: PageProps) {
                 {severityLabel(scan.risk_level)} risk
               </div>
             </div>
+          </div>
+        </section>
+
+        <section className="mt-8 rounded-3xl border border-cyan-300/20 bg-cyan-300/10 p-8">
+          <h2 className="text-2xl font-black text-cyan-100">Score improvement strategy</h2>
+          <p className="mt-4 leading-8 text-cyan-50/90">
+            {riskReason || "Fix the highest-priority findings first, then run a retest to confirm score improvement."}
+          </p>
+
+          <div className="mt-5 grid gap-3 md:grid-cols-2">
+            {(scoreImprovements.length > 0 ? scoreImprovements : ["Fix highest-priority findings and retest the website."]).map((item) => (
+              <div key={item} className="rounded-2xl border border-cyan-200/20 bg-slate-950/60 p-4">
+                <p className="leading-7 text-cyan-50/90">{item}</p>
+              </div>
+            ))}
           </div>
         </section>
 

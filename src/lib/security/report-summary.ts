@@ -3,6 +3,12 @@ import type {
   ProfessionalReportSummary,
 } from "./types";
 import { calculateScoreBreakdown, riskFromScore } from "./scoring";
+import {
+  buildRiskReason,
+  buildScoreDrivers,
+  buildScoreExplanation,
+  buildScoreImprovements,
+} from "./risk-reasons";
 
 function firstItems(values: string[], limit: number) {
   return values.filter(Boolean).slice(0, limit);
@@ -49,10 +55,15 @@ export function buildProfessionalReportSummary(
     3
   );
 
+  const riskReason = buildRiskReason(score, riskLevel, findings);
+  const scoreExplanation = buildScoreExplanation(score, findings);
+  const scoreDrivers = buildScoreDrivers(findings);
+  const scoreImprovements = buildScoreImprovements(findings);
+
   const executiveSummary =
     findings.length === 0
       ? "No major visible website security posture issues were detected in this passive review."
-      : `VeyraSec found ${findings.length} visible website security posture item${findings.length === 1 ? "" : "s"} to review. The most important next step is to fix the highest-priority items first and then retest the website.`;
+      : `VeyraSec found ${findings.length} visible website security posture item${findings.length === 1 ? "" : "s"} to review. ${riskReason}`;
 
   return {
     score,
@@ -62,5 +73,9 @@ export function buildProfessionalReportSummary(
     fastestFixes,
     ownerActions,
     developerActions,
+    scoreExplanation,
+    riskReason,
+    scoreDrivers,
+    scoreImprovements,
   };
 }

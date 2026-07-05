@@ -223,6 +223,16 @@ export default async function PublicReportPage({ params }: PageProps) {
   const fastestFixes = safeArray(professionalSummary?.fastestFixes);
   const ownerActions = safeArray(professionalSummary?.ownerActions);
   const developerActions = safeArray(professionalSummary?.developerActions);
+  const professionalMeta = professionalSummary as unknown as {
+    scoreExplanation?: unknown;
+    riskReason?: unknown;
+    scoreDrivers?: unknown;
+    scoreImprovements?: unknown;
+  } | undefined;
+  const scoreExplanation = safeArray(professionalMeta?.scoreExplanation);
+  const riskReason = text(professionalMeta?.riskReason);
+  const scoreDrivers = safeArray(professionalMeta?.scoreDrivers);
+  const scoreImprovements = safeArray(professionalMeta?.scoreImprovements);
 
   const reportUrl = scan.url || `https://${scan.domain}`;
   const websiteName = text(scan.domain, "Website");
@@ -289,6 +299,46 @@ export default async function PublicReportPage({ params }: PageProps) {
           <ScoreCard label="Exposure" value={exposureScore} />
           <ScoreCard label="Hygiene" value={hygieneScore} />
           <ScoreCard label="Overall" value={overallScore} />
+        </section>
+
+        <section className="mt-8 rounded-3xl border border-white/10 bg-white/[0.04] p-8">
+          <h2 className="text-3xl font-black">Score explanation</h2>
+
+          {riskReason ? (
+            <div className="mt-5 rounded-2xl border border-cyan-300/20 bg-cyan-300/10 p-5">
+              <h3 className="font-black text-cyan-100">Risk reason</h3>
+              <p className="mt-3 leading-8 text-cyan-50/90">{riskReason}</p>
+            </div>
+          ) : null}
+
+          <div className="mt-5 grid gap-5 lg:grid-cols-3">
+            <div className="rounded-2xl border border-white/10 bg-slate-950 p-5">
+              <h3 className="font-black text-white">How score was decided</h3>
+              <div className="mt-4 grid gap-3">
+                {(scoreExplanation.length > 0 ? scoreExplanation : ["Score is based on visible website security posture signals."]).map((item) => (
+                  <p key={item} className="leading-7 text-slate-300">{item}</p>
+                ))}
+              </div>
+            </div>
+
+            <div className="rounded-2xl border border-white/10 bg-slate-950 p-5">
+              <h3 className="font-black text-white">What reduced score</h3>
+              <div className="mt-4 grid gap-3">
+                {(scoreDrivers.length > 0 ? scoreDrivers : ["No score drivers were stored for this scan."]).map((item) => (
+                  <p key={item} className="leading-7 text-slate-300">{item}</p>
+                ))}
+              </div>
+            </div>
+
+            <div className="rounded-2xl border border-white/10 bg-slate-950 p-5">
+              <h3 className="font-black text-white">How to improve score</h3>
+              <div className="mt-4 grid gap-3">
+                {(scoreImprovements.length > 0 ? scoreImprovements : ["Fix the highest-priority findings and run a retest."]).map((item) => (
+                  <p key={item} className="leading-7 text-slate-300">{item}</p>
+                ))}
+              </div>
+            </div>
+          </div>
         </section>
 
         <section className="mt-8 grid gap-8 lg:grid-cols-2">

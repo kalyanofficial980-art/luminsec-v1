@@ -62,6 +62,10 @@ export type ProfessionalReportSummary = {
   fastestFixes: string[];
   ownerActions: string[];
   developerActions: string[];
+  scoreExplanation: string[];
+  riskReason: string;
+  scoreDrivers: string[];
+  scoreImprovements: string[];
 };
 
 export function severityWeight(severity: SecuritySeverity) {
