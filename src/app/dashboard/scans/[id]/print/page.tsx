@@ -1,479 +1,966 @@
 import Link from "next/link";
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 import {
-  AlertTriangle,
   ArrowLeft,
   CheckCircle2,
+  ExternalLink,
   FileText,
-  Globe2,
+  Printer,
   ShieldCheck,
 } from "lucide-react";
-import { brand } from "@/config/brand";
-import { createClient } from "@/lib/supabase/server";
-import { formatDateTime } from "@/lib/utils/risk";
-import { PrintButton } from "@/components/report/print-button";
+import { requireDashboardUser } from "@/lib/auth/route-access";
 
-type FindingRow = {
-  id: string;
-  category: string | null;
-  severity: string | null;
-  title: string;
-  description: string | null;
-  recommendation: string | null;
-  evidence: string | null;
+type PageProps = {
+  params: Promise<{
+    id: string;
+  }>;
 };
 
-type RawResult = {
-  scoreBreakdown?: {
-    topReasons?: string[];
-  };
-  topReasons?: string[];
-};
+function clampScore(value: unknown) {
+  const score = Number(value);
 
-function getWebsiteData(websites: unknown) {
-  if (Array.isArray(websites)) {
-    const firstWebsite = websites[0] as { url?: string | null; name?: string | null } | undefined;
-
-    return {
-      url: firstWebsite?.url || "Website report",
-      name: firstWebsite?.name || "Website",
-    };
+  if (!Number.isFinite(score)) {
+    return 0;
   }
 
-  if (websites && typeof websites === "object") {
-    const item = websites as { url?: string | null; name?: string | null };
-
-    return {
-      url: item.url || "Website report",
-      name: item.name || "Website",
-    };
-  }
-
-  return {
-    url: "Website report",
-    name: "Website",
-  };
+  return Math.max(0, Math.min(100, Math.round(score)));
 }
 
-function scoreClass(score: number) {
-  if (score >= 80) return "border-emerald-200 bg-emerald-50 text-emerald-900";
-  if (score >= 60) return "border-amber-200 bg-amber-50 text-amber-900";
-  return "border-red-200 bg-red-50 text-red-900";
+function normalizeText(value: unknown, fallback = "") {
+  const text = String(value ?? "").trim();
+  return text.length > 0 ? text : fallback;
 }
 
-function scoreLabel(score: number) {
-  if (score >= 80) return "Strong";
-  if (score >= 60) return "Needs improvement";
-  return "Needs attention";
+function normalizeRisk(value: unknown) {
+  const risk = String(value ?? "unknown").toLowerCase();
+
+  if (risk.includes("critical")) return "critical";
+  if (risk.includes("high")) return "high";
+  if (risk.includes("medium") || risk.includes("moderate")) return "medium";
+  if (risk.includes("low")) return "low";
+
+  return "review";
 }
 
-function severityClass(severity?: string | null) {
-  if (severity === "high") return "bg-red-50 text-red-800 ring-red-200";
-  if (severity === "medium") return "bg-amber-50 text-amber-800 ring-amber-200";
-  if (severity === "low") return "bg-blue-50 text-blue-800 ring-blue-200";
-  return "bg-slate-100 text-slate-700 ring-slate-200";
+function riskLabel(value: unknown) {
+  const risk = normalizeRisk(value);
+
+  if (risk === "critical") return "Critical";
+  if (risk === "high") return "High";
+  if (risk === "medium") return "Medium";
+  if (risk === "low") return "Low";
+
+  return "Review";
 }
 
-function countSeverity(findings: FindingRow[], severity: string) {
-  return findings.filter((finding) => finding.severity === severity).length;
+function scoreTone(score: number) {
+  if (score >= 85) return "excellent";
+  if (score >= 65) return "needs-review";
+  if (score >= 40) return "weak";
+  return "critical";
 }
 
-function getRawObject(raw: unknown): RawResult {
-  if (raw && typeof raw === "object") {
-    return raw as RawResult;
+function safeArray(value: unknown) {
+  if (!Array.isArray(value)) {
+    return [];
   }
 
-  return {};
+  return value.map((item) => String(item ?? "").trim()).filter(Boolean);
 }
 
-function buildActionPlan(findings: FindingRow[]) {
-  const actions: string[] = [];
-  const titles = findings.map((finding) => finding.title.toLowerCase()).join(" ");
-
-  if (titles.includes("https")) {
-    actions.push("Fix HTTPS and redirect issues first because they affect basic visitor trust.");
-  }
-
-  if (
-    titles.includes("hsts") ||
-    titles.includes("content security policy") ||
-    titles.includes("clickjacking") ||
-    titles.includes("x-content-type-options")
-  ) {
-    actions.push("Ask the developer to add or improve security headers, then rerun the scan.");
-  }
-
-  if (titles.includes("privacy")) {
-    actions.push("Add a clear privacy policy link in the footer or navigation.");
-  }
-
-  if (titles.includes("contact")) {
-    actions.push("Add a visible contact page, email, phone number, or contact form.");
-  }
-
-  if (titles.includes("sitemap") || titles.includes("robots")) {
-    actions.push("Add robots.txt and sitemap.xml to improve basic public website discoverability.");
-  }
-
-  if (actions.length === 0) {
-    actions.push("Review the listed findings with your developer and rerun the scan after changes.");
-  }
-
-  actions.push("After changes are completed, run a fresh VeyraSec scan and compare before-after progress.");
-
-  return actions.slice(0, 6);
+function escapeRegExp(value: string) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
-export default async function PrintReportPage({
-  params,
+function extractSection(body: unknown, label: string) {
+  const text = normalizeText(body);
+  const pattern = new RegExp(
+    `${escapeRegExp(label)}:\\s*([\\s\\S]*?)(?=\\n\\n[A-Z][A-Za-z\\s]+:|$)`,
+    "i"
+  );
+  const match = text.match(pattern);
+
+  return normalizeText(match?.[1]);
+}
+
+function evidenceLines(value: unknown) {
+  const text = normalizeText(value);
+
+  if (!text) {
+    return [];
+  }
+
+  return text
+    .split(/\n+/)
+    .map((line) => line.trim())
+    .filter(Boolean);
+}
+
+function ScoreBox({
+  label,
+  value,
 }: {
-  params: Promise<{ id: string }>;
+  label: string;
+  value: number;
 }) {
+  return (
+    <div className={`score-box ${scoreTone(value)}`}>
+      <p className="score-label">{label}</p>
+      <p className="score-value">{value}</p>
+      <p className="score-outof">out of 100</p>
+    </div>
+  );
+}
+
+function ListBlock({
+  title,
+  items,
+}: {
+  title: string;
+  items: string[];
+}) {
+  return (
+    <section className="report-card avoid-break">
+      <h2>{title}</h2>
+
+      {items.length > 0 ? (
+        <ol className="number-list">
+          {items.map((item) => (
+            <li key={item}>{item}</li>
+          ))}
+        </ol>
+      ) : (
+        <p className="muted">No specific items available for this section.</p>
+      )}
+    </section>
+  );
+}
+
+export default async function PrintReportPage({ params }: PageProps) {
   const { id } = await params;
-  const supabase = await createClient();
+  const { supabase, user, profile } = await requireDashboardUser();
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    redirect("/login");
-  }
-
-  const { data: result } = await supabase
+  let scanQuery = supabase
     .from("scan_results")
     .select(
-      "id, overall_score, security_score, privacy_score, trust_score, risk_level, summary, raw_result, created_at, websites(name, url)"
+      "id, user_id, website_id, url, domain, status, overall_score, score, security_score, privacy_score, trust_score, risk_level, summary, raw_result, raw, created_at"
     )
-    .eq("id", id)
-    .eq("user_id", user.id)
-    .maybeSingle();
+    .eq("id", id);
 
-  if (!result) {
+  if (profile.role !== "admin") {
+    scanQuery = scanQuery.eq("user_id", user.id);
+  }
+
+  const { data: scan } = await scanQuery.maybeSingle();
+
+  if (!scan) {
     notFound();
   }
 
-  const { data: findingsRows } = await supabase
+  let findingsQuery = supabase
     .from("scan_findings")
-    .select("id, category, severity, title, description, recommendation, evidence")
-    .eq("scan_result_id", result.id)
-    .order("severity", { ascending: true });
+    .select("id, category, severity, title, description, recommendation, evidence, created_at")
+    .eq("scan_result_id", scan.id)
+    .order("created_at", { ascending: true });
 
-  const { data: businessSettings } = await supabase
-    .from("business_settings")
-    .select("business_name, owner_name, email, phone, website, address, report_footer_note")
-    .eq("user_id", user.id)
-    .maybeSingle();
+  if (profile.role !== "admin") {
+    findingsQuery = findingsQuery.eq("user_id", user.id);
+  }
 
-  const findings = (findingsRows ?? []) as FindingRow[];
-  const website = getWebsiteData(result.websites);
-  const raw = getRawObject(result.raw_result);
+  const { data: findings } = await findingsQuery;
 
-  const topReasons =
-    raw.scoreBreakdown?.topReasons && raw.scoreBreakdown.topReasons.length > 0
-      ? raw.scoreBreakdown.topReasons
-      : raw.topReasons && raw.topReasons.length > 0
-        ? raw.topReasons
-        : [];
+  let websiteName = scan.domain || "Website";
 
-  const scoreCards = [
-    ["Overall readiness", Number(result.overall_score ?? 0)],
-    ["Security", Number(result.security_score ?? 0)],
-    ["Privacy", Number(result.privacy_score ?? 0)],
-    ["Trust", Number(result.trust_score ?? 0)],
-  ];
+  if (scan.website_id) {
+    let websiteQuery = supabase
+      .from("websites")
+      .select("name, url, domain")
+      .eq("id", scan.website_id);
 
-  const severityCards = [
-    ["High", countSeverity(findings, "high"), "border-red-200 bg-red-50 text-red-800"],
-    ["Medium", countSeverity(findings, "medium"), "border-amber-200 bg-amber-50 text-amber-800"],
-    ["Low", countSeverity(findings, "low"), "border-blue-200 bg-blue-50 text-blue-800"],
-    ["Info", countSeverity(findings, "info"), "border-slate-200 bg-slate-50 text-slate-700"],
-  ];
+    if (profile.role !== "admin") {
+      websiteQuery = websiteQuery.eq("user_id", user.id);
+    }
 
-  const actionPlan = buildActionPlan(findings);
+    const { data: website } = await websiteQuery.maybeSingle();
+
+    websiteName = website?.name || website?.domain || scan.domain || "Website";
+  }
+
+  const rawResult = (scan.raw_result || scan.raw || {}) as {
+    professional?: {
+      summary?: {
+        score?: {
+          overall?: number;
+          security?: number;
+          privacy?: number;
+          trust?: number;
+          exposure?: number;
+          technicalHygiene?: number;
+        };
+        topRisks?: string[];
+        fastestFixes?: string[];
+        ownerActions?: string[];
+        developerActions?: string[];
+      };
+    };
+  };
+
+  const professionalSummary = rawResult.professional?.summary;
+
+  const overallScore = clampScore(
+    professionalSummary?.score?.overall ?? scan.overall_score ?? scan.score
+  );
+  const securityScore = clampScore(
+    professionalSummary?.score?.security ?? scan.security_score
+  );
+  const privacyScore = clampScore(
+    professionalSummary?.score?.privacy ?? scan.privacy_score
+  );
+  const trustScore = clampScore(
+    professionalSummary?.score?.trust ?? scan.trust_score
+  );
+  const exposureScore = clampScore(professionalSummary?.score?.exposure ?? 0);
+  const hygieneScore = clampScore(professionalSummary?.score?.technicalHygiene ?? 0);
+
+  const topRisks = safeArray(professionalSummary?.topRisks);
+  const fastestFixes = safeArray(professionalSummary?.fastestFixes);
+  const ownerActions = safeArray(professionalSummary?.ownerActions);
+  const developerActions = safeArray(professionalSummary?.developerActions);
+
+  const reportUrl = scan.url || `https://${scan.domain}`;
 
   return (
-    <main className="min-h-screen bg-slate-100 px-4 py-6 text-slate-950 print:bg-white print:px-0 print:py-0">
-      <style>
-        {`
+    <main className="print-page">
+      <style>{`
+        :root {
+          color-scheme: light;
+        }
+
+        body {
+          background: #f8fafc;
+        }
+
+        .print-page {
+          min-height: 100vh;
+          background: #f8fafc;
+          color: #0f172a;
+          font-family: Arial, Helvetica, sans-serif;
+          padding: 32px;
+        }
+
+        .screen-toolbar {
+          max-width: 1100px;
+          margin: 0 auto 20px auto;
+          display: flex;
+          justify-content: space-between;
+          gap: 12px;
+          align-items: center;
+        }
+
+        .screen-link,
+        .print-button {
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          border-radius: 14px;
+          border: 1px solid #cbd5e1;
+          background: #ffffff;
+          color: #0f172a;
+          padding: 11px 14px;
+          font-size: 14px;
+          font-weight: 800;
+          text-decoration: none;
+        }
+
+        .print-button {
+          background: #0f172a;
+          color: #ffffff;
+          border-color: #0f172a;
+          cursor: pointer;
+        }
+
+        .report-sheet {
+          max-width: 1100px;
+          margin: 0 auto;
+          background: #ffffff;
+          border: 1px solid #e2e8f0;
+          box-shadow: 0 20px 60px rgba(15, 23, 42, 0.08);
+        }
+
+        .hero {
+          padding: 42px;
+          border-bottom: 1px solid #e2e8f0;
+          background: linear-gradient(135deg, #0f172a, #164e63);
+          color: #ffffff;
+        }
+
+        .brand-row {
+          display: flex;
+          justify-content: space-between;
+          gap: 24px;
+          align-items: flex-start;
+        }
+
+        .brand {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          font-size: 20px;
+          font-weight: 900;
+        }
+
+        .brand-icon {
+          display: inline-flex;
+          height: 44px;
+          width: 44px;
+          align-items: center;
+          justify-content: center;
+          border-radius: 14px;
+          background: rgba(34, 211, 238, 0.15);
+          border: 1px solid rgba(103, 232, 249, 0.35);
+        }
+
+        .report-type {
+          margin-top: 32px;
+          text-transform: uppercase;
+          letter-spacing: 0.18em;
+          color: #67e8f9;
+          font-size: 12px;
+          font-weight: 900;
+        }
+
+        h1 {
+          margin: 12px 0 0 0;
+          font-size: 44px;
+          line-height: 1.05;
+          letter-spacing: -0.04em;
+        }
+
+        .url {
+          margin-top: 14px;
+          color: #dbeafe;
+          word-break: break-all;
+          font-size: 14px;
+        }
+
+        .summary {
+          margin-top: 24px;
+          max-width: 800px;
+          color: #e2e8f0;
+          font-size: 17px;
+          line-height: 1.7;
+        }
+
+        .hero-score {
+          min-width: 180px;
+          border-radius: 28px;
+          border: 1px solid rgba(255,255,255,0.18);
+          background: rgba(15,23,42,0.35);
+          padding: 22px;
+          text-align: center;
+        }
+
+        .hero-score-label {
+          color: #cbd5e1;
+          font-weight: 800;
+          font-size: 13px;
+        }
+
+        .hero-score-value {
+          margin-top: 8px;
+          font-size: 64px;
+          line-height: 1;
+          font-weight: 900;
+        }
+
+        .risk-pill {
+          margin-top: 14px;
+          display: inline-flex;
+          border-radius: 999px;
+          background: #ffffff;
+          color: #0f172a;
+          padding: 8px 14px;
+          font-size: 12px;
+          font-weight: 900;
+          text-transform: uppercase;
+          letter-spacing: 0.08em;
+        }
+
+        .content {
+          padding: 34px 42px 42px 42px;
+        }
+
+        .meta-grid {
+          display: grid;
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+          gap: 14px;
+          margin-bottom: 26px;
+        }
+
+        .meta-card {
+          border-radius: 18px;
+          border: 1px solid #e2e8f0;
+          background: #f8fafc;
+          padding: 16px;
+        }
+
+        .meta-label {
+          color: #64748b;
+          font-size: 12px;
+          font-weight: 900;
+          text-transform: uppercase;
+          letter-spacing: 0.08em;
+        }
+
+        .meta-value {
+          margin-top: 6px;
+          color: #0f172a;
+          font-size: 15px;
+          font-weight: 900;
+          word-break: break-word;
+        }
+
+        .score-grid {
+          display: grid;
+          grid-template-columns: repeat(6, minmax(0, 1fr));
+          gap: 12px;
+          margin: 26px 0;
+        }
+
+        .score-box {
+          border-radius: 18px;
+          border: 1px solid #e2e8f0;
+          padding: 16px;
+          background: #f8fafc;
+        }
+
+        .score-box.excellent {
+          border-color: #bbf7d0;
+          background: #f0fdf4;
+        }
+
+        .score-box.needs-review {
+          border-color: #fde68a;
+          background: #fffbeb;
+        }
+
+        .score-box.weak {
+          border-color: #fed7aa;
+          background: #fff7ed;
+        }
+
+        .score-box.critical {
+          border-color: #fecaca;
+          background: #fef2f2;
+        }
+
+        .score-label {
+          margin: 0;
+          color: #64748b;
+          font-size: 12px;
+          font-weight: 900;
+          text-transform: uppercase;
+        }
+
+        .score-value {
+          margin: 8px 0 0 0;
+          color: #0f172a;
+          font-size: 32px;
+          font-weight: 900;
+        }
+
+        .score-outof {
+          margin: 2px 0 0 0;
+          color: #94a3b8;
+          font-size: 11px;
+          font-weight: 800;
+        }
+
+        .two-col {
+          display: grid;
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          gap: 16px;
+          margin-top: 16px;
+        }
+
+        .report-card {
+          border-radius: 22px;
+          border: 1px solid #e2e8f0;
+          background: #ffffff;
+          padding: 22px;
+        }
+
+        .report-card h2 {
+          margin: 0 0 14px 0;
+          font-size: 20px;
+          letter-spacing: -0.02em;
+        }
+
+        .number-list {
+          margin: 0;
+          padding-left: 22px;
+        }
+
+        .number-list li {
+          margin: 10px 0;
+          color: #334155;
+          line-height: 1.65;
+        }
+
+        .muted {
+          color: #64748b;
+          line-height: 1.7;
+        }
+
+        .section-title {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          margin: 34px 0 16px 0;
+          font-size: 28px;
+          font-weight: 900;
+          letter-spacing: -0.04em;
+        }
+
+        .finding {
+          border-radius: 24px;
+          border: 1px solid #cbd5e1;
+          margin-top: 18px;
+          overflow: hidden;
+          page-break-inside: avoid;
+          break-inside: avoid;
+        }
+
+        .finding-header {
+          display: flex;
+          justify-content: space-between;
+          gap: 16px;
+          padding: 20px;
+          background: #f8fafc;
+          border-bottom: 1px solid #e2e8f0;
+        }
+
+        .finding-number {
+          color: #64748b;
+          font-size: 12px;
+          font-weight: 900;
+          text-transform: uppercase;
+          letter-spacing: 0.08em;
+        }
+
+        .finding-title {
+          margin: 6px 0 0 0;
+          font-size: 21px;
+          font-weight: 900;
+          letter-spacing: -0.02em;
+        }
+
+        .badge-row {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 8px;
+          margin-top: 10px;
+        }
+
+        .badge {
+          display: inline-flex;
+          border-radius: 999px;
+          border: 1px solid #cbd5e1;
+          background: #ffffff;
+          padding: 5px 10px;
+          color: #334155;
+          font-size: 11px;
+          font-weight: 900;
+          text-transform: uppercase;
+        }
+
+        .finding-body {
+          padding: 20px;
+        }
+
+        .finding-grid {
+          display: grid;
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          gap: 12px;
+        }
+
+        .mini-card {
+          border-radius: 16px;
+          border: 1px solid #e2e8f0;
+          background: #ffffff;
+          padding: 16px;
+        }
+
+        .mini-card h4 {
+          margin: 0;
+          color: #0f172a;
+          font-size: 14px;
+          font-weight: 900;
+        }
+
+        .mini-card p {
+          margin: 8px 0 0 0;
+          color: #334155;
+          line-height: 1.65;
+          font-size: 13px;
+        }
+
+        .fix-box {
+          margin-top: 12px;
+          border-radius: 16px;
+          border: 1px solid #bbf7d0;
+          background: #f0fdf4;
+          padding: 16px;
+        }
+
+        .fix-box h4 {
+          margin: 0;
+          color: #14532d;
+          font-size: 14px;
+          font-weight: 900;
+        }
+
+        .fix-box p {
+          margin: 7px 0;
+          color: #166534;
+          font-size: 13px;
+          line-height: 1.6;
+        }
+
+        .evidence-box {
+          margin-top: 12px;
+          border-radius: 16px;
+          border: 1px solid #e2e8f0;
+          background: #f8fafc;
+          padding: 16px;
+        }
+
+        .evidence-box h4 {
+          margin: 0;
+          font-size: 14px;
+          font-weight: 900;
+        }
+
+        .evidence-line {
+          margin-top: 8px;
+          border-radius: 10px;
+          background: #ffffff;
+          border: 1px solid #e2e8f0;
+          padding: 8px 10px;
+          color: #334155;
+          font-family: Consolas, Monaco, monospace;
+          font-size: 11px;
+          line-height: 1.5;
+          word-break: break-word;
+        }
+
+        .scope-note {
+          margin-top: 34px;
+          border-radius: 20px;
+          border: 1px solid #fde68a;
+          background: #fffbeb;
+          padding: 20px;
+          color: #78350f;
+          line-height: 1.7;
+        }
+
+        .footer {
+          margin-top: 28px;
+          padding-top: 20px;
+          border-top: 1px solid #e2e8f0;
+          color: #64748b;
+          font-size: 12px;
+          display: flex;
+          justify-content: space-between;
+          gap: 16px;
+        }
+
+        .avoid-break {
+          page-break-inside: avoid;
+          break-inside: avoid;
+        }
+
+        @media print {
           @page {
             size: A4;
-            margin: 14mm;
+            margin: 12mm;
           }
 
-          @media print {
-            .page-break {
-              break-before: page;
-            }
-
-            .avoid-break {
-              break-inside: avoid;
-            }
-
-            .no-print {
-              display: none !important;
-            }
-
-            body {
-              background: white !important;
-            }
+          body {
+            background: #ffffff;
           }
-        `}
-      </style>
 
-      <div className="no-print mx-auto mb-5 flex max-w-5xl items-center justify-between gap-3">
-        <Link
-          href={`/dashboard/scans/${result.id}`}
-          className="inline-flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-bold text-slate-700 hover:bg-slate-50"
-        >
-          <ArrowLeft className="h-4 w-4" />
+          .print-page {
+            padding: 0;
+            background: #ffffff;
+          }
+
+          .screen-toolbar {
+            display: none;
+          }
+
+          .report-sheet {
+            max-width: none;
+            border: 0;
+            box-shadow: none;
+          }
+
+          .hero {
+            print-color-adjust: exact;
+            -webkit-print-color-adjust: exact;
+          }
+
+          .content {
+            padding: 26px 0 0 0;
+          }
+
+          .score-grid {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+          }
+
+          .two-col {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+          }
+
+          .finding-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+          }
+        }
+
+        @media (max-width: 900px) {
+          .print-page {
+            padding: 16px;
+          }
+
+          .brand-row,
+          .screen-toolbar,
+          .footer {
+            flex-direction: column;
+          }
+
+          .meta-grid,
+          .score-grid,
+          .two-col,
+          .finding-grid {
+            grid-template-columns: 1fr;
+          }
+
+          h1 {
+            font-size: 34px;
+          }
+        }
+      `}</style>
+
+      <div className="screen-toolbar">
+        <Link href={`/dashboard/scans/${scan.id}`} className="screen-link">
+          <ArrowLeft size={16} />
           Back to report
         </Link>
 
-        <PrintButton />
+        <button type="button" onClick={() => globalThis.print()} className="print-button">
+          <Printer size={16} />
+          Print / Save PDF
+        </button>
       </div>
 
-      <article className="mx-auto max-w-5xl rounded-[2rem] bg-white p-8 shadow-xl shadow-slate-300/40 print:max-w-none print:rounded-none print:p-0 print:shadow-none">
-        <section className="avoid-break rounded-[1.75rem] bg-slate-950 p-8 text-white print:rounded-none">
-          <div className="flex flex-col justify-between gap-8 md:flex-row md:items-start">
+      <article className="report-sheet">
+        <header className="hero">
+          <div className="brand-row">
             <div>
-              <div className="mb-6 flex items-center gap-3">
-                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-cyan-300/10 ring-1 ring-cyan-300/30">
-                  <ShieldCheck className="h-7 w-7 text-cyan-300" />
-                </div>
-                <div>
-                  <p className="text-2xl font-black">{brand.name}</p>
-                  <p className="text-xs uppercase tracking-[0.25em] text-cyan-200/70">
-                    Website Trust Report
-                  </p>
-                </div>
+              <div className="brand">
+                <span className="brand-icon">
+                  <ShieldCheck size={24} />
+                </span>
+                VeyraSec
               </div>
 
-              <h1 className="max-w-3xl text-4xl font-black tracking-tight">
-                Website security, privacy, and trust readiness report
-              </h1>
+              <p className="report-type">Website security posture report</p>
 
-              <p className="mt-5 max-w-3xl break-all text-lg leading-8 text-slate-300">
-                {website.url}
+              <h1>{websiteName}</h1>
+
+              <a href={reportUrl} target="_blank" rel="noreferrer" className="url">
+                {reportUrl} <ExternalLink size={13} />
+              </a>
+
+              <p className="summary">
+                {normalizeText(
+                  scan.summary,
+                  "VeyraSec reviewed visible website security posture signals and generated a fix-first report."
+                )}
               </p>
             </div>
 
-            <div className="rounded-3xl border border-cyan-300/20 bg-cyan-300/10 p-6 text-center">
-              <p className="text-sm text-cyan-100/80">Overall score</p>
-              <p className="mt-2 text-6xl font-black text-white">
-                {Number(result.overall_score ?? 0)}
-              </p>
-              <p className="mt-2 text-sm font-bold text-cyan-100">
-                {scoreLabel(Number(result.overall_score ?? 0))}
-              </p>
+            <div className="hero-score">
+              <p className="hero-score-label">Overall score</p>
+              <p className="hero-score-value">{overallScore}</p>
+              <p className="hero-score-label">out of 100</p>
+              <span className="risk-pill">{riskLabel(scan.risk_level)} risk</span>
             </div>
           </div>
+        </header>
 
-          <div className="mt-8 grid gap-4 md:grid-cols-3">
-            <div className="rounded-2xl bg-white/10 p-4">
-              <p className="text-xs uppercase tracking-[0.2em] text-slate-400">Prepared for</p>
-              <p className="mt-2 break-all font-bold">{website.name}</p>
-              <p className="mt-1 break-all text-sm text-slate-300">{website.url}</p>
+        <div className="content">
+          <section className="meta-grid avoid-break">
+            <div className="meta-card">
+              <p className="meta-label">Report type</p>
+              <p className="meta-value">Passive security posture</p>
             </div>
-
-            <div className="rounded-2xl bg-white/10 p-4">
-              <p className="text-xs uppercase tracking-[0.2em] text-slate-400">Prepared by</p>
-              <p className="mt-2 font-bold">
-                {businessSettings?.business_name || brand.name}
-              </p>
-              <p className="mt-1 text-sm text-slate-300">
-                {businessSettings?.owner_name || "Report owner"}
+            <div className="meta-card">
+              <p className="meta-label">Scan date</p>
+              <p className="meta-value">
+                {scan.created_at ? new Date(scan.created_at).toLocaleString("en-IN") : "Not available"}
               </p>
             </div>
-
-            <div className="rounded-2xl bg-white/10 p-4">
-              <p className="text-xs uppercase tracking-[0.2em] text-slate-400">Report date</p>
-              <p className="mt-2 font-bold">{formatDateTime(result.created_at)}</p>
-              <p className="mt-1 text-sm text-slate-300">Safe passive checks only</p>
+            <div className="meta-card">
+              <p className="meta-label">Scope</p>
+              <p className="meta-value">Visible public signals only</p>
             </div>
-          </div>
-        </section>
-
-        <section className="avoid-break mt-8 grid gap-4 md:grid-cols-4 print:mt-6">
-          {scoreCards.map(([label, score]) => (
-            <div key={String(label)} className={`rounded-3xl border p-5 ${scoreClass(Number(score))}`}>
-              <p className="text-sm opacity-80">{label}</p>
-              <p className="mt-2 text-4xl font-black">{Number(score)}/100</p>
-              <p className="mt-2 text-sm font-bold">{scoreLabel(Number(score))}</p>
-            </div>
-          ))}
-        </section>
-
-        <section className="avoid-break mt-8 rounded-3xl border border-slate-200 p-6 print:mt-6">
-          <div className="mb-4 flex items-center gap-3">
-            <FileText className="h-6 w-6 text-slate-700" />
-            <h2 className="text-2xl font-black">Executive summary</h2>
-          </div>
-
-          <p className="leading-8 text-slate-700">{result.summary}</p>
-        </section>
-
-        <section className="avoid-break mt-8 grid gap-4 md:grid-cols-4 print:mt-6">
-          {severityCards.map(([label, value, className]) => (
-            <div key={String(label)} className={`rounded-3xl border p-5 ${String(className)}`}>
-              <p className="text-sm opacity-80">{label} findings</p>
-              <p className="mt-2 text-4xl font-black">{Number(value)}</p>
-            </div>
-          ))}
-        </section>
-
-        <section className="avoid-break mt-8 grid gap-6 md:grid-cols-2 print:mt-6">
-          <div className="rounded-3xl border border-slate-200 p-6">
-            <div className="mb-4 flex items-center gap-3">
-              <AlertTriangle className="h-6 w-6 text-amber-600" />
-              <h2 className="text-2xl font-black">Main score reasons</h2>
-            </div>
-
-            {topReasons.length === 0 ? (
-              <p className="text-slate-600">No score reasons were stored for this report.</p>
-            ) : (
-              <ol className="space-y-3">
-                {topReasons.slice(0, 5).map((reason, index) => (
-                  <li key={reason} className="flex gap-3 text-sm leading-6 text-slate-700">
-                    <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-slate-950 text-xs font-black text-white">
-                      {index + 1}
-                    </span>
-                    <span>{reason}</span>
-                  </li>
-                ))}
-              </ol>
-            )}
-          </div>
-
-          <div className="rounded-3xl border border-slate-200 p-6">
-            <div className="mb-4 flex items-center gap-3">
-              <CheckCircle2 className="h-6 w-6 text-emerald-600" />
-              <h2 className="text-2xl font-black">Recommended action plan</h2>
-            </div>
-
-            <ol className="space-y-3">
-              {actionPlan.map((action, index) => (
-                <li key={action} className="flex gap-3 text-sm leading-6 text-slate-700">
-                  <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-xs font-black text-emerald-900">
-                    {index + 1}
-                  </span>
-                  <span>{action}</span>
-                </li>
-              ))}
-            </ol>
-          </div>
-        </section>
-
-        <section className="page-break mt-8">
-          <div className="mb-5 flex items-center gap-3">
-            <Globe2 className="h-7 w-7 text-slate-700" />
-            <h2 className="text-3xl font-black">Findings table</h2>
-          </div>
-
-          {findings.length === 0 ? (
-            <div className="rounded-3xl border border-emerald-200 bg-emerald-50 p-6 text-emerald-900">
-              No findings were stored for this report.
-            </div>
-          ) : (
-            <div className="overflow-hidden rounded-3xl border border-slate-200">
-              <table className="w-full border-collapse text-left text-sm">
-                <thead className="bg-slate-950 text-white">
-                  <tr>
-                    <th className="p-4">Severity</th>
-                    <th className="p-4">Category</th>
-                    <th className="p-4">Finding</th>
-                    <th className="p-4">Recommended fix</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {findings.map((finding) => (
-                    <tr key={finding.id} className="border-t border-slate-200 align-top">
-                      <td className="p-4">
-                        <span className={`rounded-full px-3 py-1 text-xs font-bold ring-1 ${severityClass(finding.severity)}`}>
-                          {finding.severity || "info"}
-                        </span>
-                      </td>
-                      <td className="p-4 font-semibold text-slate-700">{finding.category || "trust"}</td>
-                      <td className="p-4">
-                        <p className="font-bold text-slate-950">{finding.title}</p>
-                        {finding.description ? (
-                          <p className="mt-2 leading-6 text-slate-600">{finding.description}</p>
-                        ) : null}
-                      </td>
-                      <td className="p-4 leading-6 text-slate-700">
-                        {finding.recommendation || "Review with your developer."}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </section>
-
-        <section className="page-break mt-8">
-          <h2 className="mb-5 text-3xl font-black">Detailed findings</h2>
-
-          <div className="grid gap-5">
-            {findings.map((finding) => (
-              <div key={finding.id} className="avoid-break rounded-3xl border border-slate-200 p-6">
-                <div className="mb-3 flex flex-wrap items-center gap-2">
-                  <h3 className="text-xl font-black">{finding.title}</h3>
-                  <span className={`rounded-full px-3 py-1 text-xs font-bold ring-1 ${severityClass(finding.severity)}`}>
-                    {finding.severity || "info"}
-                  </span>
-                  <span className="rounded-full bg-cyan-50 px-3 py-1 text-xs font-bold text-cyan-800 ring-1 ring-cyan-200">
-                    {finding.category || "trust"}
-                  </span>
-                </div>
-
-                {finding.description ? (
-                  <p className="leading-7 text-slate-700">{finding.description}</p>
-                ) : null}
-
-                {finding.recommendation ? (
-                  <div className="mt-4 rounded-2xl bg-emerald-50 p-4 text-emerald-900 ring-1 ring-emerald-200">
-                    <p className="mb-1 font-black">Recommendation</p>
-                    <p className="leading-7">{finding.recommendation}</p>
-                  </div>
-                ) : null}
-
-                {finding.evidence ? (
-                  <div className="mt-4 rounded-2xl bg-slate-100 p-4 text-sm text-slate-700">
-                    <p className="mb-1 font-black">Evidence</p>
-                    <p className="break-all leading-6">{finding.evidence}</p>
-                  </div>
-                ) : null}
-              </div>
-            ))}
-          </div>
-        </section>
-
-        <section className="avoid-break mt-8 rounded-3xl border border-amber-200 bg-amber-50 p-6 text-amber-950">
-          <h2 className="text-2xl font-black">Important disclaimer</h2>
-          <p className="mt-3 leading-8">
-            This report is based on safe passive website checks only. It is not a full cybersecurity audit,
-            not legal advice, not compliance certification, and not a penetration test. It does not test login
-            areas, hidden systems, server-side vulnerabilities, business-specific risk, or non-public assets.
-          </p>
-        </section>
-
-        {businessSettings?.report_footer_note ? (
-          <section className="avoid-break mt-6 rounded-3xl border border-slate-200 bg-slate-50 p-6">
-            <h2 className="text-xl font-black">Report note</h2>
-            <p className="mt-3 leading-7 text-slate-700">{businessSettings.report_footer_note}</p>
           </section>
-        ) : null}
 
-        <footer className="mt-8 border-t border-slate-200 pt-5 text-sm text-slate-500">
-          <div className="flex flex-col justify-between gap-3 md:flex-row md:items-center">
-            <p>Prepared with {brand.name} {brand.version}. Safe passive website trust report.</p>
-            <p className="break-all">
-              {businessSettings?.email || brand.supportEmail}
-              {businessSettings?.phone ? ` · ${businessSettings.phone}` : ""}
-            </p>
-          </div>
-        </footer>
+          <section className="score-grid avoid-break">
+            <ScoreBox label="Security" value={securityScore} />
+            <ScoreBox label="Privacy" value={privacyScore} />
+            <ScoreBox label="Trust" value={trustScore} />
+            <ScoreBox label="Exposure" value={exposureScore} />
+            <ScoreBox label="Hygiene" value={hygieneScore} />
+            <ScoreBox label="Overall" value={overallScore} />
+          </section>
+
+          <section className="two-col">
+            <ListBlock title="Top risks" items={topRisks} />
+            <ListBlock title="Fastest fixes" items={fastestFixes} />
+          </section>
+
+          <section className="two-col">
+            <ListBlock title="Business owner actions" items={ownerActions} />
+            <ListBlock title="Developer actions" items={developerActions} />
+          </section>
+
+          <h2 className="section-title">
+            <FileText size={28} />
+            Professional findings
+          </h2>
+
+          {(findings ?? []).length > 0 ? (
+            (findings ?? []).map((finding, index) => {
+              const whatWeFound =
+                extractSection(finding.description, "What we found") ||
+                normalizeText(finding.description, "This item should be reviewed.");
+
+              const whyItMatters = extractSection(finding.description, "Why it matters");
+              const businessImpact = extractSection(finding.description, "Business impact");
+              const technicalImpact = extractSection(finding.description, "Technical impact");
+              const confidence = extractSection(finding.description, "Confidence");
+
+              const priority = extractSection(finding.recommendation, "Priority");
+              const effort = extractSection(finding.recommendation, "Estimated effort");
+              const fixSummary = extractSection(finding.recommendation, "Fix summary");
+              const developerFix = extractSection(finding.recommendation, "Developer fix");
+              const retest = extractSection(finding.recommendation, "Retest");
+
+              const evidence = evidenceLines(finding.evidence);
+
+              return (
+                <section key={finding.id} className="finding">
+                  <div className="finding-header">
+                    <div>
+                      <p className="finding-number">Finding #{index + 1}</p>
+                      <h3 className="finding-title">
+                        {normalizeText(finding.title, "Finding")}
+                      </h3>
+
+                      <div className="badge-row">
+                        <span className="badge">{riskLabel(finding.severity)}</span>
+                        <span className="badge">
+                          {normalizeText(finding.category, "general").replaceAll("_", " ")}
+                        </span>
+                        {confidence ? <span className="badge">Confidence: {confidence}</span> : null}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="finding-body">
+                    <div className="finding-grid">
+                      <div className="mini-card">
+                        <h4>What we found</h4>
+                        <p>{whatWeFound}</p>
+                      </div>
+
+                      <div className="mini-card">
+                        <h4>Why it matters</h4>
+                        <p>
+                          {whyItMatters ||
+                            "This item can affect website security posture, trust, or technical hygiene."}
+                        </p>
+                      </div>
+
+                      <div className="mini-card">
+                        <h4>Business impact</h4>
+                        <p>
+                          {businessImpact ||
+                            "This may reduce customer confidence or make the website look less security-ready."}
+                        </p>
+                      </div>
+
+                      <div className="mini-card">
+                        <h4>Technical impact</h4>
+                        <p>
+                          {technicalImpact ||
+                            "Ask your developer to review this item in the website configuration."}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="fix-box">
+                      <h4>Fix-first guidance</h4>
+                      {priority ? <p><strong>Priority:</strong> {priority}</p> : null}
+                      {effort ? <p><strong>Estimated effort:</strong> {effort}</p> : null}
+                      <p>
+                        <strong>Fix summary:</strong>{" "}
+                        {fixSummary || normalizeText(finding.recommendation, "Review and fix this issue.")}
+                      </p>
+                      {developerFix ? <p><strong>Developer fix:</strong> {developerFix}</p> : null}
+                      {retest ? <p><strong>Retest:</strong> {retest}</p> : null}
+                    </div>
+
+                    <div className="evidence-box">
+                      <h4>Evidence</h4>
+
+                      {evidence.length > 0 ? (
+                        evidence.map((line) => (
+                          <div key={line} className="evidence-line">
+                            {line}
+                          </div>
+                        ))
+                      ) : (
+                        <p className="muted">Evidence was not stored for this item.</p>
+                      )}
+                    </div>
+                  </div>
+                </section>
+              );
+            })
+          ) : (
+            <section className="report-card avoid-break">
+              <CheckCircle2 size={26} />
+              <h2>No visible findings saved</h2>
+              <p className="muted">
+                This scan did not store visible security posture findings.
+              </p>
+            </section>
+          )}
+
+          <section className="scope-note avoid-break">
+            <strong>Important scope note:</strong> This is a passive website security posture report based on visible public signals.
+            It is not legal advice, compliance certification, exploit testing, vulnerability exploitation,
+            login testing, brute force testing, or a penetration test.
+          </section>
+
+          <footer className="footer">
+            <span>Generated by VeyraSec</span>
+            <span>Report ID: {scan.id}</span>
+          </footer>
+        </div>
       </article>
     </main>
   );
