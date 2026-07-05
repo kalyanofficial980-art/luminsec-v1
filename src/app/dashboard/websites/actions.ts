@@ -4,6 +4,11 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { runPassiveScan } from "@/lib/scanner/passive";
+import { buildProfessionalReportSummary } from "@/lib/security/report-summary";
+import {
+  professionalFindingToDatabaseFinding,
+  professionalizeLegacyFindings,
+} from "@/lib/security/professionalize";
 import {
   canAddWebsite,
   canRunScan,
@@ -202,11 +207,17 @@ export async function startPassiveScan(formData: FormData) {
   }
 
   const websiteDomain = website.domain || getDomain(website.url);
-  const overallScore = clampScore(scan.overallScore);
-  const securityScore = clampScore(scan.securityScore);
-  const privacyScore = clampScore(scan.privacyScore);
-  const trustScore = clampScore(scan.trustScore);
-  const riskLevel = normalizeRiskLevel(scan.riskLevel, overallScore);
+  const professionalFindings = professionalizeLegacyFindings({
+    checkedUrl: website.url,
+    findings: scan.findings,
+  });
+  const professionalSummary = buildProfessionalReportSummary(professionalFindings);
+
+  const overallScore = clampScore(professionalSummary.score.overall);
+  const securityScore = clampScore(professionalSummary.score.security);
+  const privacyScore = clampScore(professionalSummary.score.privacy);
+  const trustScore = clampScore(professionalSummary.score.trust);
+  const riskLevel = normalizeRiskLevel(professionalSummary.riskLevel, overallScore);
 
   const { data: scanResult, error: scanError } = await supabase
     .from("scan_results")
@@ -223,9 +234,21 @@ export async function startPassiveScan(formData: FormData) {
       privacy_score: privacyScore,
       trust_score: trustScore,
       risk_level: riskLevel,
-      summary: scan.summary || "Passive website trust scan completed.",
-      raw_result: scan.raw || {},
-      raw: scan.raw || {},
+      summary: professionalSummary.executiveSummary,
+      raw_result: {
+        legacy: scan.raw || {},
+        professional: {
+          summary: professionalSummary,
+          findings: professionalFindings,
+        },
+      },
+      raw: {
+        legacy: scan.raw || {},
+        professional: {
+          summary: professionalSummary,
+          findings: professionalFindings,
+        },
+      },
       is_public: false,
     })
     .select("id")
@@ -235,19 +258,15 @@ export async function startPassiveScan(formData: FormData) {
     redirect(`/dashboard/websites?message=${encodeURIComponent(scanError?.message || "Scan could not be saved")}`);
   }
 
-  if (scan.findings.length > 0) {
-    const findingRows = scan.findings.map((finding) => ({
-      user_id: user.id,
-      website_id: website.id,
-      scan_result_id: scanResult.id,
-      scan_id: scanResult.id,
-      category: String(finding.category || "general").toLowerCase(),
-      severity: normalizeSeverity(finding.severity),
-      title: finding.title || "Finding",
-      description: finding.description || null,
-      recommendation: finding.recommendation || null,
-      evidence: finding.evidence || null,
-    }));
+  if (professionalFindings.length > 0) {
+    const findingRows = professionalFindings.map((finding) =>
+      professionalFindingToDatabaseFinding({
+        userId: user.id,
+        websiteId: website.id,
+        scanResultId: scanResult.id,
+        finding,
+      })
+    );
 
     const { error: findingsError } = await supabase
       .from("scan_findings")
