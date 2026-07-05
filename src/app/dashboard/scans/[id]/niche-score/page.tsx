@@ -140,17 +140,17 @@ export default async function NicheScorePage({ params }: PageProps) {
               </div>
 
               <p className="text-sm font-black uppercase tracking-[0.3em] text-cyan-300">
-                Accuracy foundation
+                Niche scoring
               </p>
 
               <h1 className="mt-4 text-4xl font-black tracking-tight md:text-6xl">
-                Customer-data readiness scoring
+                Customer-data readiness score
               </h1>
 
               <p className="mt-5 max-w-4xl text-lg leading-8 text-slate-300">
-                VeyraSec now scores this website for the selected niche: Indian SMEs and agencies
-                handling customer data. This page deduplicates repeated findings, applies fair
-                category caps, and shows the top fixes first.
+                This score is built for Indian small businesses that collect customer data through
+                websites, forms, bookings, or payments. It groups repeated findings and shows the
+                most important fixes first.
               </p>
 
               <p className="mt-4 text-sm text-slate-500">
@@ -172,7 +172,7 @@ export default async function NicheScorePage({ params }: PageProps) {
         </section>
 
         <section className="mt-8 rounded-3xl border border-white/10 bg-white/[0.04] p-6">
-          <h2 className="text-2xl font-black">Customer-side explanation</h2>
+          <h2 className="text-2xl font-black">Customer explanation</h2>
           <p className="mt-3 max-w-5xl leading-8 text-slate-300">
             {scoring.summary.customerMessage}
           </p>
@@ -186,7 +186,7 @@ export default async function NicheScorePage({ params }: PageProps) {
                 </p>
                 <p className="mt-3 text-sm leading-6 text-slate-400">{module.explanation}</p>
                 <p className="mt-4 text-xs font-bold text-slate-500">
-                  {module.findingCount} grouped issue{module.findingCount === 1 ? "" : "s"} · penalty cap {module.maxWeight}
+                  {module.findingCount} grouped item{module.findingCount === 1 ? "" : "s"} · penalty cap {module.maxWeight}
                 </p>
               </div>
             ))}
@@ -242,7 +242,7 @@ export default async function NicheScorePage({ params }: PageProps) {
                     ) : null}
 
                     <p className="mt-4 text-xs font-bold text-slate-500">
-                      Grouped {finding.findingCount} related finding{finding.findingCount === 1 ? "" : "s"} · scoring penalty {finding.penalty}
+                      Grouped {finding.findingCount} related item{finding.findingCount === 1 ? "" : "s"} · scoring penalty {finding.penalty}
                     </p>
                   </article>
                 ))
@@ -251,7 +251,7 @@ export default async function NicheScorePage({ params }: PageProps) {
                   <CheckCircle2 className="h-8 w-8 text-emerald-300" />
                   <h3 className="mt-3 text-xl font-black text-emerald-100">No priority fixes found</h3>
                   <p className="mt-2 leading-7 text-emerald-50/90">
-                    This scan did not produce findings that need priority scoring.
+                    This scan did not produce items that need priority scoring.
                   </p>
                 </div>
               )}
@@ -261,16 +261,16 @@ export default async function NicheScorePage({ params }: PageProps) {
           <aside className="space-y-6">
             <section className="rounded-3xl border border-white/10 bg-white/[0.04] p-6">
               <FileText className="h-8 w-8 text-cyan-300" />
-              <h2 className="mt-4 text-xl font-black">Accuracy summary</h2>
+              <h2 className="mt-4 text-xl font-black">Summary</h2>
 
               <div className="mt-5 space-y-4 text-sm">
                 <div className="flex justify-between gap-4">
-                  <span className="text-slate-400">Raw findings</span>
+                  <span className="text-slate-400">Raw items</span>
                   <strong>{scoring.summary.totalRawFindings}</strong>
                 </div>
                 <div className="flex justify-between gap-4">
-                  <span className="text-slate-400">Grouped findings</span>
-                  <strong>{scoring.summary.deduplicatedFindingGroups}</strong>
+                  <span className="text-slate-400">Grouped items</span>
+                  <strong>{scoring.summary.groupedFindingCount}</strong>
                 </div>
                 <div className="flex justify-between gap-4">
                   <span className="text-slate-400">Critical/high groups</span>
@@ -301,11 +301,10 @@ export default async function NicheScorePage({ params }: PageProps) {
         </section>
 
         <section className="mt-8 rounded-3xl border border-amber-300/20 bg-amber-300/10 p-6">
-          <h2 className="text-xl font-black text-amber-100">Important scope note</h2>
+          <h2 className="text-xl font-black text-amber-100">Important note</h2>
           <p className="mt-3 leading-8 text-amber-50/90">
-            This is a readiness and visible security posture score. It is not legal advice,
-            not a DPDP/CERT-In certification, and not a penetration test. It helps the business
-            and developer understand what to fix first.
+            This is a customer-data security and readiness score based on visible signals. It is
+            not legal advice, not DPDP/CERT-In certification, and not a penetration test.
           </p>
         </section>
       </div>

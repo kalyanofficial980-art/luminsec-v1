@@ -51,7 +51,7 @@ export type NicheScoringResult = {
   topFixes: DeduplicatedFindingGroup[];
   summary: {
     totalRawFindings: number;
-    deduplicatedFindingGroups: number;
+    groupedFindingCount: number;
     criticalOrHighGroups: number;
     mediumGroups: number;
     lowOrInfoGroups: number;
@@ -72,25 +72,25 @@ const MODULE_LABELS: Record<NicheModuleKey, { label: string; shortLabel: string;
     label: "Customer Data Security",
     shortLabel: "Customer Data",
     explanation:
-      "Measures visible safeguards around forms, cookies, tracking, payments, password fields, and third-party scripts.",
+      "Checks visible safeguards around forms, cookies, tracking, payments, password fields, HTTPS, and third-party scripts.",
   },
   dpdp_readiness: {
     label: "DPDP Readiness",
     shortLabel: "DPDP",
     explanation:
-      "Measures visible privacy, consent, grievance/contact, data request, vendor disclosure, and breach-readiness signals.",
+      "Checks visible privacy, purpose, contact, grievance, data request, vendor, and breach-readiness signals.",
   },
   cert_in_readiness: {
     label: "CERT-In Readiness",
     shortLabel: "CERT-In",
     explanation:
-      "Measures basic incident-readiness signals such as security contact, log retention readiness, reporting readiness, backup, and audit readiness.",
+      "Checks basic incident-readiness signals such as security contact, log readiness, reporting readiness, backup, and audit notes.",
   },
   website_trust_security: {
-    label: "Website Trust & Security",
+    label: "Website Trust",
     shortLabel: "Website Trust",
     explanation:
-      "Measures visible website security posture such as HTTPS, security headers, security.txt, mixed content, and public page hygiene.",
+      "Checks visible website trust signals such as HTTPS, security headers, security.txt, mixed content, and public page hygiene.",
   },
 };
 
@@ -291,11 +291,11 @@ function recommendationForGroup(module: NicheModuleKey, title: string, fallback:
   }
 
   if (module === "customer_data_security") {
-    return "Review the customer-data collection point, ensure HTTPS, add clear privacy context, and ask the developer to verify cookies, forms, tracking scripts, and payment scripts.";
+    return "Review customer-data collection points, ensure HTTPS, add clear privacy context, and verify cookies, forms, tracking scripts, and payment scripts.";
   }
 
   if (module === "dpdp_readiness") {
-    return "Add or improve visible DPDP readiness signals such as privacy policy, consent/purpose language, grievance contact, data request process, and breach-readiness process.";
+    return "Add visible DPDP readiness signals such as privacy policy, consent/purpose language, grievance contact, data request process, and breach-readiness process.";
   }
 
   if (module === "cert_in_readiness") {
@@ -307,11 +307,11 @@ function recommendationForGroup(module: NicheModuleKey, title: string, fallback:
 
 function businessImpactForModule(module: NicheModuleKey) {
   if (module === "customer_data_security") {
-    return "Customer data trust may be reduced if forms, cookies, tracking, payment scripts, or password fields are not clearly protected.";
+    return "Customer trust may be reduced if forms, cookies, tracking, payment scripts, or password fields are not clearly protected.";
   }
 
   if (module === "dpdp_readiness") {
-    return "DPDP readiness may be weak if privacy, consent, grievance, data request, and breach-readiness signals are unclear.";
+    return "DPDP readiness may be weak if privacy, purpose, grievance, data request, and breach-readiness signals are unclear.";
   }
 
   if (module === "cert_in_readiness") {
@@ -323,18 +323,18 @@ function businessImpactForModule(module: NicheModuleKey) {
 
 function developerActionForModule(module: NicheModuleKey) {
   if (module === "customer_data_security") {
-    return "Developer should review forms, cookies, third-party scripts, payment/tracking scripts, HTTPS, and privacy link placement.";
+    return "Ask your developer to review forms, cookies, third-party scripts, payment/tracking scripts, HTTPS, and privacy link placement.";
   }
 
   if (module === "dpdp_readiness") {
-    return "Developer/business owner should add visible privacy, consent/purpose, grievance/contact, data request, and breach-readiness pages or sections.";
+    return "Add visible privacy, consent/purpose, grievance/contact, data request, and breach-readiness pages or sections.";
   }
 
   if (module === "cert_in_readiness") {
-    return "Business owner/developer should document incident contact, log retention, backup/recovery, reporting workflow, and audit evidence.";
+    return "Document incident contact, log retention, backup/recovery, reporting workflow, and audit evidence.";
   }
 
-  return "Developer should apply the recommended website security or trust configuration and retest.";
+  return "Ask your developer to apply the recommended website security or trust configuration and retest.";
 }
 
 function groupFindings(findings: NicheFindingInput[]) {
@@ -429,18 +429,18 @@ function prioritySort(a: DeduplicatedFindingGroup, b: DeduplicatedFindingGroup) 
 
 function customerMessage(overallScore: number) {
   if (overallScore >= 85) {
-    return "The website shows strong visible readiness signals. Continue monitoring and retest after changes.";
+    return "This website shows strong visible readiness signals. Continue monitoring and retest after changes.";
   }
 
   if (overallScore >= 70) {
-    return "The website is usable but has important readiness gaps to fix before relying on it for customer-data trust.";
+    return "This website is usable, but some readiness gaps should be fixed before using it as a strong customer-data trust signal.";
   }
 
   if (overallScore >= 50) {
-    return "The website needs focused improvements before it should be considered customer-data ready.";
+    return "This website needs focused improvements before it should be considered customer-data ready.";
   }
 
-  return "The website has major visible readiness gaps. Fix the top-priority items before using this report as a trust signal.";
+  return "This website has major visible readiness gaps. Fix the top-priority items before using it as a customer-data trust signal.";
 }
 
 export function calculateNicheScoring(findings: NicheFindingInput[]): NicheScoringResult {
@@ -457,25 +457,31 @@ export function calculateNicheScoring(findings: NicheFindingInput[]): NicheScori
   const weightedPenalty = modules.reduce((sum, module) => sum + module.penalty, 0);
   const overallScore = clamp(Math.round(100 - weightedPenalty), 0, 100);
 
-  const scoreByKey = Object.fromEntries(modules.map((module) => [module.key, module.score])) as Record<
-    NicheModuleKey,
-    number
-  >;
+  const scores = {
+    customer_data_security: 100,
+    dpdp_readiness: 100,
+    cert_in_readiness: 100,
+    website_trust_security: 100,
+  };
+
+  for (const module of modules) {
+    scores[module.key] = module.score;
+  }
 
   const topFixes = groupedFindings.slice(0, 5);
 
   return {
     overallScore,
-    customerDataSecurityScore: scoreByKey.customer_data_security,
-    dpdpReadinessScore: scoreByKey.dpdp_readiness,
-    certInReadinessScore: scoreByKey.cert_in_readiness,
-    websiteTrustScore: scoreByKey.website_trust_security,
+    customerDataSecurityScore: scores.customer_data_security,
+    dpdpReadinessScore: scores.dpdp_readiness,
+    certInReadinessScore: scores.cert_in_readiness,
+    websiteTrustScore: scores.website_trust_security,
     modules,
     groupedFindings,
     topFixes,
     summary: {
       totalRawFindings: safeFindings.length,
-      deduplicatedFindingGroups: groupedFindings.length,
+      groupedFindingCount: groupedFindings.length,
       criticalOrHighGroups: groupedFindings.filter(
         (finding) => finding.severity === "critical" || finding.severity === "high"
       ).length,
@@ -485,7 +491,7 @@ export function calculateNicheScoring(findings: NicheFindingInput[]): NicheScori
       ).length,
       scoreExplanation: modules.map(
         (module) =>
-          `${module.shortLabel}: ${module.score}/100 with ${module.findingCount} grouped issue${
+          `${module.shortLabel}: ${module.score}/100 with ${module.findingCount} grouped item${
             module.findingCount === 1 ? "" : "s"
           }.`
       ),
