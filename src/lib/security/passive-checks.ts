@@ -3,6 +3,7 @@ import {
   technologyFindingsFromSignals,
 } from "./technology-detection";
 import { knownRiskFindingsFromTechnology } from "./known-risk-intelligence";
+import { runSafeSameDomainCrawler } from "./safe-crawler";
 
 export type PassiveCheckSeverity = "info" | "low" | "medium" | "high" | "critical";
 
@@ -531,6 +532,12 @@ export async function runAdvancedPassiveSecurityChecks(inputUrl: string): Promis
   findings.push(...technologyFindingsFromSignals(technologyDetection));
   findings.push(...knownRiskFindingsFromTechnology(technologyDetection));
 
+  const safeCrawlerResult = await runSafeSameDomainCrawler(normalized.toString(), {
+    maxPages: 6,
+  });
+
+  findings.push(...safeCrawlerResult.findings);
+
   checkHttps(normalized, targetResult, findings);
   checkHttpRedirect(normalized, httpResult, findings);
   checkSecurityHeaders(targetResult, findings);
@@ -603,6 +610,8 @@ export async function runAdvancedPassiveSecurityChecks(inputUrl: string): Promis
         technologySummary: technologyDetection.summary,
         technologyDetection: technologyDetection.raw,
         knownRiskFindingCount: knownRiskFindingsFromTechnology(technologyDetection).length,
+        safeCrawlerSummary: safeCrawlerResult.summary,
+        safeCrawlerPages: safeCrawlerResult.pages,
       },
     },
   };
