@@ -20,13 +20,13 @@ const features = [
     icon: Lock,
   },
   {
-    title: "Client-ready reports",
+    title: "Business-ready reports",
     text: "Generate clear security, privacy, and trust readiness reports that business owners can understand.",
     icon: FileText,
   },
   {
-    title: "Agency-friendly workflow",
-    text: "Useful for freelancers and web agencies who want before-after website improvement reports for clients.",
+    title: "Small business fix workflow",
+    text: "Useful for small business owners who need clear before-after readiness reports for developers.",
     icon: Building2,
   },
   {
@@ -38,8 +38,8 @@ const features = [
 
 const useCases = [
   "Small business website trust report",
-  "Web agency before-after client report",
-  "Freelancer website improvement checklist",
+  "Small business before-after readiness report",
+  "Small business readiness checklist",
   "Clinic, coaching center, local service website review",
 ];
 
@@ -114,8 +114,8 @@ export default function HomePage() {
             </h1>
 
             <p className="mt-6 max-w-3xl text-lg leading-8 text-slate-300">
-              {brand.name} helps small businesses, freelancers, and web agencies explain
-              basic website trust risks using safe passive checks and client-ready reports.
+              {brand.name} helps Indian small businesses explain
+              basic website trust risks using safe passive checks and business-ready reports.
             </p>
 
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
@@ -171,7 +171,7 @@ export default function HomePage() {
                 "HTTPS detected",
                 "Privacy policy found",
                 "Security headers need improvement",
-                "Client-ready PDF available",
+                "Business-ready PDF available",
               ].map((item) => (
                 <div key={item} className="flex gap-3 rounded-2xl border border-white/10 bg-slate-950 p-4">
                   <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-cyan-300" />
