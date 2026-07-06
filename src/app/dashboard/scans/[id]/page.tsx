@@ -371,6 +371,12 @@ export default async function ScanReportPage({ params }: PageProps) {
               Retest proof
             </Link>
             <Link
+              href={`/dashboard/scans/${scan.id}/verified-report`}
+              className="rounded-2xl border border-cyan-300/20 bg-cyan-300/10 px-4 py-3 text-sm font-black text-cyan-100 hover:bg-cyan-300/20"
+            >
+              Verified report
+            </Link>
+            <Link
               href={`/dashboard/scans/${scan.id}/print`}
               className="rounded-2xl bg-cyan-300 px-4 py-3 text-sm font-black text-slate-950 hover:bg-cyan-200"
             >
