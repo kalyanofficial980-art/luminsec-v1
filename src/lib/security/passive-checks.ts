@@ -4,6 +4,7 @@ import {
 } from "./technology-detection";
 import { knownRiskFindingsFromTechnology } from "./known-risk-intelligence";
 import { runSafeSameDomainCrawler } from "./safe-crawler";
+import { applyFalsePositiveGuard } from "./false-positive-guard";
 import {
   calculateScanQuality,
   enrichPassiveFinding,
@@ -32,6 +33,7 @@ export type AdvancedPassiveScanResult = {
   normalizedUrl: string;
   host: string;
   findings: PassiveCheckFinding[];
+  quality: ScanQualityResult;
   raw: {
     checkedAt: string;
     requests: {
@@ -586,11 +588,24 @@ export async function runAdvancedPassiveSecurityChecks(inputUrl: string): Promis
     "sitemap.xml is not a security control, but it helps public site discoverability and content hygiene."
   );
 
+  const scanQuality = calculateScanQuality({
+    target: targetResult,
+    httpProbe: httpResult,
+    securityTxt: securityTxtResult,
+    robotsTxt: robotsTxtResult,
+    sitemapXml: sitemapXmlResult,
+    crawlerSummary: safeCrawlerResult.summary,
+  });
+
+  const rawFindingCountBeforeGuard = findings.length;
+  const guardedFindings = applyFalsePositiveGuard(findings);
+
   return {
     checkedUrl: inputUrl,
     normalizedUrl: normalized.toString(),
     host: normalized.host,
-    findings,
+    findings: guardedFindings,
+    quality: scanQuality,
     raw: {
       checkedAt: new Date().toISOString(),
       requests: {
@@ -615,7 +630,9 @@ export async function runAdvancedPassiveSecurityChecks(inputUrl: string): Promis
         securityTxtStatus: securityTxtResult.status,
         robotsTxtStatus: robotsTxtResult.status,
         sitemapXmlStatus: sitemapXmlResult.status,
-        findingCount: findings.length,
+        findingCount: guardedFindings.length,
+        rawFindingCountBeforeGuard,
+        falsePositiveGuardReducedBy: rawFindingCountBeforeGuard - guardedFindings.length,
         technologySummary: technologyDetection.summary,
         technologyDetection: technologyDetection.raw,
         knownRiskFindingCount: knownRiskFindingsFromTechnology(technologyDetection).length,
