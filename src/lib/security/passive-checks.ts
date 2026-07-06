@@ -5,6 +5,7 @@ import {
 import { knownRiskFindingsFromTechnology } from "./known-risk-intelligence";
 import { runSafeSameDomainCrawler } from "./safe-crawler";
 import { headerQualityFindingsFromHeaders } from "./header-quality";
+import { cookieQualityFindingsFromHeaders } from "./cookie-quality";
 import { applyFalsePositiveGuard } from "./false-positive-guard";
 import {
   calculateScanQuality,
@@ -344,55 +345,13 @@ function checkSecurityHeaders(result: FetchResult, findings: PassiveCheckFinding
 }
 
 function checkCookies(result: FetchResult, findings: PassiveCheckFinding[]) {
-  const setCookie = getSetCookieHeader(result.headers);
-
-  if (!setCookie) {
-    return;
-  }
-
-  const lower = setCookie.toLowerCase();
-
-  if (!lower.includes("secure")) {
-    findings.push(
-      finding(
-        "cookie_missing_secure",
-        "Cookie without visible Secure attribute",
-        "medium",
-        "cookies",
-        `Set-Cookie observed without clear Secure attribute:\n${setCookie.slice(0, 1200)}`,
-        "Set Secure on cookies that should only be sent over HTTPS.",
-        "At least one visible cookie does not clearly include the Secure attribute."
-      )
-    );
-  }
-
-  if (!lower.includes("httponly")) {
-    findings.push(
-      finding(
-        "cookie_missing_httponly",
-        "Cookie without visible HttpOnly attribute",
-        "medium",
-        "cookies",
-        `Set-Cookie observed without clear HttpOnly attribute:\n${setCookie.slice(0, 1200)}`,
-        "Set HttpOnly on session or sensitive cookies where JavaScript access is not required.",
-        "At least one visible cookie does not clearly include the HttpOnly attribute."
-      )
-    );
-  }
-
-  if (!lower.includes("samesite")) {
-    findings.push(
-      finding(
-        "cookie_missing_samesite",
-        "Cookie without visible SameSite attribute",
-        "low",
-        "cookies",
-        `Set-Cookie observed without clear SameSite attribute:\n${setCookie.slice(0, 1200)}`,
-        "Set SameSite=Lax or SameSite=Strict where appropriate for your website.",
-        "At least one visible cookie does not clearly include a SameSite attribute."
-      )
-    );
-  }
+  findings.push(
+    ...cookieQualityFindingsFromHeaders({
+      headers: result.headers,
+      finalUrl: result.finalUrl,
+      checkedUrl: result.url,
+    })
+  );
 }
 
 function checkContentSignals(url: URL, result: FetchResult, findings: PassiveCheckFinding[]) {
