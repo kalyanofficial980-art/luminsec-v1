@@ -4,6 +4,7 @@ import {
 } from "./technology-detection";
 import { knownRiskFindingsFromTechnology } from "./known-risk-intelligence";
 import { runSafeSameDomainCrawler } from "./safe-crawler";
+import { headerQualityFindingsFromHeaders } from "./header-quality";
 import { applyFalsePositiveGuard } from "./false-positive-guard";
 import {
   calculateScanQuality,
