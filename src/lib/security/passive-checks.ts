@@ -7,6 +7,7 @@ import { runSafeSameDomainCrawler } from "./safe-crawler";
 import { headerQualityFindingsFromHeaders } from "./header-quality";
 import { cookieQualityFindingsFromHeaders } from "./cookie-quality";
 import { customerDataFormFindingsFromScan } from "./customer-data-form-classifier";
+import { privacyNearFormFindingsFromScan } from "./privacy-near-form-signals";
 import { applyFalsePositiveGuard } from "./false-positive-guard";
 import {
   calculateScanQuality,
@@ -549,6 +550,20 @@ export async function runAdvancedPassiveSecurityChecks(inputUrl: string): Promis
     "sitemap.xml is not a security control, but it helps public site discoverability and content hygiene."
   );
 
+  findings.push(
+    ...privacyNearFormFindingsFromScan({
+      html: String(
+        (targetResult as { body?: string; html?: string; text?: string }).body ||
+          (targetResult as { body?: string; html?: string; text?: string }).html ||
+          (targetResult as { body?: string; html?: string; text?: string }).text ||
+          ""
+      ),
+      pageUrl:
+        (targetResult as { finalUrl?: string; url?: string }).finalUrl ||
+        (targetResult as { finalUrl?: string; url?: string }).url ||
+        normalized.toString(),
+    })
+  );
   findings.push(
     ...customerDataFormFindingsFromScan({
       html: String(
