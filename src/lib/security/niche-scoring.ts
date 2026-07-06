@@ -221,6 +221,12 @@ function classifyModule(finding: NicheFindingInput): NicheModuleKey {
 }
 
 function classifyRootCause(finding: NicheFindingInput) {
+  const explicitRootCause = text((finding as { root_cause?: unknown }).root_cause);
+
+  if (explicitRootCause) {
+    return explicitRootCause;
+  }
+
   const haystack = [
     finding.title,
     finding.category,
