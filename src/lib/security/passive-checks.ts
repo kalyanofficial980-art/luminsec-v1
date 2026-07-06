@@ -9,6 +9,7 @@ import { cookieQualityFindingsFromHeaders } from "./cookie-quality";
 import { customerDataFormFindingsFromScan } from "./customer-data-form-classifier";
 import { privacyNearFormFindingsFromScan } from "./privacy-near-form-signals";
 import { tlsCertificateFindingsForUrl } from "./tls-certificate";
+import { dnsTrustFindingsForUrl } from "./dns-trust";
 import { applyFalsePositiveGuard } from "./false-positive-guard";
 import {
   calculateScanQuality,
@@ -581,6 +582,7 @@ export async function runAdvancedPassiveSecurityChecks(inputUrl: string): Promis
   );
 
   findings.push(...(await tlsCertificateFindingsForUrl(normalized.toString())));
+  findings.push(...(await dnsTrustFindingsForUrl(normalized.toString())));
 
   const scanQuality = calculateScanQuality({
     target: targetResult,
