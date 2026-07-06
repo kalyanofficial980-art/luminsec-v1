@@ -13,6 +13,7 @@ import {
   Wrench,
 } from "lucide-react";
 import { requireDashboardUser } from "@/lib/auth/route-access";
+import { calculateEvidenceBasedScoring } from "@/lib/security/evidence-based-scoring";
 
 type PageProps = {
   params: Promise<{
@@ -130,6 +131,65 @@ function scoreCard(label: string, value: number) {
       <p className="mt-1 text-xs font-bold text-slate-500">out of 100</p>
     </div>
   );
+}
+
+
+type ReportFindingForEvidence = {
+  id?: unknown;
+  category?: unknown;
+  severity?: unknown;
+  title?: unknown;
+  description?: unknown;
+  recommendation?: unknown;
+  evidence?: unknown;
+};
+
+function inferFindingEvidenceType(finding: ReportFindingForEvidence) {
+  const joined = [
+    finding.category,
+    finding.title,
+    finding.description,
+    finding.evidence,
+  ]
+    .map((value) => normalizeText(value).toLowerCase())
+    .join(" ");
+
+  if (joined.includes("header")) return "response_header";
+  if (joined.includes("cookie")) return "set_cookie";
+  if (joined.includes("dns") || joined.includes("spf") || joined.includes("dmarc") || joined.includes("caa")) return "http_probe";
+  if (joined.includes("tls") || joined.includes("certificate")) return "http_probe";
+  if (joined.includes("customer") || joined.includes("form") || joined.includes("privacy") || joined.includes("consent") || joined.includes("dpdp")) return "html_signal";
+  if (joined.includes("technology")) return "technology_signal";
+  if (joined.includes("known risk") || joined.includes("advisory")) return "known_risk_advisory";
+
+  return "unknown";
+}
+
+function inferFindingVerificationStatus(finding: ReportFindingForEvidence) {
+  const evidence = evidenceLines(finding.evidence);
+  const joined = [
+    finding.category,
+    finding.title,
+    finding.description,
+    finding.evidence,
+  ]
+    .map((value) => normalizeText(value).toLowerCase())
+    .join(" ");
+
+  if (evidence.length === 0) return "needs_confirmation";
+  if (joined.includes("likely") || joined.includes("advisory") || joined.includes("dpdp") || joined.includes("self-attestation")) return "likely_signal";
+
+  return "verified_by_scan";
+}
+
+function inferFindingConfidence(finding: ReportFindingForEvidence) {
+  const confidence = extractSection(finding.description, "Confidence").toLowerCase();
+
+  if (confidence.includes("high")) return "high";
+  if (confidence.includes("medium")) return "medium";
+  if (confidence.includes("low")) return "low";
+
+  return evidenceLines(finding.evidence).length > 0 ? "high" : "low";
 }
 
 function actionList(title: string, items: string[], icon: "owner" | "developer" | "fast") {
@@ -263,6 +323,22 @@ export default async function ScanReportPage({ params }: PageProps) {
 
   const reportUrl = scan.url || `https://${scan.domain}`;
 
+  const evidenceBasedScoring = calculateEvidenceBasedScoring(
+    (findings ?? []).map((finding) => ({
+      id: finding.id,
+      category: finding.category,
+      severity: finding.severity,
+      risk_level: finding.severity,
+      title: finding.title,
+      evidence: finding.evidence,
+      confidence: inferFindingConfidence(finding),
+      verification_status: inferFindingVerificationStatus(finding),
+      evidence_type: inferFindingEvidenceType(finding),
+      source_url: reportUrl,
+      root_cause: `${normalizeText(finding.category, "general")}_${normalizeText(finding.title, "finding").slice(0, 80)}`,
+    }))
+  );
+
   return (
     <main className="min-h-screen bg-slate-950 p-6 text-white">
       <div className="mx-auto max-w-7xl">
@@ -362,6 +438,64 @@ export default async function ScanReportPage({ params }: PageProps) {
           {scoreCard("Technical hygiene", hygieneScore)}
           {scoreCard("Overall", overallScore)}
         </section>
+        <section className="mt-8 rounded-3xl border border-cyan-300/20 bg-cyan-300/10 p-8">
+          <div className="mb-6 flex items-center gap-3">
+            <Gauge className="h-7 w-7 text-cyan-300" />
+            <div>
+              <h2 className="text-3xl font-black">Evidence-based readiness scoring</h2>
+              <p className="mt-2 max-w-4xl leading-7 text-cyan-50/80">
+                This section weights findings by evidence strength. Verified scan evidence counts more than advisory signals, and not-visible items do not automatically fail the business.
+              </p>
+            </div>
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+            {scoreCard("Evidence overall", evidenceBasedScoring.overall)}
+            {scoreCard("Customer data", evidenceBasedScoring.categoryScores.customer_data_security)}
+            {scoreCard("DPDP readiness", evidenceBasedScoring.categoryScores.dpdp_readiness)}
+            {scoreCard("CERT-In readiness", evidenceBasedScoring.categoryScores.cert_in_readiness)}
+            {scoreCard("Domain trust", evidenceBasedScoring.categoryScores.domain_trust)}
+            {scoreCard("Website security", evidenceBasedScoring.categoryScores.website_security)}
+            {scoreCard("Business evidence", evidenceBasedScoring.categoryScores.business_attestation)}
+            {scoreCard("Scan quality", evidenceBasedScoring.categoryScores.scan_quality)}
+          </div>
+
+          <div className="mt-6 grid gap-5 lg:grid-cols-3">
+            <div className="rounded-2xl border border-white/10 bg-slate-950 p-5">
+              <h3 className="font-black text-white">Evidence confidence</h3>
+              <p className="mt-3 text-lg font-black text-cyan-100">{evidenceBasedScoring.confidenceLabel}</p>
+              <div className="mt-4 grid gap-2 text-sm leading-7 text-slate-300">
+                <p>Verified by scan: {evidenceBasedScoring.evidenceCounts.verifiedByScan}</p>
+                <p>Likely signals: {evidenceBasedScoring.evidenceCounts.likelySignals}</p>
+                <p>Needs confirmation: {evidenceBasedScoring.evidenceCounts.needsConfirmation}</p>
+                <p>Self-attestation: {evidenceBasedScoring.evidenceCounts.selfAttestation}</p>
+              </div>
+            </div>
+
+            <div className="rounded-2xl border border-white/10 bg-slate-950 p-5">
+              <h3 className="font-black text-white">Evidence strengths</h3>
+              <div className="mt-4 grid gap-3">
+                {(evidenceBasedScoring.topEvidenceStrengths.length > 0 ? evidenceBasedScoring.topEvidenceStrengths : ["No strong evidence strengths were generated for this scan."]).map((item, index) => (
+                  <p key={`${item}-${index}`} className="leading-7 text-slate-300">{item}</p>
+                ))}
+              </div>
+            </div>
+
+            <div className="rounded-2xl border border-white/10 bg-slate-950 p-5">
+              <h3 className="font-black text-white">Evidence limitations</h3>
+              <div className="mt-4 grid gap-3">
+                {(evidenceBasedScoring.topEvidenceLimitations.length > 0 ? evidenceBasedScoring.topEvidenceLimitations : ["No evidence limitations were generated for this scan."]).map((item, index) => (
+                  <p key={`${item}-${index}`} className="leading-7 text-slate-300">{item}</p>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <p className="mt-6 rounded-2xl border border-amber-300/20 bg-amber-300/10 p-4 text-sm leading-7 text-amber-50/90">
+            Evidence-based scoring is readiness evidence only. It is not legal certification, compliance proof, exploit testing, or a penetration test.
+          </p>
+        </section>
+
 
         <section className="mt-8 rounded-3xl border border-white/10 bg-white/[0.04] p-8">
           <div className="mb-6 flex items-center gap-3">
