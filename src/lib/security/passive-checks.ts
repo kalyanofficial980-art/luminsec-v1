@@ -8,6 +8,7 @@ import { headerQualityFindingsFromHeaders } from "./header-quality";
 import { cookieQualityFindingsFromHeaders } from "./cookie-quality";
 import { customerDataFormFindingsFromScan } from "./customer-data-form-classifier";
 import { privacyNearFormFindingsFromScan } from "./privacy-near-form-signals";
+import { tlsCertificateFindingsForUrl } from "./tls-certificate";
 import { applyFalsePositiveGuard } from "./false-positive-guard";
 import {
   calculateScanQuality,
@@ -578,6 +579,8 @@ export async function runAdvancedPassiveSecurityChecks(inputUrl: string): Promis
         normalized.toString(),
     })
   );
+
+  findings.push(...(await tlsCertificateFindingsForUrl(normalized.toString())));
 
   const scanQuality = calculateScanQuality({
     target: targetResult,
