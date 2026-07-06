@@ -4,6 +4,15 @@ import {
 } from "./technology-detection";
 import { knownRiskFindingsFromTechnology } from "./known-risk-intelligence";
 import { runSafeSameDomainCrawler } from "./safe-crawler";
+import {
+  calculateScanQuality,
+  enrichPassiveFinding,
+  type EvidenceConfidence,
+  type EvidenceType,
+  type FindingEvidence,
+  type ScanQualityResult,
+  type VerificationStatus,
+} from "./accuracy-foundation";
 
 export type PassiveCheckSeverity = "info" | "low" | "medium" | "high" | "critical";
 
