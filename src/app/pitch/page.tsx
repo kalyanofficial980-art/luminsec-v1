@@ -41,7 +41,7 @@ const marketSignals = [
 
 const roadmap = [
   "V1: Passive website trust report",
-  "V2: Agency client workspace",
+  "V2: Business client workspace",
   "V3: Scheduled monitoring and alerts",
   "V4: AI remediation guidance",
   "V5: Compliance-ready business reports",
@@ -55,7 +55,7 @@ const demoFlow = [
   "Explain score and findings",
   "Switch English / Telugu-English mode",
   "Open printable PDF report",
-  "Close with agency or owner pricing",
+  "Close with business or owner pricing",
 ];
 
 export default function PitchPage() {
@@ -130,7 +130,7 @@ export default function PitchPage() {
             <h2 className="text-2xl font-black">Problem</h2>
             <p className="mt-3 leading-7 text-slate-300">
               Small businesses collect leads through websites, but most owners cannot understand
-              basic website security, privacy, and trust gaps.
+              starter website security, privacy, and trust gaps.
             </p>
           </div>
 
@@ -179,14 +179,14 @@ export default function PitchPage() {
             <div className="space-y-4 text-slate-300">
               <div className="rounded-2xl border border-white/10 bg-slate-950 p-5">
                 <p className="font-bold text-white">Starter</p>
-                <p className="mt-1 text-sm">Free trial for product adoption and feedback.</p>
+                <p className="mt-1 text-sm">Free beginner for product adoption and feedback.</p>
               </div>
               <div className="rounded-2xl border border-cyan-300/20 bg-cyan-300/10 p-5">
-                <p className="font-bold text-cyan-100">Basic Report</p>
+                <p className="font-bold text-cyan-100">Starter Report</p>
                 <p className="mt-1 text-sm text-cyan-50/80">One website report for small business owners.</p>
               </div>
               <div className="rounded-2xl border border-white/10 bg-slate-950 p-5">
-                <p className="font-bold text-white">Agency Pilot</p>
+                <p className="font-bold text-white">Business Pilot</p>
                 <p className="mt-1 text-sm">Recurring package for agencies managing multiple websites.</p>
               </div>
             </div>

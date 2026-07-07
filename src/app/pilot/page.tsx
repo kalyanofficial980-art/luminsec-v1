@@ -22,7 +22,7 @@ const pilotBenefits = [
 
 const pilotFit = [
   "You own a small business website",
-  "You run a web design agency",
+  "You run a web design business",
   "You manage client websites",
   "Your website collects leads through forms",
   "You want a simple before-after report",
@@ -54,11 +54,11 @@ export default async function PilotPage({
             </div>
 
             <h1 className="max-w-4xl text-5xl font-black tracking-tight md:text-6xl">
-              Get a basic website trust report for your business or client.
+              Get a starter website trust report for your business or client.
             </h1>
 
             <p className="mt-6 max-w-3xl text-lg leading-8 text-slate-300">
-              {brand.name} V1 helps small businesses and agencies understand basic
+              {brand.name} V1 helps small businesses and agencies understand starter
               website security, privacy, and trust readiness using safe passive checks.
             </p>
 
@@ -132,7 +132,7 @@ export default async function PilotPage({
               </label>
 
               <label className="grid gap-2">
-                <span className="text-sm font-semibold text-cyan-100">Business / Agency name</span>
+                <span className="text-sm font-semibold text-cyan-100">Business / Business name</span>
                 <input
                   name="company_name"
                   placeholder="Business name"
@@ -154,7 +154,7 @@ export default async function PilotPage({
                 <textarea
                   name="message"
                   rows={4}
-                  placeholder="Example: I want a report for my clinic website / my agency client website."
+                  placeholder="Example: I want a report for my clinic website / my business client website."
                   className="rounded-2xl border border-cyan-300/20 bg-slate-950 px-4 py-3 text-white outline-none focus:border-cyan-300"
                 />
               </label>

@@ -53,7 +53,7 @@ const launchSteps = [
   },
   {
     title: "Day 4: Outreach",
-    text: "Send simple WhatsApp, email, or LinkedIn messages. Offer a free basic website trust report.",
+    text: "Send simple WhatsApp, email, or LinkedIn messages. Offer a free starter website trust report.",
   },
   {
     title: "Day 5: Calls and feedback",
@@ -61,7 +61,7 @@ const launchSteps = [
   },
   {
     title: "Day 6-7: First paid pilot",
-    text: "Offer a low-cost pilot report and basic explanation call. Focus on learning, not big revenue.",
+    text: "Offer a low-cost pilot report and starter explanation call. Focus on learning, not big revenue.",
   },
 ];
 

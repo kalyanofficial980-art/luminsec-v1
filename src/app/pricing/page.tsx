@@ -19,7 +19,7 @@ const plans = [
     highlight: false,
   },
   {
-    name: "Basic Report",
+    name: "Starter Report",
     price: "₹499",
     description: "For one small business website report.",
     features: [
@@ -34,7 +34,7 @@ const plans = [
     highlight: true,
   },
   {
-    name: "Agency Pilot",
+    name: "Business Pilot",
     price: "₹2,999+",
     description: "For agencies managing multiple client websites.",
     features: [
@@ -112,7 +112,7 @@ export default function PricingPage() {
         <section className="mt-10 rounded-3xl border border-white/10 bg-white/[0.04] p-6 text-sm leading-7 text-slate-400">
           <p className="font-bold text-white">V1 note</p>
           <p>
-            These are early pilot prices. VeyraSec V1 performs basic passive checks only. It does not replace legal advice, a full cybersecurity audit, or penetration testing.
+            These are early pilot prices. VeyraSec V1 performs starter passive checks only. It does not replace legal advice, a full cybersecurity audit, or penetration testing.
           </p>
         </section>
       </div>

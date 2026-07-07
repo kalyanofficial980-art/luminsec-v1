@@ -42,7 +42,7 @@ const adminFeaturePlan: SubscriptionPlan = {
   max_scans_per_month: 9999,
   pdf_reports_enabled: true,
   public_share_enabled: true,
-  agency_mode_enabled: true,
+  agency_mode_enabled: false,
   manual_payments_enabled: true,
   priority_support_enabled: true,
 };
@@ -286,8 +286,8 @@ export default async function SubscriptionPage({
   if (!subscriptionData) {
     await supabase.from("user_subscriptions").insert({
       user_id: user.id,
-      plan_id: "trial",
-      status: "trial",
+      plan_id: "beginner",
+      status: "active",
       current_period_start: new Date().toISOString(),
       current_period_end: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString(),
     });
@@ -301,9 +301,9 @@ export default async function SubscriptionPage({
     subscriptionData = retry.data;
   }
 
-  const currentPlan = getJoinedPlan(subscriptionData) || plans.find((plan) => plan.id === "trial") || null;
-  const currentPlanId = subscriptionData?.plan_id || currentPlan?.id || "trial";
-  const currentStatus = subscriptionData?.status || "trial";
+  const currentPlan = getJoinedPlan(subscriptionData) || plans.find((plan) => plan.id === "beginner") || null;
+  const currentPlanId = subscriptionData?.plan_id || currentPlan?.id || "beginner";
+  const currentStatus = subscriptionData?.status || "beginner";
 
   const periodStart = subscriptionData?.current_period_start
     ? new Date(subscriptionData.current_period_start)
@@ -372,7 +372,7 @@ export default async function SubscriptionPage({
             <div className={`rounded-3xl border p-6 text-center ${planBadgeClass(currentPlanId)}`}>
               <Sparkles className="mx-auto mb-3 h-9 w-9" />
               <p className="text-sm opacity-80">Current plan</p>
-              <p className="mt-2 text-4xl font-black">{currentPlan?.name || "Trial"}</p>
+              <p className="mt-2 text-4xl font-black">{currentPlan?.name || "Beginner"}</p>
               <p className="mt-2 text-sm font-bold">{currentPlan ? priceText(currentPlan) : "Free"}</p>
             </div>
           </div>

@@ -35,7 +35,7 @@ const demoFlow = [
 ];
 
 const closeScript = [
-  "This is a basic website trust readiness report, not a full security audit.",
+  "This is a starter website trust readiness report, not a full security audit.",
   "I can prepare this report for your website and explain it in a short call.",
   "For the pilot, the price is INR 499 to INR 999 depending on website size.",
   "After your developer makes changes, I can run one recheck and share an updated report.",

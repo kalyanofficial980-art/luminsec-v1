@@ -28,7 +28,7 @@ const leadTypes = [
 ];
 
 const trackerRows = [
-  ["1", "Web agency", "Find website", "Not contacted"],
+  ["1", "Web business", "Find website", "Not contacted"],
   ["2", "Clinic", "Find website", "Not contacted"],
   ["3", "Coaching center", "Find website", "Not contacted"],
   ["4", "Freelancer", "Find portfolio", "Not contacted"],
@@ -36,7 +36,7 @@ const trackerRows = [
   ["6", "Startup", "Find landing page", "Not contacted"],
   ["7", "Ecommerce", "Find store URL", "Not contacted"],
   ["8", "Institute", "Find website", "Not contacted"],
-  ["9", "Agency", "Find contact", "Not contacted"],
+  ["9", "Business", "Find contact", "Not contacted"],
   ["10", "Business owner", "Find WhatsApp", "Not contacted"],
 ];
 
@@ -45,7 +45,7 @@ const outreachSteps = [
   "Run a VeyraSec scan",
   "Open report and screenshot score",
   "Send short message",
-  "Offer free basic explanation",
+  "Offer free starter explanation",
   "Ask for 10-minute call",
   "Record objections",
   "Offer paid pilot report",
@@ -56,10 +56,10 @@ const messageTemplates = [
     title: "WhatsApp short message",
     icon: MessageSquare,
     text:
-      "Hi, I checked your website with my VeyraSec V1 tool. It creates a basic website trust report using safe passive checks. I found a few improvement areas in security/privacy signals. I can share a free sample report and explain it in 10 minutes. Interested?",
+      "Hi, I checked your website with my VeyraSec V1 tool. It creates a starter website trust report using safe passive checks. I found a few improvement areas in security/privacy signals. I can share a free sample report and explain it in 10 minutes. Interested?",
   },
   {
-    title: "Web agency message",
+    title: "Web business message",
     icon: Send,
     text:
       "Hi, I built VeyraSec for web agencies. It helps create simple website security, privacy, and trust reports for clients. Agencies can use it as a before-after report after website improvements. I am taking pilot feedback. Can I show you a 5-minute demo?",
@@ -68,13 +68,13 @@ const messageTemplates = [
     title: "Email message",
     icon: Mail,
     text:
-      "Subject: Free website trust report for your business\n\nHi,\nI am building VeyraSec, a tool that creates basic website security, privacy, and trust readiness reports using safe passive checks. I would like to create a free sample report for your website and get your feedback. It is not a penetration test and does not attack your website. Would you be open to a short demo?",
+      "Subject: Free website trust report for your business\n\nHi,\nI am building VeyraSec, a tool that creates starter website security, privacy, and trust readiness reports using safe passive checks. I would like to create a free sample report for your website and get your feedback. It is not a penetration test and does not attack your website. Would you be open to a short demo?",
   },
   {
     title: "Telugu-English message",
     icon: Phone,
     text:
-      "Hi sir/madam, nenu VeyraSec ane website trust report tool build chestunna. Mee website lo basic security, privacy, trust signals ela unnayo simple report laga chupistundi. Idi hacking kaadu, safe passive checks only. Mee website ki free sample report create chesi explain cheyyacha?",
+      "Hi sir/madam, nenu VeyraSec ane website trust report tool build chestunna. Mee website lo starter security, privacy, trust signals ela unnayo simple report laga chupistundi. Idi hacking kaadu, safe passive checks only. Mee website ki free sample report create chesi explain cheyyacha?",
   },
 ];
 

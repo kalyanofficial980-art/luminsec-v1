@@ -45,21 +45,22 @@ export default async function AccessAuditPage() {
 
   const planRows = plans ?? [];
   const planIds = planRows.map((plan) => plan.id);
-  const requiredPlans = ["trial", "basic", "pro", "agency"];
+  const requiredPlans = ["single_report", "beginner", "starter", "business", "pro"];
   const missingPlans = requiredPlans.filter((plan) => !planIds.includes(plan));
 
   const planConfigOk =
     missingPlans.length === 0 &&
-    planRows.some((plan) => plan.id === "trial" && plan.pdf_reports_enabled && !plan.public_share_enabled && !plan.agency_mode_enabled) &&
-    planRows.some((plan) => plan.id === "basic" && plan.public_share_enabled && !plan.agency_mode_enabled) &&
-    planRows.some((plan) => plan.id === "pro" && plan.public_share_enabled && !plan.agency_mode_enabled) &&
-    planRows.some((plan) => plan.id === "agency" && plan.public_share_enabled && plan.agency_mode_enabled);
+    planRows.some((plan) => plan.id === "single_report" && plan.pdf_reports_enabled && !plan.public_share_enabled && !plan.agency_mode_enabled) &&
+    planRows.some((plan) => plan.id === "beginner" && plan.pdf_reports_enabled && !plan.public_share_enabled && !plan.agency_mode_enabled) &&
+    planRows.some((plan) => plan.id === "starter" && plan.pdf_reports_enabled && plan.public_share_enabled && !plan.agency_mode_enabled) &&
+    planRows.some((plan) => plan.id === "business" && plan.pdf_reports_enabled && plan.public_share_enabled && !plan.agency_mode_enabled) &&
+    planRows.some((plan) => plan.id === "pro" && plan.pdf_reports_enabled && plan.public_share_enabled && !plan.agency_mode_enabled);
 
   const auditCards = [
     {
       label: "Plan configuration",
       ok: planConfigOk,
-      message: planConfigOk ? "Trial, Basic, Pro, and Agency rules are aligned." : `Missing/misaligned: ${missingPlans.join(", ") || "plan settings"}`,
+      message: planConfigOk ? "Single-time Report, Beginner, Starter, Business, and Pro rules are aligned." : `Missing/misaligned: ${missingPlans.join(", ") || "plan settings"}`,
     },
     {
       label: "Admin account",
@@ -108,8 +109,8 @@ export default async function AccessAuditPage() {
       access: "Admin only",
     },
     {
-      page: "/dashboard/agency",
-      access: "Agency plan or admin",
+      page: "/dashboard/business",
+      access: "Business/Pro plan or admin",
     },
     {
       page: "/dashboard/scans/[id]/share",
@@ -176,10 +177,10 @@ export default async function AccessAuditPage() {
               <thead className="bg-slate-950 text-slate-300">
                 <tr>
                   <th className="border-b border-white/10 p-4">Feature</th>
-                  <th className="border-b border-white/10 p-4">Trial</th>
-                  <th className="border-b border-white/10 p-4">Basic</th>
+                  <th className="border-b border-white/10 p-4">Single-time</th><th className="border-b border-white/10 p-4">Beginner</th>
+                  <th className="border-b border-white/10 p-4">Starter</th>
                   <th className="border-b border-white/10 p-4">Pro</th>
-                  <th className="border-b border-white/10 p-4">Agency</th>
+                  <th className="border-b border-white/10 p-4">Business</th><th className="border-b border-white/10 p-4">Pro</th>
                   <th className="border-b border-white/10 p-4">Admin</th>
                 </tr>
               </thead>
@@ -187,7 +188,7 @@ export default async function AccessAuditPage() {
                 {accessMatrix.map((row) => (
                   <tr key={row.feature} className="bg-slate-950/60">
                     <td className="border-b border-white/10 p-4 font-bold text-white">{row.feature}</td>
-                    {(["trial", "basic", "pro", "agency", "admin"] as const).map((plan) => (
+                    {(["single_report", "beginner", "starter", "business", "pro", "admin"] as const).map((plan) => (
                       <td key={plan} className="border-b border-white/10 p-4">
                         <span className={`inline-flex rounded-full border px-3 py-1 text-xs font-bold ${accessValueClass(row[plan])}`}>
                           {accessValueText(row[plan])}
@@ -227,11 +228,11 @@ export default async function AccessAuditPage() {
             <div className="grid gap-3">
               {[
                 "Admin sees founder tools and full access.",
-                "Trial user sees only Dashboard, Websites, Reports, Subscription, Settings.",
-                "Trial user cannot open public share page.",
-                "Trial user cannot open Agency page.",
-                "Basic/Pro user can open public share page.",
-                "Agency user can open Agency page.",
+                "Beginner user sees only Dashboard, Websites, Reports, Subscription, Settings.",
+                "Beginner user cannot open public share page.",
+                "Beginner user cannot open Business/Pro features.",
+                "Starter/Pro user can open public share page.",
+                "Business/Pro user can open Business/Pro features.",
                 "Normal user cannot open admin pages.",
                 "Website limit blocks correctly.",
                 "Scan limit blocks correctly.",

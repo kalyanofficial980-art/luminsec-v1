@@ -310,7 +310,7 @@ export default async function AdminSubscriptionsPage({
                             defaultValue={subscription.status}
                             className="rounded-2xl border border-white/10 bg-slate-900 px-3 py-2 text-white outline-none"
                           >
-                            <option value="trial">trial</option>
+                            <option value="beginner">beginner</option>
                             <option value="active">active</option>
                             <option value="past_due">past_due</option>
                             <option value="cancelled">cancelled</option>

@@ -124,7 +124,7 @@ export default function ProductionQaPage() {
           <h2 className="text-3xl font-black text-cyan-100">V1 production rule</h2>
           <p className="mx-auto mt-3 max-w-3xl leading-8 text-cyan-50/90">
             Launch only as a pilot. Do not claim full compliance, full security audit,
-            or penetration testing. Sell it as a basic website trust readiness report.
+            or penetration testing. Sell it as a starter website trust readiness report.
           </p>
         </section>
       </div>

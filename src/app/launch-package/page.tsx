@@ -68,7 +68,7 @@ const launchRules = [
   "Do not say full audit",
   "Do not say penetration test",
   "Do not say legal compliance certificate",
-  "Say basic passive website trust report",
+  "Say starter passive website trust report",
   "Scan only owned or permitted websites",
   "Use manual UPI or bank transfer for first paid pilot",
 ];
@@ -138,7 +138,7 @@ export default function LaunchPackagePage() {
             <ShieldCheck className="mb-4 h-7 w-7 text-cyan-300" />
             <h2 className="text-2xl font-black text-cyan-100">Safe positioning</h2>
             <p className="mt-3 leading-7 text-cyan-50/90">
-              Basic passive website trust report. Not a full audit. Not legal advice. Not a penetration test.
+              Starter passive website trust report. Not a full audit. Not legal advice. Not a penetration test.
             </p>
           </div>
         </section>
