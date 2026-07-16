@@ -19,12 +19,12 @@ type PageProps = {
   }>;
 };
 
-function normalizeText(value: any, fallback = "") {
+function normalizeText(value: unknown, fallback = "") {
   const text = String(value ?? "").trim();
   return text.length > 0 ? text : fallback;
 }
 
-function statusClass(status: any) {
+function statusClass(status: unknown) {
   const value = normalizeText(status, "pending").toLowerCase();
 
   if (value === "approved")
@@ -35,7 +35,7 @@ function statusClass(status: any) {
   return "border-amber-400/30 bg-amber-400/10 text-amber-100";
 }
 
-function severityClass(value: any) {
+function severityClass(value: unknown) {
   const severity = normalizeText(value, "review").toLowerCase();
 
   if (severity.includes("critical"))

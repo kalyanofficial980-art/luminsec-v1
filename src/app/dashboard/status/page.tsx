@@ -45,7 +45,7 @@ function levelLabel(level: HealthLevel) {
 }
 
 function HealthCard({ check }: { check: HealthCheck }) {
-  const Icon = levelIcon(check.level);
+  const Icon = check.level === "healthy" ? CheckCircle2 : check.level === "warning" ? AlertTriangle : XCircle;
 
   return (
     <article className="rounded-3xl border border-white/10 bg-white/[0.04] p-6">
