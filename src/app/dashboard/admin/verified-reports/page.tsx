@@ -1,3 +1,23 @@
+
+type VerifiedReportRequest = {
+  id: string;
+  status: string;
+  created_at?: string;
+  scan_result_id?: string;
+  customer_message?: string | null;
+  admin_notes?: string | null;
+  scan_results?: Array<{
+  id?: string;
+  url?: string;
+  domain?: string;
+  overall_score?: number;
+  score?: number;
+  risk_level?: string;
+  created_at?: string;
+}> | null;
+};
+
+
 import Link from "next/link";
 import {
   AlertTriangle,
@@ -23,19 +43,19 @@ type PageProps = {
   }>;
 };
 
-function text(value: any, fallback = "") {
+function text(value: unknown, fallback = "") {
   const normalized = String(value ?? "").trim();
   return normalized.length > 0 ? normalized : fallback;
 }
 
-function safeDate(value: any) {
+function safeDate(value: unknown) {
   const date = value ? new Date(String(value)) : null;
   return date && !Number.isNaN(date.getTime())
     ? date.toLocaleString("en-IN")
     : "Not available";
 }
 
-function getJoinedScan(value: any) {
+function getJoinedScan(value: unknown) {
   if (Array.isArray(value)) return value[0];
   return value;
 }
@@ -74,11 +94,11 @@ export default async function AdminVerifiedReportsPage({
 
   const counts = {
     visible: rows.length,
-    requested: rows.filter((row: any) => row.status === "requested").length,
+    requested: rows.filter((row: VerifiedReportRequest) => row.status === "requested").length,
     approved: rows.filter(
-      (row: any) => row.status === "approved" || row.status === "delivered",
+      (row: VerifiedReportRequest) => row.status === "approved" || row.status === "delivered",
     ).length,
-    rejected: rows.filter((row: any) => row.status === "rejected").length,
+    rejected: rows.filter((row: VerifiedReportRequest) => row.status === "rejected").length,
   };
 
   return (
@@ -191,7 +211,7 @@ export default async function AdminVerifiedReportsPage({
 
         <section className="mt-8 grid gap-6">
           {rows.length > 0 ? (
-            rows.map((request: any, index: number) => {
+            rows.map((request: VerifiedReportRequest, index: number) => {
               const scan = getJoinedScan(request.scan_results);
               const website = text(
                 scan?.domain || scan?.url,

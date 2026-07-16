@@ -1,3 +1,37 @@
+
+
+
+type SubscriptionRequest = {
+  id: string;
+  user_id: string;
+  message?: string | null;
+  status: string;
+  created_at?: string;
+  requested_plan_id?: string;
+  subscription_plans?: {
+    name?: string | null;
+    monthly_price?: number | null;
+    currency?: string | null;
+  }[] | null;
+};
+
+type UserSubscription = {
+  id: string;
+  user_id: string;
+  status: string;
+  plan_id?: string;
+  current_period_start?: string | null;
+  current_period_end?: string | null;
+  scans_used_this_period?: number | null;
+  created_at?: string | null;
+  subscription_plans?: {
+    name?: string | null;
+    monthly_price?: number | null;
+    currency?: string | null;
+  }[] | null;
+};
+
+
 import Link from "next/link";
 import {
   CheckCircle2,
@@ -27,12 +61,12 @@ type ProfileRow = {
   account_type: string | null;
 };
 
-function getJoinedPlan(value: any) {
+function getJoinedPlan(value: unknown) {
   if (Array.isArray(value)) {
-    return value[0] as any;
+    return value[0] as SubscriptionPlan;
   }
 
-  return value as any;
+  return value as SubscriptionPlan;
 }
 
 function getProfile(profiles: ProfileRow[], userId: string) {
@@ -92,8 +126,8 @@ export default async function AdminSubscriptionsPage({
 
   const userIds = Array.from(
     new Set([
-      ...requests.map((request: any) => String(request.user_id)),
-      ...subscriptions.map((subscription: any) => String(subscription.user_id)),
+      ...requests.map((request: SubscriptionRequest) => String(request.user_id)),
+      ...subscriptions.map((subscription: UserSubscription) => String(subscription.user_id)),
     ]),
   );
 
@@ -109,10 +143,10 @@ export default async function AdminSubscriptionsPage({
   }
 
   const pendingRequests = requests.filter(
-    (request: any) => request.status === "pending",
+    (request: SubscriptionRequest) => request.status === "pending",
   );
   const activeSubscriptions = subscriptions.filter(
-    (subscription: any) => subscription.status === "active",
+    (subscription: UserSubscription) => subscription.status === "active",
   );
 
   return (
@@ -181,7 +215,7 @@ export default async function AdminSubscriptionsPage({
             </p>
           ) : (
             <div className="mt-6 grid gap-4">
-              {requests.map((request: any) => {
+              {requests.map((request: SubscriptionRequest) => {
                 const profile = getProfile(profiles, String(request.user_id));
                 const plan = getJoinedPlan(request.subscription_plans);
 
@@ -286,7 +320,7 @@ export default async function AdminSubscriptionsPage({
           ) : (
             <div className="mt-6 overflow-hidden rounded-3xl border border-white/10">
               <div className="grid grid-cols-1 gap-0 md:grid-cols-[1.3fr_0.8fr_0.8fr_1.2fr]">
-                {subscriptions.map((subscription: any) => {
+                {subscriptions.map((subscription: UserSubscription) => {
                   const profile = getProfile(
                     profiles,
                     String(subscription.user_id),
