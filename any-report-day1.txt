@@ -1,0 +1,18 @@
+
+src\app\dashboard\admin\subscriptions\page.tsx:32:    return value[0] as any;
+src\app\dashboard\admin\subscriptions\page.tsx:35:  return value as any;
+src\app\dashboard\admin\subscriptions\page.tsx:95:      ...requests.map((request: any) => String(request.user_id)),
+src\app\dashboard\admin\subscriptions\page.tsx:96:      ...subscriptions.map((subscription: any) => String(subscription.user_id)),
+src\app\dashboard\admin\subscriptions\page.tsx:112:    (request: any) => request.status === "pending",
+src\app\dashboard\admin\subscriptions\page.tsx:115:    (subscription: any) => subscription.status === "active",
+src\app\dashboard\admin\subscriptions\page.tsx:184:              {requests.map((request: any) => {
+src\app\dashboard\admin\subscriptions\page.tsx:289:                {subscriptions.map((subscription: any) => {
+src\app\dashboard\admin\verified-reports\page.tsx:38:function getJoinedScan(value: any) {
+src\app\dashboard\admin\verified-reports\page.tsx:77:    requested: rows.filter((row: any) => row.status === "requested").length,
+src\app\dashboard\admin\verified-reports\page.tsx:79:      (row: any) => row.status === "approved" || row.status === "delivered",
+src\app\dashboard\admin\verified-reports\page.tsx:81:    rejected: rows.filter((row: any) => row.status === "rejected").length,
+src\app\dashboard\admin\verified-reports\page.tsx:194:            rows.map((request: any, index: number) => {
+src\app\dashboard\subscription\page.tsx:56:function getJoinedPlan(subscription: any): SubscriptionPlan | null {
+src\app\dashboard\websites\page.tsx:53:  const latestScanByWebsite = new Map<string, any>();
+src\app\legal\disclaimer\page.tsx:49:              developers, and legal advisors before relying on any report for
+
