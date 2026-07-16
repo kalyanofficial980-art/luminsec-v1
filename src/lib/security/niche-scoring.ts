@@ -28,7 +28,7 @@ export type NicheScoreModule = {
 
 export type DeduplicatedFindingGroup = {
   id: string;
-  module: NicheModuleKey;
+  securityModule: NicheModuleKey;
   title: string;
   severity: "info" | "low" | "medium" | "high" | "critical";
   confidence: "low" | "medium" | "high";
@@ -316,7 +316,7 @@ function shortEvidence(value: unknown) {
 }
 
 function recommendationForGroup(
-  module: NicheModuleKey,
+  securityModule: NicheModuleKey,
   title: string,
   fallback: string,
 ) {
@@ -328,47 +328,47 @@ function recommendationForGroup(
       : cleanFallback;
   }
 
-  if (module === "customer_data_security") {
+  if (securityModule === "customer_data_security") {
     return "Review customer-data collection points, ensure HTTPS, add clear privacy context, and verify cookies, forms, tracking scripts, and payment scripts.";
   }
 
-  if (module === "dpdp_readiness") {
+  if (securityModule === "dpdp_readiness") {
     return "Add visible DPDP readiness signals such as privacy policy, consent/purpose language, grievance contact, data request process, and breach-readiness process.";
   }
 
-  if (module === "cert_in_readiness") {
+  if (securityModule === "cert_in_readiness") {
     return "Define incident owner, security contact, log retention process, reporting readiness, backup/recovery process, and audit evidence.";
   }
 
   return `Review and fix: ${title}`;
 }
 
-function businessImpactForModule(module: NicheModuleKey) {
-  if (module === "customer_data_security") {
+function businessImpactForModule(securityModule: NicheModuleKey) {
+  if (securityModule === "customer_data_security") {
     return "Customer trust may be reduced if forms, cookies, tracking, payment scripts, or password fields are not clearly protected.";
   }
 
-  if (module === "dpdp_readiness") {
+  if (securityModule === "dpdp_readiness") {
     return "DPDP readiness may be weak if privacy, purpose, grievance, data request, and breach-readiness signals are unclear.";
   }
 
-  if (module === "cert_in_readiness") {
+  if (securityModule === "cert_in_readiness") {
     return "Incident readiness may be weak if the business cannot quickly identify, log, escalate, and report cyber incidents.";
   }
 
   return "Website trust may be reduced if visible security headers, HTTPS posture, public hygiene, or technology signals are weak.";
 }
 
-function developerActionForModule(module: NicheModuleKey) {
-  if (module === "customer_data_security") {
+function developerActionForModule(securityModule: NicheModuleKey) {
+  if (securityModule === "customer_data_security") {
     return "Ask your developer to review forms, cookies, third-party scripts, payment/tracking scripts, HTTPS, and privacy link placement.";
   }
 
-  if (module === "dpdp_readiness") {
+  if (securityModule === "dpdp_readiness") {
     return "Add visible privacy, consent/purpose, grievance/contact, data request, and breach-readiness pages or sections.";
   }
 
-  if (module === "cert_in_readiness") {
+  if (securityModule === "cert_in_readiness") {
     return "Document incident contact, log retention, backup/recovery, reporting workflow, and audit evidence.";
   }
 
@@ -379,9 +379,9 @@ function groupFindings(findings: NicheFindingInput[]) {
   const groups = new Map<string, DeduplicatedFindingGroup>();
 
   for (const finding of findings) {
-    const module = classifyModule(finding);
+    const securityModule = classifyModule(finding);
     const rootCause = classifyRootCause(finding);
-    const groupId = `${module}:${rootCause}`;
+    const groupId = `${securityModule}:${rootCause}`;
     const severity = normalizedSeverity(finding.severity);
     const confidence = confidenceForFinding(finding);
     const basePenalty =
@@ -391,7 +391,7 @@ function groupFindings(findings: NicheFindingInput[]) {
     );
     const title = firstNonEmpty(finding.title, rootCause.replace(/_/g, " "));
     const recommendation = recommendationForGroup(
-      module,
+      securityModule,
       title,
       finding.recommendation || "",
     );
@@ -401,7 +401,7 @@ function groupFindings(findings: NicheFindingInput[]) {
     if (!existing) {
       groups.set(groupId, {
         id: groupId,
-        module,
+        securityModule,
         title,
         severity,
         confidence,
@@ -409,8 +409,8 @@ function groupFindings(findings: NicheFindingInput[]) {
         penalty: basePenalty,
         evidenceSamples: evidence ? [evidence] : [],
         recommendation,
-        businessImpact: businessImpactForModule(module),
-        developerAction: developerActionForModule(module),
+        businessImpact: businessImpactForModule(securityModule),
+        developerAction: developerActionForModule(securityModule),
       });
       continue;
     }
@@ -449,7 +449,7 @@ function moduleScore(
 ): NicheScoreModule {
   const moduleWeight = MODULE_WEIGHTS[key];
   const moduleFindings = groupedFindings.filter(
-    (finding) => finding.module === key,
+    (finding) => finding.securityModule === key,
   );
 
   const rawPenalty = moduleFindings.reduce(
@@ -519,7 +519,7 @@ export function calculateNicheScoring(
   ];
 
   const weightedPenalty = modules.reduce(
-    (sum, module) => sum + module.penalty,
+    (sum, securityModule) => sum + securityModule.penalty,
     0,
   );
   const overallScore = clamp(Math.round(100 - weightedPenalty), 0, 100);
@@ -531,8 +531,8 @@ export function calculateNicheScoring(
     website_trust_security: 100,
   };
 
-  for (const module of modules) {
-    scores[module.key] = module.score;
+  for (const securityModule of modules) {
+    scores[securityModule.key] = securityModule.score;
   }
 
   const topFixes = groupedFindings.slice(0, 5);
@@ -560,9 +560,9 @@ export function calculateNicheScoring(
         (finding) => finding.severity === "low" || finding.severity === "info",
       ).length,
       scoreExplanation: modules.map(
-        (module) =>
-          `${module.shortLabel}: ${module.score}/100 with ${module.findingCount} grouped item${
-            module.findingCount === 1 ? "" : "s"
+        (securityModule) =>
+          `${securityModule.shortLabel}: ${securityModule.score}/100 with ${securityModule.findingCount} grouped item${
+            securityModule.findingCount === 1 ? "" : "s"
           }.`,
       ),
       customerMessage: customerMessage(overallScore),

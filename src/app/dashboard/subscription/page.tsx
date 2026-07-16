@@ -53,7 +53,7 @@ function progressClass(percent: number) {
   return "bg-cyan-300";
 }
 
-function getJoinedPlan(subscription: any): SubscriptionPlan | null {
+function getJoinedPlan(subscription: unknown): SubscriptionPlan | null {
   const plan = subscription?.subscription_plans;
 
   if (Array.isArray(plan)) {
@@ -307,7 +307,7 @@ export default async function SubscriptionPage({
       status: "active",
       current_period_start: new Date().toISOString(),
       current_period_end: new Date(
-        Date.now() + 14 * 24 * 60 * 60 * 1000,
+        new Date().getTime() + 14 * 24 * 60 * 60 * 1000,
       ).toISOString(),
     });
 

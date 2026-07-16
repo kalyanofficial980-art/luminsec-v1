@@ -35,7 +35,7 @@ function safeDate(value: unknown) {
     : "Not available";
 }
 
-function getJoinedScan(value: any) {
+function getJoinedScan(value: unknown) {
   if (Array.isArray(value)) return value[0];
   return value;
 }
@@ -191,7 +191,7 @@ export default async function AdminVerifiedReportsPage({
 
         <section className="mt-8 grid gap-6">
           {rows.length > 0 ? (
-            rows.map((request: any, index: number) => {
+            rows.map((request: unknown, index: number) => {
               const scan = getJoinedScan(request.scan_results);
               const website = text(
                 scan?.domain || scan?.url,
