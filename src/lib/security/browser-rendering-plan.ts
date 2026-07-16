@@ -1,4 +1,5 @@
-export type BrowserRenderingMode = "disabled" | "manual_review_only" | "controlled_scan";
+export type BrowserRenderingMode =
+  "disabled" | "manual_review_only" | "controlled_scan";
 
 export type BrowserRenderingEvidenceTarget =
   | "js_rendered_forms"
@@ -26,7 +27,8 @@ export type BrowserRenderingPlannedFinding = {
   target: BrowserRenderingEvidenceTarget;
   purpose: string;
   confidence: "high" | "medium" | "low";
-  verification_status: "verified_by_scan" | "likely_signal" | "needs_confirmation";
+  verification_status:
+    "verified_by_scan" | "likely_signal" | "needs_confirmation";
   limitation: string;
 };
 
@@ -79,7 +81,8 @@ export const A12_BROWSER_RENDERING_ENGINE_PLAN = {
     {
       id: "max_pages",
       value: 3,
-      reason: "Low memory and predictable scan time for 8GB laptops and serverless environments.",
+      reason:
+        "Low memory and predictable scan time for 8GB laptops and serverless environments.",
     },
     {
       id: "page_timeout_ms",
@@ -94,12 +97,14 @@ export const A12_BROWSER_RENDERING_ENGINE_PLAN = {
     {
       id: "block_heavy_assets",
       value: true,
-      reason: "Block video, audio, large fonts, and unnecessary media to reduce memory usage.",
+      reason:
+        "Block video, audio, large fonts, and unnecessary media to reduce memory usage.",
     },
     {
       id: "screenshots_default",
       value: false,
-      reason: "Avoid privacy risk and storage cost until manual review workflow exists.",
+      reason:
+        "Avoid privacy risk and storage cost until manual review workflow exists.",
     },
   ] satisfies BrowserRenderingLimit[],
   plannedEvidenceTargets: [
@@ -112,7 +117,8 @@ export const A12_BROWSER_RENDERING_ENGINE_PLAN = {
     },
     {
       target: "privacy_links",
-      purpose: "Detect privacy policy, terms, contact, and grievance links visible after rendering.",
+      purpose:
+        "Detect privacy policy, terms, contact, and grievance links visible after rendering.",
       confidence: "medium",
       verification_status: "verified_by_scan",
       limitation: "Does not verify legal sufficiency of the policy content.",
@@ -126,7 +132,8 @@ export const A12_BROWSER_RENDERING_ENGINE_PLAN = {
     },
     {
       target: "payment_widgets",
-      purpose: "Detect visible payment providers such as Razorpay, Stripe, PayPal, and checkout widgets.",
+      purpose:
+        "Detect visible payment providers such as Razorpay, Stripe, PayPal, and checkout widgets.",
       confidence: "medium",
       verification_status: "likely_signal",
       limitation: "Does not test payment flow or transaction security.",
@@ -147,7 +154,8 @@ export const A12_BROWSER_RENDERING_ENGINE_PLAN = {
     },
     {
       target: "dynamic_customer_data_fields",
-      purpose: "Detect fields added by JavaScript such as phone, appointment, patient, student, order, or upload fields.",
+      purpose:
+        "Detect fields added by JavaScript such as phone, appointment, patient, student, order, or upload fields.",
       confidence: "high",
       verification_status: "verified_by_scan",
       limitation: "Only visible rendered DOM is checked.",

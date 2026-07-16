@@ -27,23 +27,27 @@ export default function DisclaimerPage() {
 
           <div className="space-y-6 leading-8 text-slate-300">
             <p>
-              VeyraSec V1 performs basic passive checks using publicly available website responses.
-              It is designed to help small businesses understand common website trust, privacy, and readiness signals.
+              VeyraSec V1 performs basic passive checks using publicly available
+              website responses. It is designed to help small businesses
+              understand common website trust, privacy, and readiness signals.
             </p>
 
             <p>
-              VeyraSec V1 is not a full cybersecurity audit, not a penetration test, and not legal advice.
-              It does not guarantee that a website is secure or compliant.
+              VeyraSec V1 is not a full cybersecurity audit, not a penetration
+              test, and not legal advice. It does not guarantee that a website
+              is secure or compliant.
             </p>
 
             <p>
-              V1 does not perform exploitation, brute force, password testing, intrusive scanning,
-              vulnerability exploitation, or unauthorized access attempts.
+              V1 does not perform exploitation, brute force, password testing,
+              intrusive scanning, vulnerability exploitation, or unauthorized
+              access attempts.
             </p>
 
             <p>
-              Businesses should consult qualified cybersecurity professionals, developers, and legal advisors
-              before relying on any report for compliance, legal, or high-risk security decisions.
+              Businesses should consult qualified cybersecurity professionals,
+              developers, and legal advisors before relying on any report for
+              compliance, legal, or high-risk security decisions.
             </p>
           </div>
         </section>

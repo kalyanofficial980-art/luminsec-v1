@@ -23,7 +23,8 @@ function scoreLabel(score: number) {
 }
 
 function scoreClass(score: number) {
-  if (score >= 80) return "border-emerald-400/20 bg-emerald-400/10 text-emerald-100";
+  if (score >= 80)
+    return "border-emerald-400/20 bg-emerald-400/10 text-emerald-100";
   if (score >= 60) return "border-amber-400/20 bg-amber-400/10 text-amber-100";
   return "border-red-400/20 bg-red-400/10 text-red-100";
 }
@@ -61,7 +62,9 @@ export default async function WebsiteDetailPage({
 
   const { data: scans } = await supabase
     .from("scan_results")
-    .select("id, overall_score, security_score, privacy_score, trust_score, risk_level, summary, created_at")
+    .select(
+      "id, overall_score, security_score, privacy_score, trust_score, risk_level, summary, created_at",
+    )
     .eq("website_id", website.id)
     .eq("user_id", user.id)
     .order("created_at", { ascending: false });
@@ -76,7 +79,8 @@ export default async function WebsiteDetailPage({
 
   const previousScan = scanRows[1];
   const previousOverall = safeScore(previousScan?.overall_score);
-  const scoreChange = latestScan && previousScan ? latestOverall - previousOverall : null;
+  const scoreChange =
+    latestScan && previousScan ? latestOverall - previousOverall : null;
 
   const scoreCards = [
     {
@@ -179,7 +183,10 @@ export default async function WebsiteDetailPage({
               const Icon = card.icon;
 
               return (
-                <div key={card.label} className={`rounded-3xl border p-6 ${scoreClass(card.value)}`}>
+                <div
+                  key={card.label}
+                  className={`rounded-3xl border p-6 ${scoreClass(card.value)}`}
+                >
                   <div className="mb-5 flex items-center justify-between gap-4">
                     <Icon className="h-7 w-7" />
                     <span className="rounded-full bg-slate-950/40 px-3 py-1 text-xs font-bold">
@@ -198,7 +205,8 @@ export default async function WebsiteDetailPage({
             <ShieldCheck className="mx-auto mb-4 h-12 w-12 text-cyan-300" />
             <h2 className="text-3xl font-black text-cyan-100">No scans yet</h2>
             <p className="mx-auto mt-3 max-w-2xl leading-8 text-cyan-50/90">
-              Run the first passive scan to create a website trust report for this website.
+              Run the first passive scan to create a website trust report for
+              this website.
             </p>
 
             <form action={startPassiveScan} className="mt-6">
@@ -222,7 +230,9 @@ export default async function WebsiteDetailPage({
                 <h2 className="text-3xl font-black">Latest scan summary</h2>
               </div>
 
-              <div className={`rounded-3xl border p-6 ${scoreClass(latestOverall)}`}>
+              <div
+                className={`rounded-3xl border p-6 ${scoreClass(latestOverall)}`}
+              >
                 <p className="text-sm opacity-80">Latest overall score</p>
                 <p className="mt-2 text-6xl font-black">{latestOverall}/100</p>
                 <p className="mt-2 font-bold">{scoreLabel(latestOverall)}</p>
@@ -230,8 +240,12 @@ export default async function WebsiteDetailPage({
 
               {scoreChange !== null ? (
                 <div className="mt-5 rounded-3xl border border-white/10 bg-slate-950 p-6">
-                  <p className="text-sm text-slate-400">Change from previous scan</p>
-                  <p className={`mt-2 text-4xl font-black ${scoreChange >= 0 ? "text-emerald-300" : "text-red-300"}`}>
+                  <p className="text-sm text-slate-400">
+                    Change from previous scan
+                  </p>
+                  <p
+                    className={`mt-2 text-4xl font-black ${scoreChange >= 0 ? "text-emerald-300" : "text-red-300"}`}
+                  >
                     {scoreChange >= 0 ? "+" : ""}
                     {scoreChange}
                   </p>
@@ -285,7 +299,9 @@ export default async function WebsiteDetailPage({
                         </div>
 
                         <div className="flex items-center gap-3">
-                          <span className={`rounded-full border px-3 py-1 text-xs font-bold ${scoreClass(score)}`}>
+                          <span
+                            className={`rounded-full border px-3 py-1 text-xs font-bold ${scoreClass(score)}`}
+                          >
                             {score}/100
                           </span>
                           <span className="text-sm font-bold text-cyan-300">

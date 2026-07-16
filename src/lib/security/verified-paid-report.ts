@@ -1,10 +1,5 @@
 export type VerifiedReportStatus =
-  | "requested"
-  | "in_review"
-  | "approved"
-  | "rejected"
-  | "delivered"
-  | "none";
+  "requested" | "in_review" | "approved" | "rejected" | "delivered" | "none";
 
 export type VerifiedReportReadiness = {
   status: VerifiedReportStatus;
@@ -23,7 +18,9 @@ function text(value: unknown, fallback = "") {
   return normalized.length > 0 ? normalized : fallback;
 }
 
-export function normalizeVerifiedReportStatus(value: unknown): VerifiedReportStatus {
+export function normalizeVerifiedReportStatus(
+  value: unknown,
+): VerifiedReportStatus {
   const status = text(value).toLowerCase();
 
   if (status === "requested") return "requested";
@@ -77,12 +74,23 @@ export function calculateVerifiedReportReadiness(input: {
 }): VerifiedReportReadiness {
   const status = normalizeVerifiedReportStatus(input.requestStatus);
   const totalFindingCount = Math.max(0, Number(input.totalFindingCount) || 0);
-  const approvedFindingCount = Math.max(0, Number(input.approvedFindingCount) || 0);
-  const pendingFindingCount = Math.max(0, Number(input.pendingFindingCount) || 0);
-  const rejectedFindingCount = Math.max(0, Number(input.rejectedFindingCount) || 0);
+  const approvedFindingCount = Math.max(
+    0,
+    Number(input.approvedFindingCount) || 0,
+  );
+  const pendingFindingCount = Math.max(
+    0,
+    Number(input.pendingFindingCount) || 0,
+  );
+  const rejectedFindingCount = Math.max(
+    0,
+    Number(input.rejectedFindingCount) || 0,
+  );
 
   const verifiedPercent =
-    totalFindingCount > 0 ? Math.round((approvedFindingCount / totalFindingCount) * 100) : 0;
+    totalFindingCount > 0
+      ? Math.round((approvedFindingCount / totalFindingCount) * 100)
+      : 0;
 
   const readyForDelivery =
     (status === "approved" || status === "delivered") &&

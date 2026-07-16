@@ -23,13 +23,15 @@ import {
 } from "@/lib/report/compare";
 
 function scoreClass(score: number) {
-  if (score >= 80) return "border-emerald-400/20 bg-emerald-400/10 text-emerald-100";
+  if (score >= 80)
+    return "border-emerald-400/20 bg-emerald-400/10 text-emerald-100";
   if (score >= 60) return "border-amber-400/20 bg-amber-400/10 text-amber-100";
   return "border-red-400/20 bg-red-400/10 text-red-100";
 }
 
 function changeClass(change: number) {
-  if (change > 0) return "border-emerald-400/20 bg-emerald-400/10 text-emerald-100";
+  if (change > 0)
+    return "border-emerald-400/20 bg-emerald-400/10 text-emerald-100";
   if (change < 0) return "border-red-400/20 bg-red-400/10 text-red-100";
   return "border-slate-400/20 bg-slate-400/10 text-slate-100";
 }
@@ -42,12 +44,15 @@ function ChangeIcon({ change }: { change: number }) {
 
 function getWebsiteUrl(websites: unknown) {
   if (Array.isArray(websites)) {
-    const firstWebsite = websites[0] as { url?: string | null; name?: string | null } | undefined;
+    const firstWebsite = websites[0] as
+      { url?: string | null; name?: string | null } | undefined;
     return firstWebsite?.url || "Website report";
   }
 
   if (websites && typeof websites === "object" && "url" in websites) {
-    return String((websites as { url?: string | null }).url || "Website report");
+    return String(
+      (websites as { url?: string | null }).url || "Website report",
+    );
   }
 
   return "Website report";
@@ -80,7 +85,9 @@ function FindingList({
           {icon}
           <h2 className="text-3xl font-black">{title}</h2>
         </div>
-        <span className={`rounded-full border px-3 py-1 text-sm font-bold ${toneClass}`}>
+        <span
+          className={`rounded-full border px-3 py-1 text-sm font-bold ${toneClass}`}
+        >
           {findings.length}
         </span>
       </div>
@@ -92,7 +99,10 @@ function FindingList({
       ) : (
         <div className="grid gap-3">
           {findings.map((finding) => (
-            <div key={`${finding.title}-${finding.category}`} className="rounded-2xl border border-white/10 bg-slate-950 p-5">
+            <div
+              key={`${finding.title}-${finding.category}`}
+              className="rounded-2xl border border-white/10 bg-slate-950 p-5"
+            >
               <div className="mb-2 flex flex-wrap items-center gap-2">
                 <h3 className="font-black text-white">{finding.title}</h3>
                 {finding.severity ? (
@@ -108,7 +118,9 @@ function FindingList({
               </div>
 
               {finding.description ? (
-                <p className="text-sm leading-6 text-slate-400">{finding.description}</p>
+                <p className="text-sm leading-6 text-slate-400">
+                  {finding.description}
+                </p>
               ) : null}
             </div>
           ))}
@@ -136,7 +148,9 @@ export default async function ScanComparisonPage({
 
   const { data: currentScan } = await supabase
     .from("scan_results")
-    .select("id, website_id, overall_score, security_score, privacy_score, trust_score, risk_level, summary, created_at, websites(name, url)")
+    .select(
+      "id, website_id, overall_score, security_score, privacy_score, trust_score, risk_level, summary, created_at, websites(name, url)",
+    )
     .eq("id", id)
     .eq("user_id", user.id)
     .maybeSingle();
@@ -147,7 +161,9 @@ export default async function ScanComparisonPage({
 
   const { data: previousScan } = await supabase
     .from("scan_results")
-    .select("id, website_id, overall_score, security_score, privacy_score, trust_score, risk_level, summary, created_at")
+    .select(
+      "id, website_id, overall_score, security_score, privacy_score, trust_score, risk_level, summary, created_at",
+    )
     .eq("website_id", currentScan.website_id)
     .eq("user_id", user.id)
     .lt("created_at", currentScan.created_at)
@@ -163,10 +179,12 @@ export default async function ScanComparisonPage({
   const currentFindings = (currentFindingsRows ?? []) as ComparableFinding[];
 
   const previousFindings = previousScan
-    ? (((await supabase
-        .from("scan_findings")
-        .select("title, category, severity, description, recommendation")
-        .eq("scan_result_id", previousScan.id)).data ?? []) as ComparableFinding[])
+    ? (((
+        await supabase
+          .from("scan_findings")
+          .select("title, category, severity, description, recommendation")
+          .eq("scan_result_id", previousScan.id)
+      ).data ?? []) as ComparableFinding[])
     : [];
 
   const scoreComparison = previousScan
@@ -181,34 +199,35 @@ export default async function ScanComparisonPage({
         unchangedFindings: [],
       };
 
-  const scoreCards = previousScan && scoreComparison
-    ? [
-        {
-          label: "Overall",
-          current: Number(currentScan.overall_score ?? 0),
-          previous: Number(previousScan.overall_score ?? 0),
-          change: scoreComparison.overallChange,
-        },
-        {
-          label: "Security",
-          current: Number(currentScan.security_score ?? 0),
-          previous: Number(previousScan.security_score ?? 0),
-          change: scoreComparison.securityChange,
-        },
-        {
-          label: "Privacy",
-          current: Number(currentScan.privacy_score ?? 0),
-          previous: Number(previousScan.privacy_score ?? 0),
-          change: scoreComparison.privacyChange,
-        },
-        {
-          label: "Trust",
-          current: Number(currentScan.trust_score ?? 0),
-          previous: Number(previousScan.trust_score ?? 0),
-          change: scoreComparison.trustChange,
-        },
-      ]
-    : [];
+  const scoreCards =
+    previousScan && scoreComparison
+      ? [
+          {
+            label: "Overall",
+            current: Number(currentScan.overall_score ?? 0),
+            previous: Number(previousScan.overall_score ?? 0),
+            change: scoreComparison.overallChange,
+          },
+          {
+            label: "Security",
+            current: Number(currentScan.security_score ?? 0),
+            previous: Number(previousScan.security_score ?? 0),
+            change: scoreComparison.securityChange,
+          },
+          {
+            label: "Privacy",
+            current: Number(currentScan.privacy_score ?? 0),
+            previous: Number(previousScan.privacy_score ?? 0),
+            change: scoreComparison.privacyChange,
+          },
+          {
+            label: "Trust",
+            current: Number(currentScan.trust_score ?? 0),
+            previous: Number(previousScan.trust_score ?? 0),
+            change: scoreComparison.trustChange,
+          },
+        ]
+      : [];
 
   return (
     <main className="min-h-screen bg-slate-950 p-6 text-white">
@@ -254,17 +273,23 @@ export default async function ScanComparisonPage({
         {!previousScan ? (
           <section className="mt-8 rounded-3xl border border-cyan-300/20 bg-cyan-300/10 p-8 text-center">
             <ShieldAlert className="mx-auto mb-4 h-12 w-12 text-cyan-300" />
-            <h2 className="text-3xl font-black text-cyan-100">No previous scan yet</h2>
+            <h2 className="text-3xl font-black text-cyan-100">
+              No previous scan yet
+            </h2>
             <p className="mx-auto mt-3 max-w-3xl leading-8 text-cyan-50/90">
-              Run another scan later for the same website to compare before-after improvement.
-              For now, this page shows current findings as new findings.
+              Run another scan later for the same website to compare
+              before-after improvement. For now, this page shows current
+              findings as new findings.
             </p>
           </section>
         ) : (
           <>
             <section className="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
               {scoreCards.map((card) => (
-                <div key={card.label} className={`rounded-3xl border p-6 ${changeClass(card.change)}`}>
+                <div
+                  key={card.label}
+                  className={`rounded-3xl border p-6 ${changeClass(card.change)}`}
+                >
                   <div className="mb-5 flex items-center justify-between gap-4">
                     <ChangeIcon change={card.change} />
                     <span className="rounded-full bg-slate-950/40 px-3 py-1 text-xs font-bold">
@@ -273,7 +298,9 @@ export default async function ScanComparisonPage({
                   </div>
 
                   <p className="text-sm opacity-80">{card.label} change</p>
-                  <p className="mt-2 text-4xl font-black">{changeLabel(card.change)}</p>
+                  <p className="mt-2 text-4xl font-black">
+                    {changeLabel(card.change)}
+                  </p>
                   <p className="mt-2 text-sm">
                     {card.previous}/100 → {card.current}/100
                   </p>
@@ -293,8 +320,12 @@ export default async function ScanComparisonPage({
                   className={`rounded-3xl border p-6 ${scoreClass(Number(previousScan.overall_score ?? 0))}`}
                 >
                   <p className="text-sm opacity-80">Previous scan</p>
-                  <p className="mt-2 text-5xl font-black">{Number(previousScan.overall_score ?? 0)}/100</p>
-                  <p className="mt-2 text-sm">{formatDateTime(previousScan.created_at)}</p>
+                  <p className="mt-2 text-5xl font-black">
+                    {Number(previousScan.overall_score ?? 0)}/100
+                  </p>
+                  <p className="mt-2 text-sm">
+                    {formatDateTime(previousScan.created_at)}
+                  </p>
                 </Link>
 
                 <Link
@@ -302,8 +333,12 @@ export default async function ScanComparisonPage({
                   className={`rounded-3xl border p-6 ${scoreClass(Number(currentScan.overall_score ?? 0))}`}
                 >
                   <p className="text-sm opacity-80">Current scan</p>
-                  <p className="mt-2 text-5xl font-black">{Number(currentScan.overall_score ?? 0)}/100</p>
-                  <p className="mt-2 text-sm">{formatDateTime(currentScan.created_at)}</p>
+                  <p className="mt-2 text-5xl font-black">
+                    {Number(currentScan.overall_score ?? 0)}/100
+                  </p>
+                  <p className="mt-2 text-sm">
+                    {formatDateTime(currentScan.created_at)}
+                  </p>
                 </Link>
               </div>
             </section>
@@ -337,11 +372,14 @@ export default async function ScanComparisonPage({
         </section>
 
         <section className="mt-8 rounded-3xl border border-cyan-300/20 bg-cyan-300/10 p-8">
-          <h2 className="text-3xl font-black text-cyan-100">How to use this with customers</h2>
+          <h2 className="text-3xl font-black text-cyan-100">
+            How to use this with customers
+          </h2>
           <p className="mt-4 max-w-4xl leading-8 text-cyan-50/90">
-            Use this page to show before-after improvement. For agencies, this is useful after fixing
-            headers, adding privacy pages, improving trust signals, and rerunning the scan. It helps
-            customers understand progress without claiming this is a full audit or penetration test.
+            Use this page to show before-after improvement. For agencies, this
+            is useful after fixing headers, adding privacy pages, improving
+            trust signals, and rerunning the scan. It helps customers understand
+            progress without claiming this is a full audit or penetration test.
           </p>
         </section>
       </div>

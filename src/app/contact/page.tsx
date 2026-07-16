@@ -38,7 +38,9 @@ export default async function ContactPage({
               </div>
               <div>
                 <h1 className="text-4xl font-black">Contact VeyraSec</h1>
-                <p className="text-slate-400">Support, demo, and pilot requests</p>
+                <p className="text-slate-400">
+                  Support, demo, and pilot requests
+                </p>
               </div>
             </div>
 
@@ -51,18 +53,23 @@ export default async function ContactPage({
               <div className="rounded-3xl border border-cyan-300/20 bg-cyan-300/10 p-6">
                 <div className="mb-3 flex items-center gap-3">
                   <ShieldCheck className="h-6 w-6 text-cyan-300" />
-                  <h2 className="text-xl font-black text-cyan-100">V1 safety scope</h2>
+                  <h2 className="text-xl font-black text-cyan-100">
+                    V1 safety scope
+                  </h2>
                 </div>
                 <p className="leading-7 text-cyan-50/90">
                   VeyraSec V1 uses safe passive checks only. It does not hack,
-                  exploit, brute force, test passwords, or perform intrusive scanning.
+                  exploit, brute force, test passwords, or perform intrusive
+                  scanning.
                 </p>
               </div>
 
               <div className="rounded-3xl border border-white/10 bg-slate-950 p-6">
                 <div className="mb-3 flex items-center gap-3">
                   <HelpCircle className="h-6 w-6 text-cyan-300" />
-                  <h2 className="text-xl font-black">Good reasons to contact</h2>
+                  <h2 className="text-xl font-black">
+                    Good reasons to contact
+                  </h2>
                 </div>
                 <ul className="space-y-3 text-slate-300">
                   <li className="flex gap-3">
@@ -86,7 +93,10 @@ export default async function ContactPage({
             </div>
           </div>
 
-          <form action={submitContactLead} className="rounded-3xl border border-white/10 bg-white/[0.04] p-8">
+          <form
+            action={submitContactLead}
+            className="rounded-3xl border border-white/10 bg-white/[0.04] p-8"
+          >
             <h2 className="text-3xl font-black">Send a message</h2>
             <p className="mt-2 text-slate-400">
               We will use this for V1 customer validation and support follow-up.
@@ -102,7 +112,9 @@ export default async function ContactPage({
 
             <div className="mt-6 grid gap-4">
               <label className="grid gap-2">
-                <span className="text-sm font-semibold text-slate-300">Name *</span>
+                <span className="text-sm font-semibold text-slate-300">
+                  Name *
+                </span>
                 <input
                   name="name"
                   placeholder="Your name"
@@ -112,7 +124,9 @@ export default async function ContactPage({
 
               <div className="grid gap-4 sm:grid-cols-2">
                 <label className="grid gap-2">
-                  <span className="text-sm font-semibold text-slate-300">Email *</span>
+                  <span className="text-sm font-semibold text-slate-300">
+                    Email *
+                  </span>
                   <input
                     name="email"
                     type="email"
@@ -122,7 +136,9 @@ export default async function ContactPage({
                 </label>
 
                 <label className="grid gap-2">
-                  <span className="text-sm font-semibold text-slate-300">Phone</span>
+                  <span className="text-sm font-semibold text-slate-300">
+                    Phone
+                  </span>
                   <input
                     name="phone"
                     placeholder="+91 90000 00000"
@@ -132,7 +148,9 @@ export default async function ContactPage({
               </div>
 
               <label className="grid gap-2">
-                <span className="text-sm font-semibold text-slate-300">Company / Business name</span>
+                <span className="text-sm font-semibold text-slate-300">
+                  Company / Business name
+                </span>
                 <input
                   name="company_name"
                   placeholder="Example: Local Web Agency"
@@ -141,7 +159,9 @@ export default async function ContactPage({
               </label>
 
               <label className="grid gap-2">
-                <span className="text-sm font-semibold text-slate-300">Website URL</span>
+                <span className="text-sm font-semibold text-slate-300">
+                  Website URL
+                </span>
                 <input
                   name="website_url"
                   placeholder="https://example.com"
@@ -150,7 +170,9 @@ export default async function ContactPage({
               </label>
 
               <label className="grid gap-2">
-                <span className="text-sm font-semibold text-slate-300">Request type</span>
+                <span className="text-sm font-semibold text-slate-300">
+                  Request type
+                </span>
                 <select
                   name="lead_type"
                   className="rounded-2xl border border-white/10 bg-slate-950 px-4 py-3 text-white outline-none focus:border-cyan-300"
@@ -158,13 +180,17 @@ export default async function ContactPage({
                   <option value="demo">Demo request</option>
                   <option value="support">Support question</option>
                   <option value="agency">Agency pilot</option>
-                  <option value="business_report">Business website report</option>
+                  <option value="business_report">
+                    Business website report
+                  </option>
                   <option value="feedback">Product feedback</option>
                 </select>
               </label>
 
               <label className="grid gap-2">
-                <span className="text-sm font-semibold text-slate-300">Message</span>
+                <span className="text-sm font-semibold text-slate-300">
+                  Message
+                </span>
                 <textarea
                   name="message"
                   rows={5}
@@ -188,19 +214,26 @@ export default async function ContactPage({
           <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-6">
             <Mail className="mb-4 h-7 w-7 text-cyan-300" />
             <h2 className="text-xl font-black">Email</h2>
-            <p className="mt-2 break-all text-slate-400">{brand.supportEmail}</p>
+            <p className="mt-2 break-all text-slate-400">
+              {brand.supportEmail}
+            </p>
           </div>
 
           <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-6">
             <Phone className="mb-4 h-7 w-7 text-cyan-300" />
             <h2 className="text-xl font-black">Pilot follow-up</h2>
-            <p className="mt-2 text-slate-400">Use WhatsApp, call, or email based on customer preference.</p>
+            <p className="mt-2 text-slate-400">
+              Use WhatsApp, call, or email based on customer preference.
+            </p>
           </div>
 
           <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-6">
             <Building2 className="mb-4 h-7 w-7 text-cyan-300" />
             <h2 className="text-xl font-black">Best-fit users</h2>
-            <p className="mt-2 text-slate-400">Web agencies, freelancers, clinics, coaching centers, and small businesses.</p>
+            <p className="mt-2 text-slate-400">
+              Web agencies, freelancers, clinics, coaching centers, and small
+              businesses.
+            </p>
           </div>
         </section>
       </div>

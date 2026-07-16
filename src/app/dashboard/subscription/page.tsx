@@ -81,7 +81,9 @@ export default async function SubscriptionPage({
 
   const { data: profileData } = await supabase
     .from("profiles")
-    .select("id, email, full_name, business_name, website_url, role, account_type, onboarding_completed")
+    .select(
+      "id, email, full_name, business_name, website_url, role, account_type, onboarding_completed",
+    )
     .eq("id", user.id)
     .maybeSingle();
 
@@ -131,8 +133,9 @@ export default async function SubscriptionPage({
                 </h1>
 
                 <p className="mt-4 max-w-3xl leading-8 text-cyan-50/90">
-                  You are logged in as VeyraSec admin. Your account bypasses customer plan limits.
-                  Use this page to monitor plans, approvals, and SaaS readiness.
+                  You are logged in as VeyraSec admin. Your account bypasses
+                  customer plan limits. Use this page to monitor plans,
+                  approvals, and SaaS readiness.
                 </p>
               </div>
 
@@ -155,13 +158,17 @@ export default async function SubscriptionPage({
             <div className="rounded-3xl border border-amber-400/20 bg-amber-400/10 p-6 text-amber-100">
               <CreditCard className="mb-4 h-7 w-7" />
               <p className="text-sm opacity-80">Pending plan requests</p>
-              <p className="mt-2 text-4xl font-black">{pendingRequestCount ?? 0}</p>
+              <p className="mt-2 text-4xl font-black">
+                {pendingRequestCount ?? 0}
+              </p>
             </div>
 
             <div className="rounded-3xl border border-emerald-400/20 bg-emerald-400/10 p-6 text-emerald-100">
               <CheckCircle2 className="mb-4 h-7 w-7" />
               <p className="text-sm opacity-80">Active subscriptions</p>
-              <p className="mt-2 text-4xl font-black">{activeSubscriptionCount ?? 0}</p>
+              <p className="mt-2 text-4xl font-black">
+                {activeSubscriptionCount ?? 0}
+              </p>
             </div>
 
             <div className="rounded-3xl border border-cyan-400/20 bg-cyan-400/10 p-6 text-cyan-100">
@@ -193,7 +200,8 @@ export default async function SubscriptionPage({
               <ShieldCheck className="mb-4 h-8 w-8 text-cyan-300" />
               <h2 className="text-2xl font-black">SaaS readiness</h2>
               <p className="mt-3 text-sm leading-6 text-slate-400">
-                Check database, environment, product logic, and production readiness.
+                Check database, environment, product logic, and production
+                readiness.
               </p>
               <p className="mt-5 inline-flex items-center gap-2 text-sm font-bold text-cyan-300">
                 Open readiness <ArrowRight className="h-4 w-4" />
@@ -207,7 +215,8 @@ export default async function SubscriptionPage({
               <Users className="mb-4 h-8 w-8 text-cyan-300" />
               <h2 className="text-2xl font-black">Admin settings</h2>
               <p className="mt-3 text-sm leading-6 text-slate-400">
-                Update profile, account type, report branding, and plan visibility.
+                Update profile, account type, report branding, and plan
+                visibility.
               </p>
               <p className="mt-5 inline-flex items-center gap-2 text-sm font-bold text-cyan-300">
                 Open settings <ArrowRight className="h-4 w-4" />
@@ -243,9 +252,14 @@ export default async function SubscriptionPage({
 
             <div className="grid gap-5 xl:grid-cols-4">
               {plans.map((plan) => (
-                <div key={plan.id} className={`rounded-3xl border p-6 ${planBadgeClass(plan.id)}`}>
+                <div
+                  key={plan.id}
+                  className={`rounded-3xl border p-6 ${planBadgeClass(plan.id)}`}
+                >
                   <h3 className="text-3xl font-black">{plan.name}</h3>
-                  <p className="mt-2 text-sm leading-6 opacity-80">{plan.description}</p>
+                  <p className="mt-2 text-sm leading-6 opacity-80">
+                    {plan.description}
+                  </p>
                   <p className="mt-6 text-4xl font-black">{priceText(plan)}</p>
 
                   <div className="mt-6 grid gap-3">
@@ -267,9 +281,10 @@ export default async function SubscriptionPage({
           <section className="mt-8 rounded-3xl border border-amber-300/20 bg-amber-300/10 p-8">
             <h2 className="text-2xl font-black text-amber-100">Admin rule</h2>
             <p className="mt-4 max-w-4xl leading-8 text-amber-50/90">
-              Admin accounts should not request plans. Admin accounts exist only for founder operations,
-              testing, plan approvals, support, and product management. Customer access is controlled by
-              subscription plan and approval status.
+              Admin accounts should not request plans. Admin accounts exist only
+              for founder operations, testing, plan approvals, support, and
+              product management. Customer access is controlled by subscription
+              plan and approval status.
             </p>
           </section>
         </div>
@@ -279,7 +294,9 @@ export default async function SubscriptionPage({
 
   let { data: subscriptionData } = await supabase
     .from("user_subscriptions")
-    .select("id, user_id, plan_id, status, current_period_start, current_period_end, scans_used_this_period, subscription_plans(*)")
+    .select(
+      "id, user_id, plan_id, status, current_period_start, current_period_end, scans_used_this_period, subscription_plans(*)",
+    )
     .eq("user_id", user.id)
     .maybeSingle();
 
@@ -289,20 +306,28 @@ export default async function SubscriptionPage({
       plan_id: "beginner",
       status: "active",
       current_period_start: new Date().toISOString(),
-      current_period_end: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString(),
+      current_period_end: new Date(
+        Date.now() + 14 * 24 * 60 * 60 * 1000,
+      ).toISOString(),
     });
 
     const retry = await supabase
       .from("user_subscriptions")
-      .select("id, user_id, plan_id, status, current_period_start, current_period_end, scans_used_this_period, subscription_plans(*)")
+      .select(
+        "id, user_id, plan_id, status, current_period_start, current_period_end, scans_used_this_period, subscription_plans(*)",
+      )
       .eq("user_id", user.id)
       .maybeSingle();
 
     subscriptionData = retry.data;
   }
 
-  const currentPlan = getJoinedPlan(subscriptionData) || plans.find((plan) => plan.id === "beginner") || null;
-  const currentPlanId = subscriptionData?.plan_id || currentPlan?.id || "beginner";
+  const currentPlan =
+    getJoinedPlan(subscriptionData) ||
+    plans.find((plan) => plan.id === "beginner") ||
+    null;
+  const currentPlanId =
+    subscriptionData?.plan_id || currentPlan?.id || "beginner";
   const currentStatus = subscriptionData?.status || "beginner";
 
   const periodStart = subscriptionData?.current_period_start
@@ -347,8 +372,12 @@ export default async function SubscriptionPage({
   const usedWebsites = websiteCount ?? 0;
   const usedScans = scanCount ?? 0;
 
-  const websitePercent = currentPlan ? usagePercent(usedWebsites, currentPlan.max_websites) : 0;
-  const scanPercent = currentPlan ? usagePercent(usedScans, currentPlan.max_scans_per_month) : 0;
+  const websitePercent = currentPlan
+    ? usagePercent(usedWebsites, currentPlan.max_websites)
+    : 0;
+  const scanPercent = currentPlan
+    ? usagePercent(usedScans, currentPlan.max_scans_per_month)
+    : 0;
 
   return (
     <main className="min-h-screen bg-slate-950 p-6 text-white">
@@ -365,15 +394,22 @@ export default async function SubscriptionPage({
               </h1>
 
               <p className="mt-4 max-w-3xl leading-8 text-slate-300">
-                Choose a plan, submit a request, and the account team can review your upgrade request manually.
+                Choose a plan, submit a request, and the account team can review
+                your upgrade request manually.
               </p>
             </div>
 
-            <div className={`rounded-3xl border p-6 text-center ${planBadgeClass(currentPlanId)}`}>
+            <div
+              className={`rounded-3xl border p-6 text-center ${planBadgeClass(currentPlanId)}`}
+            >
               <Sparkles className="mx-auto mb-3 h-9 w-9" />
               <p className="text-sm opacity-80">Current plan</p>
-              <p className="mt-2 text-4xl font-black">{currentPlan?.name || "Beginner"}</p>
-              <p className="mt-2 text-sm font-bold">{currentPlan ? priceText(currentPlan) : "Free"}</p>
+              <p className="mt-2 text-4xl font-black">
+                {currentPlan?.name || "Beginner"}
+              </p>
+              <p className="mt-2 text-sm font-bold">
+                {currentPlan ? priceText(currentPlan) : "Free"}
+              </p>
             </div>
           </div>
         </section>
@@ -385,31 +421,43 @@ export default async function SubscriptionPage({
         ) : null}
 
         <section className="mt-8 grid gap-4 md:grid-cols-3">
-          <div className={`rounded-3xl border p-6 ${statusBadgeClass(currentStatus)}`}>
+          <div
+            className={`rounded-3xl border p-6 ${statusBadgeClass(currentStatus)}`}
+          >
             <ShieldCheck className="mb-4 h-7 w-7" />
             <p className="text-sm opacity-80">Subscription status</p>
             <p className="mt-2 text-3xl font-black">{currentStatus}</p>
           </div>
 
-          <div className={`rounded-3xl border p-6 ${isLimitReached(usedWebsites, currentPlan?.max_websites ?? 1) ? "border-red-400/20 bg-red-400/10 text-red-100" : "border-cyan-400/20 bg-cyan-400/10 text-cyan-100"}`}>
+          <div
+            className={`rounded-3xl border p-6 ${isLimitReached(usedWebsites, currentPlan?.max_websites ?? 1) ? "border-red-400/20 bg-red-400/10 text-red-100" : "border-cyan-400/20 bg-cyan-400/10 text-cyan-100"}`}
+          >
             <Globe2 className="mb-4 h-7 w-7" />
             <p className="text-sm opacity-80">Website usage</p>
             <p className="mt-2 text-3xl font-black">
               {usedWebsites}/{currentPlan?.max_websites ?? 1}
             </p>
             <div className="mt-4 h-2 overflow-hidden rounded-full bg-slate-950/60">
-              <div className={`h-full ${progressClass(websitePercent)}`} style={{ width: `${websitePercent}%` }} />
+              <div
+                className={`h-full ${progressClass(websitePercent)}`}
+                style={{ width: `${websitePercent}%` }}
+              />
             </div>
           </div>
 
-          <div className={`rounded-3xl border p-6 ${isLimitReached(usedScans, currentPlan?.max_scans_per_month ?? 3) ? "border-red-400/20 bg-red-400/10 text-red-100" : "border-cyan-400/20 bg-cyan-400/10 text-cyan-100"}`}>
+          <div
+            className={`rounded-3xl border p-6 ${isLimitReached(usedScans, currentPlan?.max_scans_per_month ?? 3) ? "border-red-400/20 bg-red-400/10 text-red-100" : "border-cyan-400/20 bg-cyan-400/10 text-cyan-100"}`}
+          >
             <FileText className="mb-4 h-7 w-7" />
             <p className="text-sm opacity-80">Scans this period</p>
             <p className="mt-2 text-3xl font-black">
               {usedScans}/{currentPlan?.max_scans_per_month ?? 3}
             </p>
             <div className="mt-4 h-2 overflow-hidden rounded-full bg-slate-950/60">
-              <div className={`h-full ${progressClass(scanPercent)}`} style={{ width: `${scanPercent}%` }} />
+              <div
+                className={`h-full ${progressClass(scanPercent)}`}
+                style={{ width: `${scanPercent}%` }}
+              />
             </div>
           </div>
         </section>
@@ -455,11 +503,16 @@ export default async function SubscriptionPage({
               const isCurrent = plan.id === currentPlanId;
 
               return (
-                <div key={plan.id} className={`rounded-3xl border p-6 ${planBadgeClass(plan.id)}`}>
+                <div
+                  key={plan.id}
+                  className={`rounded-3xl border p-6 ${planBadgeClass(plan.id)}`}
+                >
                   <div className="mb-5 flex items-start justify-between gap-4">
                     <div>
                       <h3 className="text-3xl font-black">{plan.name}</h3>
-                      <p className="mt-2 text-sm leading-6 opacity-80">{plan.description}</p>
+                      <p className="mt-2 text-sm leading-6 opacity-80">
+                        {plan.description}
+                      </p>
                     </div>
 
                     {isCurrent ? (
@@ -473,7 +526,10 @@ export default async function SubscriptionPage({
 
                   <div className="mt-6 grid gap-3">
                     {featureRows(plan).map((feature) => (
-                      <div key={feature.label} className="flex items-center justify-between gap-3 rounded-2xl bg-slate-950/40 p-3 text-sm">
+                      <div
+                        key={feature.label}
+                        className="flex items-center justify-between gap-3 rounded-2xl bg-slate-950/40 p-3 text-sm"
+                      >
                         <span>{feature.label}</span>
                         <span className="font-bold">{feature.value}</span>
                       </div>
@@ -485,7 +541,10 @@ export default async function SubscriptionPage({
                       You are on this plan
                     </div>
                   ) : (
-                    <form action={requestPlanChange} className="mt-6 grid gap-3">
+                    <form
+                      action={requestPlanChange}
+                      className="mt-6 grid gap-3"
+                    >
                       <input type="hidden" name="plan_id" value={plan.id} />
                       <textarea
                         name="message"
@@ -521,14 +580,21 @@ export default async function SubscriptionPage({
             ) : (
               <div className="grid gap-3">
                 {requests.map((request) => (
-                  <div key={request.id} className="rounded-2xl border border-white/10 bg-slate-950 p-5">
+                  <div
+                    key={request.id}
+                    className="rounded-2xl border border-white/10 bg-slate-950 p-5"
+                  >
                     <div className="flex items-center justify-between gap-3">
-                      <p className="font-bold text-white">{request.requested_plan_id}</p>
+                      <p className="font-bold text-white">
+                        {request.requested_plan_id}
+                      </p>
                       <span className="rounded-full border border-amber-400/20 bg-amber-400/10 px-3 py-1 text-xs font-bold text-amber-100">
                         {request.status}
                       </span>
                     </div>
-                    <p className="mt-2 text-xs text-slate-500">{request.created_at}</p>
+                    <p className="mt-2 text-xs text-slate-500">
+                      {request.created_at}
+                    </p>
                   </div>
                 ))}
               </div>
@@ -536,11 +602,14 @@ export default async function SubscriptionPage({
           </div>
 
           <div className="rounded-3xl border border-amber-300/20 bg-amber-300/10 p-8">
-            <h2 className="text-2xl font-black text-amber-100">Important subscription note</h2>
+            <h2 className="text-2xl font-black text-amber-100">
+              Important subscription note
+            </h2>
             <p className="mt-4 leading-8 text-amber-50/90">
-              This is manual subscription logic only. It does not collect money, does not verify
-              payment, and does not use Razorpay. The account team will review upgrade requests manually
-              after payment/legal setup is handled properly.
+              This is manual subscription logic only. It does not collect money,
+              does not verify payment, and does not use Razorpay. The account
+              team will review upgrade requests manually after payment/legal
+              setup is handled properly.
             </p>
           </div>
         </section>

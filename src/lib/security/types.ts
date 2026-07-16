@@ -16,7 +16,8 @@ export type SecurityCategory =
   | "compliance_readiness"
   | "general";
 
-export type RemediationPriority = "fix_now" | "fix_this_week" | "ask_developer" | "monitor" | "optional";
+export type RemediationPriority =
+  "fix_now" | "fix_this_week" | "ask_developer" | "monitor" | "optional";
 
 export type EstimatedEffort = "quick" | "medium" | "advanced";
 
@@ -24,7 +25,14 @@ export type SecurityEvidence = {
   checkedUrl: string;
   observed: string;
   expected?: string;
-  source: "http_header" | "html" | "tls" | "redirect" | "cookie" | "public_page" | "scanner";
+  source:
+    | "http_header"
+    | "html"
+    | "tls"
+    | "redirect"
+    | "cookie"
+    | "public_page"
+    | "scanner";
 };
 
 export type ProfessionalFinding = {

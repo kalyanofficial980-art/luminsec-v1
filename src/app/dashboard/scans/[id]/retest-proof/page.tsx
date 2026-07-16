@@ -38,15 +38,23 @@ function scoreClass(score: number) {
 function severityClass(value: unknown) {
   const severity = normalizeRetestSeverity(value);
 
-  if (severity === "critical") return "border-red-400/30 bg-red-400/10 text-red-100";
-  if (severity === "high") return "border-orange-400/30 bg-orange-400/10 text-orange-100";
-  if (severity === "medium") return "border-amber-400/30 bg-amber-400/10 text-amber-100";
-  if (severity === "low") return "border-emerald-400/30 bg-emerald-400/10 text-emerald-100";
+  if (severity === "critical")
+    return "border-red-400/30 bg-red-400/10 text-red-100";
+  if (severity === "high")
+    return "border-orange-400/30 bg-orange-400/10 text-orange-100";
+  if (severity === "medium")
+    return "border-amber-400/30 bg-amber-400/10 text-amber-100";
+  if (severity === "low")
+    return "border-emerald-400/30 bg-emerald-400/10 text-emerald-100";
 
   return "border-slate-400/30 bg-slate-400/10 text-slate-200";
 }
 
-function statCard(label: string, value: number | string, tone: "good" | "warn" | "bad" | "neutral" = "neutral") {
+function statCard(
+  label: string,
+  value: number | string,
+  tone: "good" | "warn" | "bad" | "neutral" = "neutral",
+) {
   const toneClass =
     tone === "good"
       ? "border-emerald-400/20 bg-emerald-400/10 text-emerald-100"
@@ -64,8 +72,13 @@ function statCard(label: string, value: number | string, tone: "good" | "warn" |
   );
 }
 
-function findingList(title: string, items: RetestProofItem[], type: "fixed" | "open" | "new") {
-  const Icon = type === "fixed" ? CheckCircle2 : type === "open" ? AlertTriangle : XCircle;
+function findingList(
+  title: string,
+  items: RetestProofItem[],
+  type: "fixed" | "open" | "new",
+) {
+  const Icon =
+    type === "fixed" ? CheckCircle2 : type === "open" ? AlertTriangle : XCircle;
   const emptyText =
     type === "fixed"
       ? "No fixed findings detected between these two scans."
@@ -83,9 +96,14 @@ function findingList(title: string, items: RetestProofItem[], type: "fixed" | "o
       {items.length > 0 ? (
         <div className="grid gap-4">
           {items.map((item) => (
-            <div key={item.key} className="rounded-2xl border border-white/10 bg-slate-950 p-4">
+            <div
+              key={item.key}
+              className="rounded-2xl border border-white/10 bg-slate-950 p-4"
+            >
               <div className="mb-3 flex flex-wrap gap-2">
-                <span className={`rounded-full border px-3 py-1 text-xs font-black ${severityClass(item.severity)}`}>
+                <span
+                  className={`rounded-full border px-3 py-1 text-xs font-black ${severityClass(item.severity)}`}
+                >
                   {item.severity}
                 </span>
                 <span className="rounded-full border border-cyan-300/20 bg-cyan-300/10 px-3 py-1 text-xs font-black text-cyan-100">
@@ -113,7 +131,9 @@ export default async function RetestProofPage({ params }: PageProps) {
 
   let currentScanQuery = supabase
     .from("scan_results")
-    .select("id, user_id, website_id, url, domain, overall_score, score, risk_level, created_at")
+    .select(
+      "id, user_id, website_id, url, domain, overall_score, score, risk_level, created_at",
+    )
     .eq("id", id);
 
   if (profile.role !== "admin") {
@@ -128,17 +148,25 @@ export default async function RetestProofPage({ params }: PageProps) {
 
   let previousScanQuery = supabase
     .from("scan_results")
-    .select("id, user_id, website_id, url, domain, overall_score, score, risk_level, created_at")
+    .select(
+      "id, user_id, website_id, url, domain, overall_score, score, risk_level, created_at",
+    )
     .neq("id", currentScan.id)
     .order("created_at", { ascending: false })
     .limit(1);
 
   if (currentScan.created_at) {
-    previousScanQuery = previousScanQuery.lt("created_at", currentScan.created_at);
+    previousScanQuery = previousScanQuery.lt(
+      "created_at",
+      currentScan.created_at,
+    );
   }
 
   if (currentScan.website_id) {
-    previousScanQuery = previousScanQuery.eq("website_id", currentScan.website_id);
+    previousScanQuery = previousScanQuery.eq(
+      "website_id",
+      currentScan.website_id,
+    );
   } else if (currentScan.domain) {
     previousScanQuery = previousScanQuery.eq("domain", currentScan.domain);
   } else {
@@ -159,7 +187,9 @@ export default async function RetestProofPage({ params }: PageProps) {
 
     let query = supabase
       .from("scan_findings")
-      .select("id, category, severity, title, description, recommendation, evidence, created_at")
+      .select(
+        "id, category, severity, title, description, recommendation, evidence, created_at",
+      )
       .eq("scan_result_id", scanId)
       .order("created_at", { ascending: true });
 
@@ -182,10 +212,19 @@ export default async function RetestProofPage({ params }: PageProps) {
     currentFindings,
   });
 
-  const websiteLabel = normalizeText(currentScan.domain || currentScan.url, "Website");
-  const currentScore = Number(currentScan.overall_score ?? currentScan.score ?? 0);
-  const previousScore = Number(previousScan?.overall_score ?? previousScan?.score ?? 0);
-  const scoreChange = Number.isFinite(currentScore - previousScore) ? Math.round(currentScore - previousScore) : 0;
+  const websiteLabel = normalizeText(
+    currentScan.domain || currentScan.url,
+    "Website",
+  );
+  const currentScore = Number(
+    currentScan.overall_score ?? currentScan.score ?? 0,
+  );
+  const previousScore = Number(
+    previousScan?.overall_score ?? previousScan?.score ?? 0,
+  );
+  const scoreChange = Number.isFinite(currentScore - previousScore)
+    ? Math.round(currentScore - previousScore)
+    : 0;
 
   return (
     <main className="min-h-screen bg-slate-950 p-6 text-white">
@@ -224,22 +263,39 @@ export default async function RetestProofPage({ params }: PageProps) {
               </h1>
 
               <p className="mt-6 max-w-3xl text-lg leading-8 text-slate-300">
-                This page compares the current scan against the previous scan for the same website
-                and shows what appears fixed, still open, or newly detected.
+                This page compares the current scan against the previous scan
+                for the same website and shows what appears fixed, still open,
+                or newly detected.
               </p>
 
               <div className="mt-5 grid gap-2 text-sm text-slate-400">
-                <p>Current scan: {currentScan.created_at ? new Date(currentScan.created_at).toLocaleString("en-IN") : "Not available"}</p>
-                <p>Previous scan: {previousScan?.created_at ? new Date(previousScan.created_at).toLocaleString("en-IN") : "No previous scan found"}</p>
+                <p>
+                  Current scan:{" "}
+                  {currentScan.created_at
+                    ? new Date(currentScan.created_at).toLocaleString("en-IN")
+                    : "Not available"}
+                </p>
+                <p>
+                  Previous scan:{" "}
+                  {previousScan?.created_at
+                    ? new Date(previousScan.created_at).toLocaleString("en-IN")
+                    : "No previous scan found"}
+                </p>
               </div>
             </div>
 
             <div className="rounded-3xl border border-white/10 bg-slate-950 p-6 text-center">
-              <p className="text-sm font-bold text-slate-400">Retest proof score</p>
-              <p className={`mt-3 text-7xl font-black ${scoreClass(proof.retestProofScore)}`}>
+              <p className="text-sm font-bold text-slate-400">
+                Retest proof score
+              </p>
+              <p
+                className={`mt-3 text-7xl font-black ${scoreClass(proof.retestProofScore)}`}
+              >
                 {proof.retestProofScore}
               </p>
-              <p className="mt-2 text-sm font-bold text-slate-500">out of 100</p>
+              <p className="mt-2 text-sm font-bold text-slate-500">
+                out of 100
+              </p>
 
               <div className="mt-5 rounded-full border border-cyan-300/20 bg-cyan-300/10 px-5 py-3 text-sm font-black text-cyan-100">
                 {proof.statusLabel}
@@ -251,9 +307,12 @@ export default async function RetestProofPage({ params }: PageProps) {
         {!previousScan ? (
           <section className="mt-8 rounded-3xl border border-amber-300/20 bg-amber-300/10 p-8">
             <AlertTriangle className="h-8 w-8 text-amber-200" />
-            <h2 className="mt-4 text-2xl font-black text-amber-100">No previous scan found</h2>
+            <h2 className="mt-4 text-2xl font-black text-amber-100">
+              No previous scan found
+            </h2>
             <p className="mt-3 max-w-4xl leading-8 text-amber-50/90">
-              This scan is currently a baseline. Run another scan for the same website after fixes to generate retest proof.
+              This scan is currently a baseline. Run another scan for the same
+              website after fixes to generate retest proof.
             </p>
           </section>
         ) : null}
@@ -262,28 +321,44 @@ export default async function RetestProofPage({ params }: PageProps) {
           {statCard("Previous findings", proof.previousFindingCount)}
           {statCard("Current findings", proof.currentFindingCount)}
           {statCard("Fixed", proof.fixedCount, "good")}
-          {statCard("Still open", proof.stillOpenCount, proof.stillOpenCount > 0 ? "warn" : "good")}
+          {statCard(
+            "Still open",
+            proof.stillOpenCount,
+            proof.stillOpenCount > 0 ? "warn" : "good",
+          )}
           {statCard("New", proof.newCount, proof.newCount > 0 ? "bad" : "good")}
-          {statCard("Improvement", `${proof.improvementPercent}%`, proof.improvementPercent > 0 ? "good" : "neutral")}
+          {statCard(
+            "Improvement",
+            `${proof.improvementPercent}%`,
+            proof.improvementPercent > 0 ? "good" : "neutral",
+          )}
         </section>
 
         <section className="mt-8 grid gap-8 lg:grid-cols-3">
           <div className="rounded-3xl border border-emerald-300/20 bg-emerald-300/10 p-6">
             <CheckCircle2 className="h-7 w-7 text-emerald-300" />
             <p className="mt-3 text-sm text-emerald-50/80">High-risk fixed</p>
-            <p className="mt-2 text-4xl font-black text-emerald-100">{proof.highRiskFixedCount}</p>
+            <p className="mt-2 text-4xl font-black text-emerald-100">
+              {proof.highRiskFixedCount}
+            </p>
           </div>
 
           <div className="rounded-3xl border border-amber-300/20 bg-amber-300/10 p-6">
             <AlertTriangle className="h-7 w-7 text-amber-200" />
-            <p className="mt-3 text-sm text-amber-50/80">High-risk still open</p>
-            <p className="mt-2 text-4xl font-black text-amber-100">{proof.highRiskStillOpenCount}</p>
+            <p className="mt-3 text-sm text-amber-50/80">
+              High-risk still open
+            </p>
+            <p className="mt-2 text-4xl font-black text-amber-100">
+              {proof.highRiskStillOpenCount}
+            </p>
           </div>
 
           <div className="rounded-3xl border border-red-300/20 bg-red-300/10 p-6">
             <XCircle className="h-7 w-7 text-red-200" />
             <p className="mt-3 text-sm text-red-50/80">High-risk new</p>
-            <p className="mt-2 text-4xl font-black text-red-100">{proof.highRiskNewCount}</p>
+            <p className="mt-2 text-4xl font-black text-red-100">
+              {proof.highRiskNewCount}
+            </p>
           </div>
         </section>
 
@@ -294,9 +369,18 @@ export default async function RetestProofPage({ params }: PageProps) {
           </div>
 
           <div className="grid gap-4 md:grid-cols-3">
-            {statCard("Previous score", previousScan ? Math.round(previousScore || 0) : "N/A")}
+            {statCard(
+              "Previous score",
+              previousScan ? Math.round(previousScore || 0) : "N/A",
+            )}
             {statCard("Current score", Math.round(currentScore || 0))}
-            {statCard("Score change", previousScan ? `${scoreChange >= 0 ? "+" : ""}${scoreChange}` : "N/A", scoreChange > 0 ? "good" : scoreChange < 0 ? "bad" : "neutral")}
+            {statCard(
+              "Score change",
+              previousScan
+                ? `${scoreChange >= 0 ? "+" : ""}${scoreChange}`
+                : "N/A",
+              scoreChange > 0 ? "good" : scoreChange < 0 ? "bad" : "neutral",
+            )}
           </div>
         </section>
 
@@ -314,7 +398,10 @@ export default async function RetestProofPage({ params }: PageProps) {
 
           <div className="grid gap-3">
             {proof.notes.map((note) => (
-              <p key={note} className="rounded-2xl border border-white/10 bg-slate-950 p-4 leading-7 text-slate-300">
+              <p
+                key={note}
+                className="rounded-2xl border border-white/10 bg-slate-950 p-4 leading-7 text-slate-300"
+              >
                 {note}
               </p>
             ))}
@@ -322,11 +409,15 @@ export default async function RetestProofPage({ params }: PageProps) {
         </section>
 
         <section className="mt-8 rounded-3xl border border-amber-300/20 bg-amber-300/10 p-8">
-          <h2 className="text-2xl font-black text-amber-100">Important scope note</h2>
+          <h2 className="text-2xl font-black text-amber-100">
+            Important scope note
+          </h2>
           <p className="mt-4 max-w-4xl leading-8 text-amber-50/90">
-            Retest proof is based on visible scan findings and normalized root-cause matching.
-            It is improvement evidence only. It is not legal advice, compliance certification,
-            exploit testing, vulnerability exploitation, login testing, brute force testing, or a penetration test.
+            Retest proof is based on visible scan findings and normalized
+            root-cause matching. It is improvement evidence only. It is not
+            legal advice, compliance certification, exploit testing,
+            vulnerability exploitation, login testing, brute force testing, or a
+            penetration test.
           </p>
         </section>
       </div>

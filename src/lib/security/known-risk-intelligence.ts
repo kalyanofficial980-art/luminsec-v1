@@ -30,7 +30,10 @@ type RiskRule = {
 };
 
 function slug(value: string) {
-  return value.toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_+|_+$/g, "");
+  return value
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "_")
+    .replace(/^_+|_+$/g, "");
 }
 
 function confidenceText(value: TechnologySignal["confidence"]) {
@@ -39,7 +42,10 @@ function confidenceText(value: TechnologySignal["confidence"]) {
   return "Low confidence";
 }
 
-function evidenceForTechnology(technology: TechnologySignal, riskCategory: string) {
+function evidenceForTechnology(
+  technology: TechnologySignal,
+  riskCategory: string,
+) {
   return [
     `Technology: ${technology.name}`,
     `Category: ${technology.category}`,
@@ -52,7 +58,10 @@ function evidenceForTechnology(technology: TechnologySignal, riskCategory: strin
     .join("\n");
 }
 
-function makeFinding(rule: RiskRule, technology: TechnologySignal): KnownRiskFinding {
+function makeFinding(
+  rule: RiskRule,
+  technology: TechnologySignal,
+): KnownRiskFinding {
   return {
     id: `known_risk_${rule.id}_${slug(technology.name)}`,
     title: `${technology.name}: ${rule.title}`,
@@ -74,7 +83,9 @@ function makeFinding(rule: RiskRule, technology: TechnologySignal): KnownRiskFin
       "Safety note: This is passive intelligence based on visible public signals. It is not a confirmed vulnerability, exploit result, or CVE confirmation.",
     ].join("\n"),
     recommendation: [
-      rule.severity === "medium" ? "Priority: Fix this week" : "Priority: Monitor",
+      rule.severity === "medium"
+        ? "Priority: Fix this week"
+        : "Priority: Monitor",
       "",
       "Estimated effort: Review",
       "",
@@ -181,8 +192,7 @@ const rules: RiskRule[] = [
       "Good CDN configuration improves availability, trust, and protection against common internet noise.",
     technicalImpact:
       "Review TLS mode, DNS records, origin exposure, cache rules, WAF settings, and security headers.",
-    fixSummary:
-      "Review CDN TLS, caching, WAF, and origin protection settings.",
+    fixSummary: "Review CDN TLS, caching, WAF, and origin protection settings.",
     developerFix:
       "Confirm TLS mode is strict, origin is not unnecessarily exposed, and security headers are consistently applied.",
     retest:
@@ -212,9 +222,12 @@ const rules: RiskRule[] = [
   {
     id: "server_disclosure_review",
     match: (technology) =>
-      ["nginx", "apache", "x-powered-by disclosure", "generator meta tag"].includes(
-        technology.name.toLowerCase()
-      ),
+      [
+        "nginx",
+        "apache",
+        "x-powered-by disclosure",
+        "generator meta tag",
+      ].includes(technology.name.toLowerCase()),
     title: "technology disclosure review recommended",
     severity: "low",
     category: "technology",
@@ -225,8 +238,7 @@ const rules: RiskRule[] = [
       "Reducing unnecessary technology disclosure improves professional security posture and customer confidence.",
     technicalImpact:
       "Remove unnecessary version headers/meta tags where possible and keep the underlying platform updated.",
-    fixSummary:
-      "Reduce unnecessary public technology/version disclosure.",
+    fixSummary: "Reduce unnecessary public technology/version disclosure.",
     developerFix:
       "Disable or minimize Server, X-Powered-By, and generator/version metadata where supported by the platform.",
     retest:
@@ -275,7 +287,7 @@ const rules: RiskRule[] = [
 ];
 
 export function knownRiskFindingsFromTechnology(
-  detection: TechnologyDetectionResult
+  detection: TechnologyDetectionResult,
 ): KnownRiskFinding[] {
   const findings: KnownRiskFinding[] = [];
   const seen = new Set<string>();

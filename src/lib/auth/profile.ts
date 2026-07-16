@@ -1,5 +1,6 @@
 export type UserRole = "user" | "admin";
-export type AccountType = "small_business" | "freelancer_agency" | "testing" | null;
+export type AccountType =
+  "small_business" | "freelancer_agency" | "testing" | null;
 
 export type DashboardProfile = {
   id: string;
@@ -19,15 +20,23 @@ export function accountTypeLabel(accountType: AccountType) {
   return "Not selected";
 }
 
-export function isAdmin(profile: Pick<DashboardProfile, "role"> | null | undefined) {
+export function isAdmin(
+  profile: Pick<DashboardProfile, "role"> | null | undefined,
+) {
   return profile?.role === "admin";
 }
 
-export function isAgencyAccount(profile: Pick<DashboardProfile, "account_type" | "role"> | null | undefined) {
-  return profile?.account_type === "freelancer_agency" || profile?.role === "admin";
+export function isAgencyAccount(
+  profile: Pick<DashboardProfile, "account_type" | "role"> | null | undefined,
+) {
+  return (
+    profile?.account_type === "freelancer_agency" || profile?.role === "admin"
+  );
 }
 
-export function normalizeProfile(input: Partial<DashboardProfile> | null | undefined): DashboardProfile | null {
+export function normalizeProfile(
+  input: Partial<DashboardProfile> | null | undefined,
+): DashboardProfile | null {
   if (!input?.id) {
     return null;
   }

@@ -1,4 +1,5 @@
-export type CookieQualitySeverity = "info" | "low" | "medium" | "high" | "critical";
+export type CookieQualitySeverity =
+  "info" | "low" | "medium" | "high" | "critical";
 
 export type CookieQualityFinding = {
   id: string;
@@ -79,7 +80,8 @@ function parseCookie(raw: string): ParsedCookie | null {
   }
 
   const maxAgeRaw = attributeMap["max-age"];
-  const maxAge = maxAgeRaw && Number.isFinite(Number(maxAgeRaw)) ? Number(maxAgeRaw) : null;
+  const maxAge =
+    maxAgeRaw && Number.isFinite(Number(maxAgeRaw)) ? Number(maxAgeRaw) : null;
 
   const expiresRaw = attributeMap.expires;
   const expiresAt = expiresRaw ? new Date(expiresRaw) : null;
@@ -91,7 +93,8 @@ function parseCookie(raw: string): ParsedCookie | null {
     attributeMap,
     sameSite: (attributeMap.samesite || "").toLowerCase(),
     maxAge,
-    expiresAt: expiresAt && !Number.isNaN(expiresAt.getTime()) ? expiresAt : null,
+    expiresAt:
+      expiresAt && !Number.isNaN(expiresAt.getTime()) ? expiresAt : null,
   };
 }
 
@@ -107,7 +110,9 @@ function isSensitiveCookie(cookie: ParsedCookie) {
     return false;
   }
 
-  return /session|sess|sid|auth|token|jwt|login|account|user|admin|cart|checkout|payment/.test(name);
+  return /session|sess|sid|auth|token|jwt|login|account|user|admin|cart|checkout|payment/.test(
+    name,
+  );
 }
 
 function finding(
@@ -116,7 +121,7 @@ function finding(
   severity: CookieQualitySeverity,
   evidence: string,
   recommendation: string,
-  description: string
+  description: string,
 ): CookieQualityFinding {
   return {
     id,
@@ -130,7 +135,11 @@ function finding(
   };
 }
 
-function cookieEvidence(input: CookieQualityInput, cookie: ParsedCookie, extra: string) {
+function cookieEvidence(
+  input: CookieQualityInput,
+  cookie: ParsedCookie,
+  extra: string,
+) {
   return [
     `Source URL: ${sourceUrl(input)}`,
     `Cookie name: ${cookie.name}`,
@@ -154,7 +163,9 @@ function cookieLifetimeDays(cookie: ParsedCookie) {
   return null;
 }
 
-export function cookieQualityFindingsFromHeaders(input: CookieQualityInput): CookieQualityFinding[] {
+export function cookieQualityFindingsFromHeaders(
+  input: CookieQualityInput,
+): CookieQualityFinding[] {
   const findings: CookieQualityFinding[] = [];
   const cookies = getSetCookieValues(input.headers)
     .map(parseCookie)
@@ -175,12 +186,18 @@ export function cookieQualityFindingsFromHeaders(input: CookieQualityInput): Coo
       findings.push(
         finding(
           "cookie_missing_secure",
-          sensitive ? "Sensitive cookie missing Secure attribute" : "Cookie missing Secure attribute",
+          sensitive
+            ? "Sensitive cookie missing Secure attribute"
+            : "Cookie missing Secure attribute",
           sensitive ? "medium" : "low",
-          cookieEvidence(input, cookie, "Expected: Secure attribute on HTTPS cookies."),
+          cookieEvidence(
+            input,
+            cookie,
+            "Expected: Secure attribute on HTTPS cookies.",
+          ),
           "Set Secure on cookies that should only be sent over HTTPS.",
-          "A visible cookie does not clearly include the Secure attribute, so browsers may send it over non-HTTPS requests in some situations."
-        )
+          "A visible cookie does not clearly include the Secure attribute, so browsers may send it over non-HTTPS requests in some situations.",
+        ),
       );
     }
 
@@ -190,10 +207,14 @@ export function cookieQualityFindingsFromHeaders(input: CookieQualityInput): Coo
           "cookie_missing_httponly",
           "Sensitive cookie missing HttpOnly attribute",
           "medium",
-          cookieEvidence(input, cookie, "Expected: HttpOnly on sensitive/session-style cookies."),
+          cookieEvidence(
+            input,
+            cookie,
+            "Expected: HttpOnly on sensitive/session-style cookies.",
+          ),
           "Set HttpOnly on session or sensitive cookies where JavaScript access is not required.",
-          "A likely sensitive cookie is visible without HttpOnly, which can increase exposure if client-side script is compromised."
-        )
+          "A likely sensitive cookie is visible without HttpOnly, which can increase exposure if client-side script is compromised.",
+        ),
       );
     }
 
@@ -203,10 +224,14 @@ export function cookieQualityFindingsFromHeaders(input: CookieQualityInput): Coo
           "cookie_missing_samesite",
           "Cookie missing SameSite attribute",
           "low",
-          cookieEvidence(input, cookie, "Expected: SameSite=Lax or SameSite=Strict where appropriate."),
+          cookieEvidence(
+            input,
+            cookie,
+            "Expected: SameSite=Lax or SameSite=Strict where appropriate.",
+          ),
           "Set SameSite=Lax or SameSite=Strict where appropriate for the website workflow.",
-          "A visible cookie does not clearly include SameSite, which helps browsers control cross-site cookie sending."
-        )
+          "A visible cookie does not clearly include SameSite, which helps browsers control cross-site cookie sending.",
+        ),
       );
     }
 
@@ -216,10 +241,14 @@ export function cookieQualityFindingsFromHeaders(input: CookieQualityInput): Coo
           "cookie_samesite_none_without_secure",
           "Cookie uses SameSite=None without Secure",
           "medium",
-          cookieEvidence(input, cookie, "Observed: SameSite=None without Secure."),
+          cookieEvidence(
+            input,
+            cookie,
+            "Observed: SameSite=None without Secure.",
+          ),
           "When SameSite=None is required, also set Secure.",
-          "Modern browsers expect SameSite=None cookies to also use Secure."
-        )
+          "Modern browsers expect SameSite=None cookies to also use Secure.",
+        ),
       );
     }
 
@@ -229,10 +258,14 @@ export function cookieQualityFindingsFromHeaders(input: CookieQualityInput): Coo
           "sensitive_cookie_long_lifetime",
           "Sensitive cookie lifetime needs review",
           "low",
-          cookieEvidence(input, cookie, `Observed lifetime: about ${lifetimeDays} day(s).`),
+          cookieEvidence(
+            input,
+            cookie,
+            `Observed lifetime: about ${lifetimeDays} day(s).`,
+          ),
           "Review whether sensitive cookies need a shorter lifetime or additional session controls.",
-          "A likely sensitive cookie appears long-lived. This may be valid for some workflows, but should be reviewed."
-        )
+          "A likely sensitive cookie appears long-lived. This may be valid for some workflows, but should be reviewed.",
+        ),
       );
     }
   }

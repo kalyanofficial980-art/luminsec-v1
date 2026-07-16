@@ -1,0 +1,216 @@
+Folder PATH listing
+Volume serial number is 000001DC 78F1:8850
+C:\USERS\ADMIN\DESKTOP\STARTUPS\LUMINSEC-V1\SRC\APP
+¦   error.tsx
+¦   favicon.ico
+¦   globals.css
+¦   layout.tsx
+¦   loading.tsx
+¦   not-found.tsx
+¦   page.tsx
+¦   robots.ts
+¦   sitemap.ts
+¦   
++---api
+¦   +---health
+¦           route.ts
+¦           
++---app
+¦   ¦   actions.ts
+¦   ¦   page.tsx
+¦   ¦   
+¦   +---scans
+¦   ¦   ¦   page.tsx
+¦   ¦   ¦   
+¦   ¦   +---[id]
+¦   ¦       ¦   page.tsx
+¦   ¦       ¦   
+¦   ¦       +---print
+¦   ¦               page.tsx
+¦   ¦               
+¦   +---validation
+¦   ¦       actions.ts
+¦   ¦       page.tsx
+¦   ¦       
+¦   +---websites
+¦       ¦   actions.ts
+¦       ¦   page.tsx
+¦       ¦   
+¦       +---new
+¦               page.tsx
+¦               
++---auth
+¦   +---callback
+¦           route.ts
+¦           
++---contact
+¦       actions.ts
+¦       page.tsx
+¦       
++---dashboard
+¦   ¦   actions.ts
+¦   ¦   error.tsx
+¦   ¦   layout.tsx
+¦   ¦   loading.tsx
+¦   ¦   page.tsx
+¦   ¦   
+¦   +---admin
+¦   ¦   +---access-audit
+¦   ¦   ¦       layout.tsx
+¦   ¦   ¦       page.tsx
+¦   ¦   ¦       
+¦   ¦   +---launch-checklist
+¦   ¦   ¦       layout.tsx
+¦   ¦   ¦       page.tsx
+¦   ¦   ¦       
+¦   ¦   +---manual-review
+¦   ¦   ¦       actions.ts
+¦   ¦   ¦       layout.tsx
+¦   ¦   ¦       page.tsx
+¦   ¦   ¦       
+¦   ¦   +---saas-readiness
+¦   ¦   ¦       page.tsx
+¦   ¦   ¦       
+¦   ¦   +---subscriptions
+¦   ¦   ¦       actions.ts
+¦   ¦   ¦       layout.tsx
+¦   ¦   ¦       page.tsx
+¦   ¦   ¦       
+¦   ¦   +---verified-reports
+¦   ¦           actions.ts
+¦   ¦           layout.tsx
+¦   ¦           page.tsx
+¦   ¦           
+¦   +---payments
+¦   ¦   ¦   actions.ts
+¦   ¦   ¦   layout.tsx
+¦   ¦   ¦   page.tsx
+¦   ¦   ¦   
+¦   ¦   +---[id]
+¦   ¦       +---receipt
+¦   ¦               page.tsx
+¦   ¦               
+¦   +---scans
+¦   ¦   ¦   page.tsx
+¦   ¦   ¦   
+¦   ¦   +---[id]
+¦   ¦       ¦   page.tsx
+¦   ¦       ¦   
+¦   ¦       +---action-plan
+¦   ¦       ¦       page.tsx
+¦   ¦       ¦       
+¦   ¦       +---comparison
+¦   ¦       ¦       page.tsx
+¦   ¦       ¦       
+¦   ¦       +---niche-score
+¦   ¦       ¦       page.tsx
+¦   ¦       ¦       
+¦   ¦       +---print
+¦   ¦       ¦       layout.tsx
+¦   ¦       ¦       page.tsx
+¦   ¦       ¦       
+¦   ¦       +---retest-proof
+¦   ¦       ¦       page.tsx
+¦   ¦       ¦       
+¦   ¦       +---share
+¦   ¦       ¦       actions.ts
+¦   ¦       ¦       layout.tsx
+¦   ¦       ¦       page.tsx
+¦   ¦       ¦       
+¦   ¦       +---verified-report
+¦   ¦               actions.ts
+¦   ¦               page.tsx
+¦   ¦               
+¦   +---settings
+¦   ¦       actions.ts
+¦   ¦       page.tsx
+¦   ¦       
+¦   +---start
+¦   ¦       page.tsx
+¦   ¦       
+¦   +---status
+¦   ¦       layout.tsx
+¦   ¦       page.tsx
+¦   ¦       
+¦   +---subscription
+¦   ¦       actions.ts
+¦   ¦       page.tsx
+¦   ¦       
+¦   +---upgrade-required
+¦   ¦       page.tsx
+¦   ¦       
+¦   +---v2-launch
+¦   ¦       layout.tsx
+¦   ¦       page.tsx
+¦   ¦       
+¦   +---validation
+¦   ¦       actions.ts
+¦   ¦       layout.tsx
+¦   ¦       page.tsx
+¦   ¦       
+¦   +---websites
+¦       ¦   actions.ts
+¦       ¦   page.tsx
+¦       ¦   
+¦       +---new
+¦       ¦       page.tsx
+¦       ¦       
+¦       +---[id]
+¦               page.tsx
+¦               
++---demo-script
+¦       page.tsx
+¦       
++---health
+¦       route.ts
+¦       
++---launch-checklist
+¦       page.tsx
+¦       
++---launch-package
+¦       page.tsx
+¦       
++---legal
+¦   +---disclaimer
+¦           page.tsx
+¦           
++---login
+¦       actions.ts
+¦       page.tsx
+¦       
++---onboarding
+¦       actions.ts
+¦       page.tsx
+¦       
++---outreach
+¦       page.tsx
+¦       
++---paid-pilot-checklist
+¦       page.tsx
+¦       
++---pilot
+¦       page.tsx
+¦       
++---pitch
+¦       page.tsx
+¦       
++---pricing
+¦       page.tsx
+¦       
++---production-qa
+¦       page.tsx
+¦       
++---reports
+¦   +---[shareId]
+¦           page.tsx
+¦           
++---sample-report
+¦       page.tsx
+¦       
++---security
+¦       page.tsx
+¦       
++---signup
+        actions.ts
+        page.tsx
+        

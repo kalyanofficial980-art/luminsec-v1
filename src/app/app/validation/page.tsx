@@ -58,16 +58,19 @@ export default async function CustomerValidationPage({
     .order("created_at", { ascending: false });
 
   const totalLeads = feedbackRows?.length ?? 0;
-  const paidPilots = feedbackRows?.filter((row) => row.is_paid_pilot).length ?? 0;
+  const paidPilots =
+    feedbackRows?.filter((row) => row.is_paid_pilot).length ?? 0;
   const demoBooked =
-    feedbackRows?.filter((row) => row.status === "demo_booked" || row.status === "paid_pilot").length ?? 0;
+    feedbackRows?.filter(
+      (row) => row.status === "demo_booked" || row.status === "paid_pilot",
+    ).length ?? 0;
   const replies =
     feedbackRows?.filter(
       (row) =>
         row.status === "replied" ||
         row.status === "demo_booked" ||
         row.status === "feedback_received" ||
-        row.status === "paid_pilot"
+        row.status === "paid_pilot",
     ).length ?? 0;
 
   return (
@@ -87,7 +90,9 @@ export default async function CustomerValidationPage({
               <Target className="h-6 w-6 text-cyan-300" />
             </div>
             <div>
-              <h1 className="text-4xl font-black">Customer validation tracker</h1>
+              <h1 className="text-4xl font-black">
+                Customer validation tracker
+              </h1>
               <p className="text-slate-400">
                 {brand.name} SaaS pilot feedback and first customer proof
               </p>
@@ -95,8 +100,9 @@ export default async function CustomerValidationPage({
           </div>
 
           <p className="max-w-3xl leading-8 text-slate-300">
-            Track your first 10 customer conversations, objections, feedback, demo status,
-            and paid pilot opportunities. This is for SaaS validation, not mobile app tracking.
+            Track your first 10 customer conversations, objections, feedback,
+            demo status, and paid pilot opportunities. This is for SaaS
+            validation, not mobile app tracking.
           </p>
 
           <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -132,7 +138,10 @@ export default async function CustomerValidationPage({
         ) : null}
 
         <section className="mt-8 grid gap-8 lg:grid-cols-[0.85fr_1.15fr]">
-          <form action={addCustomerFeedback} className="rounded-3xl border border-white/10 bg-white/[0.04] p-8">
+          <form
+            action={addCustomerFeedback}
+            className="rounded-3xl border border-white/10 bg-white/[0.04] p-8"
+          >
             <div className="mb-6 flex items-center gap-3">
               <Plus className="h-7 w-7 text-cyan-300" />
               <h2 className="text-3xl font-black">Add validation note</h2>
@@ -140,7 +149,9 @@ export default async function CustomerValidationPage({
 
             <div className="grid gap-4">
               <label className="grid gap-2">
-                <span className="text-sm font-semibold text-slate-300">Business name *</span>
+                <span className="text-sm font-semibold text-slate-300">
+                  Business name *
+                </span>
                 <input
                   name="business_name"
                   placeholder="Example: Sri Lakshmi Clinic"
@@ -149,7 +160,9 @@ export default async function CustomerValidationPage({
               </label>
 
               <label className="grid gap-2">
-                <span className="text-sm font-semibold text-slate-300">Website URL</span>
+                <span className="text-sm font-semibold text-slate-300">
+                  Website URL
+                </span>
                 <input
                   name="website_url"
                   placeholder="https://example.com"
@@ -159,7 +172,9 @@ export default async function CustomerValidationPage({
 
               <div className="grid gap-4 sm:grid-cols-2">
                 <label className="grid gap-2">
-                  <span className="text-sm font-semibold text-slate-300">Contact channel</span>
+                  <span className="text-sm font-semibold text-slate-300">
+                    Contact channel
+                  </span>
                   <select
                     name="contact_channel"
                     className="rounded-2xl border border-white/10 bg-slate-950 px-4 py-3 text-white outline-none focus:border-cyan-300"
@@ -174,7 +189,9 @@ export default async function CustomerValidationPage({
                 </label>
 
                 <label className="grid gap-2">
-                  <span className="text-sm font-semibold text-slate-300">Lead type</span>
+                  <span className="text-sm font-semibold text-slate-300">
+                    Lead type
+                  </span>
                   <select
                     name="lead_type"
                     className="rounded-2xl border border-white/10 bg-slate-950 px-4 py-3 text-white outline-none focus:border-cyan-300"
@@ -191,7 +208,9 @@ export default async function CustomerValidationPage({
               </div>
 
               <label className="grid gap-2">
-                <span className="text-sm font-semibold text-slate-300">Status</span>
+                <span className="text-sm font-semibold text-slate-300">
+                  Status
+                </span>
                 <select
                   name="status"
                   className="rounded-2xl border border-white/10 bg-slate-950 px-4 py-3 text-white outline-none focus:border-cyan-300"
@@ -207,7 +226,9 @@ export default async function CustomerValidationPage({
               </label>
 
               <label className="grid gap-2">
-                <span className="text-sm font-semibold text-slate-300">Feedback</span>
+                <span className="text-sm font-semibold text-slate-300">
+                  Feedback
+                </span>
                 <textarea
                   name="feedback"
                   rows={4}
@@ -217,7 +238,9 @@ export default async function CustomerValidationPage({
               </label>
 
               <label className="grid gap-2">
-                <span className="text-sm font-semibold text-slate-300">Objection</span>
+                <span className="text-sm font-semibold text-slate-300">
+                  Objection
+                </span>
                 <textarea
                   name="objection"
                   rows={3}
@@ -227,7 +250,9 @@ export default async function CustomerValidationPage({
               </label>
 
               <label className="grid gap-2">
-                <span className="text-sm font-semibold text-slate-300">Next step</span>
+                <span className="text-sm font-semibold text-slate-300">
+                  Next step
+                </span>
                 <input
                   name="next_step"
                   placeholder="Example: Send PDF report tomorrow"
@@ -236,8 +261,14 @@ export default async function CustomerValidationPage({
               </label>
 
               <label className="flex items-center gap-3 rounded-2xl border border-white/10 bg-slate-950 p-4">
-                <input name="is_paid_pilot" type="checkbox" className="h-5 w-5" />
-                <span className="text-sm font-semibold text-slate-300">This is a paid pilot</span>
+                <input
+                  name="is_paid_pilot"
+                  type="checkbox"
+                  className="h-5 w-5"
+                />
+                <span className="text-sm font-semibold text-slate-300">
+                  This is a paid pilot
+                </span>
               </label>
 
               <button
@@ -267,15 +298,22 @@ export default async function CustomerValidationPage({
             ) : (
               <div className="grid gap-4">
                 {feedbackRows.map((row) => (
-                  <div key={row.id} className="rounded-3xl border border-white/10 bg-slate-950 p-6">
+                  <div
+                    key={row.id}
+                    className="rounded-3xl border border-white/10 bg-slate-950 p-6"
+                  >
                     <div className="mb-4 flex flex-col justify-between gap-3 sm:flex-row sm:items-start">
                       <div>
                         <div className="mb-2 flex items-center gap-2">
                           <Building2 className="h-5 w-5 text-cyan-300" />
-                          <h3 className="text-xl font-black">{row.business_name}</h3>
+                          <h3 className="text-xl font-black">
+                            {row.business_name}
+                          </h3>
                         </div>
                         {row.website_url ? (
-                          <p className="break-all text-sm text-slate-400">{row.website_url}</p>
+                          <p className="break-all text-sm text-slate-400">
+                            {row.website_url}
+                          </p>
                         ) : null}
                         <p className="mt-1 text-xs text-slate-500">
                           Added {formatDateTime(row.created_at)}
@@ -284,7 +322,8 @@ export default async function CustomerValidationPage({
 
                       <span
                         className={`w-fit rounded-full border px-3 py-1 text-xs font-bold ${
-                          statusClasses[row.status] ?? statusClasses.not_contacted
+                          statusClasses[row.status] ??
+                          statusClasses.not_contacted
                         }`}
                       >
                         {statusLabels[row.status] ?? row.status}
@@ -292,11 +331,44 @@ export default async function CustomerValidationPage({
                     </div>
 
                     <div className="grid gap-3 text-sm text-slate-300">
-                      {row.lead_type ? <p><span className="font-bold text-white">Lead type:</span> {row.lead_type}</p> : null}
-                      {row.contact_channel ? <p><span className="font-bold text-white">Channel:</span> {row.contact_channel}</p> : null}
-                      {row.feedback ? <p><span className="font-bold text-white">Feedback:</span> {row.feedback}</p> : null}
-                      {row.objection ? <p><span className="font-bold text-white">Objection:</span> {row.objection}</p> : null}
-                      {row.next_step ? <p><span className="font-bold text-white">Next step:</span> {row.next_step}</p> : null}
+                      {row.lead_type ? (
+                        <p>
+                          <span className="font-bold text-white">
+                            Lead type:
+                          </span>{" "}
+                          {row.lead_type}
+                        </p>
+                      ) : null}
+                      {row.contact_channel ? (
+                        <p>
+                          <span className="font-bold text-white">Channel:</span>{" "}
+                          {row.contact_channel}
+                        </p>
+                      ) : null}
+                      {row.feedback ? (
+                        <p>
+                          <span className="font-bold text-white">
+                            Feedback:
+                          </span>{" "}
+                          {row.feedback}
+                        </p>
+                      ) : null}
+                      {row.objection ? (
+                        <p>
+                          <span className="font-bold text-white">
+                            Objection:
+                          </span>{" "}
+                          {row.objection}
+                        </p>
+                      ) : null}
+                      {row.next_step ? (
+                        <p>
+                          <span className="font-bold text-white">
+                            Next step:
+                          </span>{" "}
+                          {row.next_step}
+                        </p>
+                      ) : null}
                       {row.is_paid_pilot ? (
                         <p className="rounded-2xl border border-emerald-400/20 bg-emerald-400/10 p-3 font-bold text-emerald-100">
                           Paid pilot marked

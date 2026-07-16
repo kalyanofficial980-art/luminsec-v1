@@ -1,4 +1,5 @@
-export type EvidenceBasedSeverity = "info" | "low" | "medium" | "high" | "critical";
+export type EvidenceBasedSeverity =
+  "info" | "low" | "medium" | "high" | "critical";
 
 export type EvidenceBasedConfidence = "high" | "medium" | "low";
 
@@ -92,7 +93,9 @@ const CATEGORY_LIST: EvidenceScoreCategory[] = [
 ];
 
 function text(value: unknown) {
-  return String(value || "").trim().toLowerCase();
+  return String(value || "")
+    .trim()
+    .toLowerCase();
 }
 
 function clampScore(value: number) {
@@ -129,7 +132,10 @@ function normalizeConfidence(value: unknown): EvidenceBasedConfidence {
   return "low";
 }
 
-function normalizeVerificationStatus(value: unknown, manualReviewStatus?: unknown): EvidenceBasedVerificationStatus {
+function normalizeVerificationStatus(
+  value: unknown,
+  manualReviewStatus?: unknown,
+): EvidenceBasedVerificationStatus {
   if (text(manualReviewStatus) === "approved") return "manual_reviewed";
 
   const normalized = text(value);
@@ -166,7 +172,9 @@ function normalizeEvidenceType(value: unknown): EvidenceBasedEvidenceType {
     : "unknown";
 }
 
-function categoryForFinding(finding: EvidenceScorableFinding): EvidenceScoreCategory {
+function categoryForFinding(
+  finding: EvidenceScorableFinding,
+): EvidenceScoreCategory {
   const category = text(finding.category);
   const rootCause = text(finding.root_cause);
   const id = text(finding.id);
@@ -174,23 +182,45 @@ function categoryForFinding(finding: EvidenceScorableFinding): EvidenceScoreCate
 
   const joined = `${category} ${rootCause} ${id} ${title}`;
 
-  if (joined.includes("dpdp") || joined.includes("privacy") || joined.includes("consent")) {
+  if (
+    joined.includes("dpdp") ||
+    joined.includes("privacy") ||
+    joined.includes("consent")
+  ) {
     return "dpdp_readiness";
   }
 
-  if (joined.includes("cert_in") || joined.includes("incident") || joined.includes("log")) {
+  if (
+    joined.includes("cert_in") ||
+    joined.includes("incident") ||
+    joined.includes("log")
+  ) {
     return "cert_in_readiness";
   }
 
-  if (joined.includes("customer_data") || joined.includes("form") || joined.includes("cookie")) {
+  if (
+    joined.includes("customer_data") ||
+    joined.includes("form") ||
+    joined.includes("cookie")
+  ) {
     return "customer_data_security";
   }
 
-  if (joined.includes("dns") || joined.includes("tls") || joined.includes("certificate") || joined.includes("domain")) {
+  if (
+    joined.includes("dns") ||
+    joined.includes("tls") ||
+    joined.includes("certificate") ||
+    joined.includes("domain")
+  ) {
     return "domain_trust";
   }
 
-  if (joined.includes("self_attestation") || joined.includes("vendor") || joined.includes("retention") || joined.includes("access_control")) {
+  if (
+    joined.includes("self_attestation") ||
+    joined.includes("vendor") ||
+    joined.includes("retention") ||
+    joined.includes("access_control")
+  ) {
     return "business_attestation";
   }
 
@@ -204,7 +234,7 @@ function categoryForFinding(finding: EvidenceScorableFinding): EvidenceScoreCate
 function evidenceMultiplier(
   verificationStatus: EvidenceBasedVerificationStatus,
   confidence: EvidenceBasedConfidence,
-  evidenceType: EvidenceBasedEvidenceType
+  evidenceType: EvidenceBasedEvidenceType,
 ) {
   if (verificationStatus === "manual_reviewed") return 1;
 
@@ -253,17 +283,23 @@ function categoryWeight(category: EvidenceScoreCategory) {
   return weights[category];
 }
 
-function qualityBand(counts: EvidenceBasedScoringResult["evidenceCounts"]): EvidenceQualityBand {
+function qualityBand(
+  counts: EvidenceBasedScoringResult["evidenceCounts"],
+): EvidenceQualityBand {
   if (counts.total === 0) return "insufficient_evidence";
 
   const manualRatio = counts.manualReviewed / counts.total;
-  const verifiedRatio = (counts.manualReviewed + counts.verifiedByScan) / counts.total;
-  const weakRatio = (counts.likelySignals + counts.needsConfirmation + counts.notVisible) / counts.total;
+  const verifiedRatio =
+    (counts.manualReviewed + counts.verifiedByScan) / counts.total;
+  const weakRatio =
+    (counts.likelySignals + counts.needsConfirmation + counts.notVisible) /
+    counts.total;
 
   if (manualRatio >= 0.6) return "manual_review_grade";
   if (verifiedRatio >= 0.7) return "verified_scan_grade";
   if (weakRatio <= 0.5) return "mixed_evidence_grade";
-  if (counts.likelySignals > 0 || counts.needsConfirmation > 0) return "advisory_grade";
+  if (counts.likelySignals > 0 || counts.needsConfirmation > 0)
+    return "advisory_grade";
 
   return "insufficient_evidence";
 }
@@ -281,13 +317,18 @@ function confidenceLabel(band: EvidenceQualityBand) {
 }
 
 function initializeCategoryPenalties() {
-  return CATEGORY_LIST.reduce((acc, category) => {
-    acc[category] = 0;
-    return acc;
-  }, {} as Record<EvidenceScoreCategory, number>);
+  return CATEGORY_LIST.reduce(
+    (acc, category) => {
+      acc[category] = 0;
+      return acc;
+    },
+    {} as Record<EvidenceScoreCategory, number>,
+  );
 }
 
-export function calculateEvidenceBasedScoring(findings: EvidenceScorableFinding[]): EvidenceBasedScoringResult {
+export function calculateEvidenceBasedScoring(
+  findings: EvidenceScorableFinding[],
+): EvidenceBasedScoringResult {
   const safeFindings = Array.isArray(findings) ? findings : [];
 
   const counts: EvidenceBasedScoringResult["evidenceCounts"] = {
@@ -311,14 +352,18 @@ export function calculateEvidenceBasedScoring(findings: EvidenceScorableFinding[
   for (const finding of safeFindings) {
     const severity = normalizeSeverity(finding.severity || finding.risk_level);
     const confidence = normalizeConfidence(finding.confidence);
-    const verificationStatus = normalizeVerificationStatus(finding.verification_status, finding.manual_review_status);
+    const verificationStatus = normalizeVerificationStatus(
+      finding.verification_status,
+      finding.manual_review_status,
+    );
     const evidenceType = normalizeEvidenceType(finding.evidence_type);
     const category = categoryForFinding(finding);
 
     if (verificationStatus === "manual_reviewed") counts.manualReviewed += 1;
     if (verificationStatus === "verified_by_scan") counts.verifiedByScan += 1;
     if (verificationStatus === "likely_signal") counts.likelySignals += 1;
-    if (verificationStatus === "needs_confirmation") counts.needsConfirmation += 1;
+    if (verificationStatus === "needs_confirmation")
+      counts.needsConfirmation += 1;
     if (verificationStatus === "not_visible") counts.notVisible += 1;
 
     if (evidenceType === "self_attestation") counts.selfAttestation += 1;
@@ -328,7 +373,11 @@ export function calculateEvidenceBasedScoring(findings: EvidenceScorableFinding[
     if (confidence === "low") counts.lowConfidence += 1;
 
     const basePenalty = severityPenalty(severity);
-    const multiplier = evidenceMultiplier(verificationStatus, confidence, evidenceType);
+    const multiplier = evidenceMultiplier(
+      verificationStatus,
+      confidence,
+      evidenceType,
+    );
     const weightedPenalty = basePenalty * multiplier * categoryWeight(category);
 
     rawPenalty += basePenalty;
@@ -336,13 +385,17 @@ export function calculateEvidenceBasedScoring(findings: EvidenceScorableFinding[
     categoryPenalties[category] += weightedPenalty;
   }
 
-  const categoryScores = CATEGORY_LIST.reduce((acc, category) => {
-    acc[category] = clampScore(100 - categoryPenalties[category]);
-    return acc;
-  }, {} as Record<EvidenceScoreCategory, number>);
+  const categoryScores = CATEGORY_LIST.reduce(
+    (acc, category) => {
+      acc[category] = clampScore(100 - categoryPenalties[category]);
+      return acc;
+    },
+    {} as Record<EvidenceScoreCategory, number>,
+  );
 
   const overall = clampScore(
-    CATEGORY_LIST.reduce((sum, category) => sum + categoryScores[category], 0) / CATEGORY_LIST.length
+    CATEGORY_LIST.reduce((sum, category) => sum + categoryScores[category], 0) /
+      CATEGORY_LIST.length,
   );
 
   const band = qualityBand(counts);
@@ -351,18 +404,42 @@ export function calculateEvidenceBasedScoring(findings: EvidenceScorableFinding[
   const topEvidenceLimitations: string[] = [];
   const scoringNotes: string[] = [];
 
-  if (counts.manualReviewed > 0) topEvidenceStrengths.push("Manual-reviewed findings carry the highest evidence confidence.");
-  if (counts.verifiedByScan > 0) topEvidenceStrengths.push("Verified scan evidence is weighted strongly.");
-  if (counts.selfAttestation > 0) topEvidenceStrengths.push("Business self-attestation is included but treated as medium-confidence evidence.");
+  if (counts.manualReviewed > 0)
+    topEvidenceStrengths.push(
+      "Manual-reviewed findings carry the highest evidence confidence.",
+    );
+  if (counts.verifiedByScan > 0)
+    topEvidenceStrengths.push("Verified scan evidence is weighted strongly.");
+  if (counts.selfAttestation > 0)
+    topEvidenceStrengths.push(
+      "Business self-attestation is included but treated as medium-confidence evidence.",
+    );
 
-  if (counts.needsConfirmation > 0) topEvidenceLimitations.push("Some findings need business confirmation or manual review.");
-  if (counts.likelySignals > 0) topEvidenceLimitations.push("Likely-signal findings are not treated as fully verified.");
-  if (counts.notVisible > 0) topEvidenceLimitations.push("Not-visible items do not automatically fail the business; they create light evidence gaps.");
+  if (counts.needsConfirmation > 0)
+    topEvidenceLimitations.push(
+      "Some findings need business confirmation or manual review.",
+    );
+  if (counts.likelySignals > 0)
+    topEvidenceLimitations.push(
+      "Likely-signal findings are not treated as fully verified.",
+    );
+  if (counts.notVisible > 0)
+    topEvidenceLimitations.push(
+      "Not-visible items do not automatically fail the business; they create light evidence gaps.",
+    );
 
-  scoringNotes.push("Evidence-based scoring reduces penalties for weak or unverified signals.");
-  scoringNotes.push("Verified scan evidence is stronger than advisory evidence.");
-  scoringNotes.push("Self-attestation improves readiness context but does not replace manual review.");
-  scoringNotes.push("This score is readiness evidence, not legal certification or penetration-test proof.");
+  scoringNotes.push(
+    "Evidence-based scoring reduces penalties for weak or unverified signals.",
+  );
+  scoringNotes.push(
+    "Verified scan evidence is stronger than advisory evidence.",
+  );
+  scoringNotes.push(
+    "Self-attestation improves readiness context but does not replace manual review.",
+  );
+  scoringNotes.push(
+    "This score is readiness evidence, not legal certification or penetration-test proof.",
+  );
 
   return {
     overall,
@@ -373,7 +450,10 @@ export function calculateEvidenceBasedScoring(findings: EvidenceScorableFinding[
     penaltySummary: {
       rawPenalty: Math.round(rawPenalty),
       evidenceAdjustedPenalty: Math.round(evidenceAdjustedPenalty),
-      reductionFromWeakEvidence: Math.max(0, Math.round(rawPenalty - evidenceAdjustedPenalty)),
+      reductionFromWeakEvidence: Math.max(
+        0,
+        Math.round(rawPenalty - evidenceAdjustedPenalty),
+      ),
     },
     topEvidenceStrengths,
     topEvidenceLimitations,
@@ -383,7 +463,7 @@ export function calculateEvidenceBasedScoring(findings: EvidenceScorableFinding[
 
 export function attachEvidenceBasedScoring<T extends object>(
   reportLike: T,
-  findings: EvidenceScorableFinding[]
+  findings: EvidenceScorableFinding[],
 ): T & { evidence_based_scoring: EvidenceBasedScoringResult } {
   return {
     ...reportLike,

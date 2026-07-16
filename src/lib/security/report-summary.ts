@@ -1,7 +1,4 @@
-import type {
-  ProfessionalFinding,
-  ProfessionalReportSummary,
-} from "./types";
+import type { ProfessionalFinding, ProfessionalReportSummary } from "./types";
 import { calculateScoreBreakdown, riskFromScore } from "./scoring";
 import {
   buildRiskReason,
@@ -15,7 +12,7 @@ function firstItems(values: string[], limit: number) {
 }
 
 export function buildProfessionalReportSummary(
-  findings: ProfessionalFinding[]
+  findings: ProfessionalFinding[],
 ): ProfessionalReportSummary {
   const score = calculateScoreBreakdown(findings);
   const riskLevel = riskFromScore(score.overall);
@@ -27,32 +24,39 @@ export function buildProfessionalReportSummary(
 
   const topRisks = firstItems(
     topFindings.map((finding) => finding.title),
-    3
+    3,
   );
 
   const fastestFixes = firstItems(
     topFindings
       .filter((finding) => finding.estimatedEffort === "quick")
       .map((finding) => finding.fixSummary),
-    3
+    3,
   );
 
   const ownerActions = firstItems(
     topFindings
       .filter((finding) =>
-        ["privacy", "trust_signals", "content"].includes(finding.category)
+        ["privacy", "trust_signals", "content"].includes(finding.category),
       )
       .map((finding) => finding.fixSummary),
-    3
+    3,
   );
 
   const developerActions = firstItems(
     topFindings
       .filter((finding) =>
-        ["https_tls", "security_headers", "cookies", "technology", "forms", "exposure"].includes(finding.category)
+        [
+          "https_tls",
+          "security_headers",
+          "cookies",
+          "technology",
+          "forms",
+          "exposure",
+        ].includes(finding.category),
       )
       .map((finding) => finding.developerFix),
-    3
+    3,
   );
 
   const riskReason = buildRiskReason(score, riskLevel, findings);

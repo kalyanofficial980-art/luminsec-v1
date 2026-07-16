@@ -85,13 +85,15 @@ export default function ProductionQaPage() {
             </div>
             <div>
               <h1 className="text-4xl font-black">Production QA checklist</h1>
-              <p className="text-slate-400">{brand.name} V1 pilot launch readiness</p>
+              <p className="text-slate-400">
+                {brand.name} V1 pilot launch readiness
+              </p>
             </div>
           </div>
 
           <p className="max-w-3xl leading-8 text-slate-300">
-            Use this page before every pilot launch demo. If every section is checked,
-            VeyraSec V1 is ready for controlled customer validation.
+            Use this page before every pilot launch demo. If every section is
+            checked, VeyraSec V1 is ready for controlled customer validation.
           </p>
         </section>
 
@@ -100,7 +102,10 @@ export default function ProductionQaPage() {
             const Icon = section.icon;
 
             return (
-              <div key={section.title} className="rounded-3xl border border-white/10 bg-white/[0.04] p-8">
+              <div
+                key={section.title}
+                className="rounded-3xl border border-white/10 bg-white/[0.04] p-8"
+              >
                 <div className="mb-6 flex items-center gap-3">
                   <Icon className="h-7 w-7 text-cyan-300" />
                   <h2 className="text-3xl font-black">{section.title}</h2>
@@ -108,7 +113,10 @@ export default function ProductionQaPage() {
 
                 <div className="grid gap-3">
                   {section.items.map((item) => (
-                    <div key={item} className="flex gap-3 rounded-2xl border border-white/10 bg-slate-950 p-4">
+                    <div
+                      key={item}
+                      className="flex gap-3 rounded-2xl border border-white/10 bg-slate-950 p-4"
+                    >
                       <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-cyan-300" />
                       <span className="text-slate-300">{item}</span>
                     </div>
@@ -121,10 +129,13 @@ export default function ProductionQaPage() {
 
         <section className="mt-8 rounded-3xl border border-cyan-300/20 bg-cyan-300/10 p-8 text-center">
           <Rocket className="mx-auto mb-4 h-10 w-10 text-cyan-300" />
-          <h2 className="text-3xl font-black text-cyan-100">V1 production rule</h2>
+          <h2 className="text-3xl font-black text-cyan-100">
+            V1 production rule
+          </h2>
           <p className="mx-auto mt-3 max-w-3xl leading-8 text-cyan-50/90">
-            Launch only as a pilot. Do not claim full compliance, full security audit,
-            or penetration testing. Sell it as a starter website trust readiness report.
+            Launch only as a pilot. Do not claim full compliance, full security
+            audit, or penetration testing. Sell it as a starter website trust
+            readiness report.
           </p>
         </section>
       </div>

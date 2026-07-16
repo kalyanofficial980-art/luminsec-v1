@@ -1,10 +1,27 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { ArrowLeft, Download, FileText, Globe2, Languages, ShieldAlert, ShieldCheck } from "lucide-react";
+import {
+  ArrowLeft,
+  Download,
+  FileText,
+  Globe2,
+  Languages,
+  ShieldAlert,
+  ShieldCheck,
+} from "lucide-react";
 import { brand } from "@/config/brand";
 import { createClient } from "@/lib/supabase/server";
-import { getAiStyleSummary, explainFinding, getReportCopy, getReportLanguage } from "@/lib/report/explain";
-import { formatDateTime, getRiskBadgeClass, getRiskLabel } from "@/lib/utils/risk";
+import {
+  getAiStyleSummary,
+  explainFinding,
+  getReportCopy,
+  getReportLanguage,
+} from "@/lib/report/explain";
+import {
+  formatDateTime,
+  getRiskBadgeClass,
+  getRiskLabel,
+} from "@/lib/utils/risk";
 
 const severityClasses: Record<string, string> = {
   critical: "border-red-400/30 bg-red-400/10 text-red-100",
@@ -38,7 +55,8 @@ export default async function ScanReportPage({
 
   const { data: result, error } = await supabase
     .from("scan_results")
-    .select(`
+    .select(
+      `
       id,
       overall_score,
       security_score,
@@ -52,7 +70,8 @@ export default async function ScanReportPage({
         domain,
         label
       )
-    `)
+    `,
+    )
     .eq("id", id)
     .eq("user_id", user.id)
     .single();
@@ -63,7 +82,9 @@ export default async function ScanReportPage({
 
   const { data: findings } = await supabase
     .from("scan_findings")
-    .select("id, category, severity, title, description, recommendation, evidence, created_at")
+    .select(
+      "id, category, severity, title, description, recommendation, evidence, created_at",
+    )
     .eq("scan_result_id", result.id)
     .eq("user_id", user.id)
     .order("created_at", { ascending: true });
@@ -100,7 +121,9 @@ export default async function ScanReportPage({
               <Link
                 href={`/dashboard/scans/${result.id}?lang=en`}
                 className={`rounded-xl px-3 py-2 text-sm font-bold ${
-                  language === "en" ? "bg-cyan-300 text-slate-950" : "text-slate-300 hover:bg-white/10"
+                  language === "en"
+                    ? "bg-cyan-300 text-slate-950"
+                    : "text-slate-300 hover:bg-white/10"
                 }`}
               >
                 EN
@@ -108,7 +131,9 @@ export default async function ScanReportPage({
               <Link
                 href={`/dashboard/scans/${result.id}?lang=te`}
                 className={`rounded-xl px-3 py-2 text-sm font-bold ${
-                  language === "te" ? "bg-cyan-300 text-slate-950" : "text-slate-300 hover:bg-white/10"
+                  language === "te"
+                    ? "bg-cyan-300 text-slate-950"
+                    : "text-slate-300 hover:bg-white/10"
                 }`}
               >
                 TE-EN
@@ -143,24 +168,31 @@ export default async function ScanReportPage({
                 <div>
                   <h1 className="text-3xl font-black">{brand.product}</h1>
                   <p className="text-slate-400">
-                    {copy.safePassiveResult} - {formatDateTime(result.created_at)} - {copy.modeLabel}
+                    {copy.safePassiveResult} -{" "}
+                    {formatDateTime(result.created_at)} - {copy.modeLabel}
                   </p>
                 </div>
               </div>
 
               <div className="mt-5 flex items-center gap-2 text-slate-300">
                 <Globe2 className="h-5 w-5 text-cyan-300" />
-                <span className="break-all">{website?.label || website?.domain}</span>
+                <span className="break-all">
+                  {website?.label || website?.domain}
+                </span>
               </div>
-              <p className="mt-1 break-all text-sm text-slate-500">{website?.url}</p>
+              <p className="mt-1 break-all text-sm text-slate-500">
+                {website?.url}
+              </p>
             </div>
 
             <div className="rounded-3xl border border-cyan-300/20 bg-cyan-300/10 p-6 text-center">
               <p className="text-sm text-cyan-100">{copy.overallScore}</p>
-              <p className="mt-2 text-5xl font-black text-white">{result.overall_score}</p>
+              <p className="mt-2 text-5xl font-black text-white">
+                {result.overall_score}
+              </p>
               <p
                 className={`mt-3 rounded-full border px-3 py-1 text-sm font-bold ${getRiskBadgeClass(
-                  result.risk_level
+                  result.risk_level,
                 )}`}
               >
                 {getRiskLabel(result.risk_level)}
@@ -171,7 +203,9 @@ export default async function ScanReportPage({
           <div className="grid gap-4 md:grid-cols-3">
             <div className="rounded-3xl border border-white/10 bg-slate-950 p-5">
               <p className="text-sm text-slate-400">{copy.securityScore}</p>
-              <p className="mt-2 text-4xl font-black">{result.security_score}</p>
+              <p className="mt-2 text-4xl font-black">
+                {result.security_score}
+              </p>
             </div>
             <div className="rounded-3xl border border-white/10 bg-slate-950 p-5">
               <p className="text-sm text-slate-400">{copy.privacyScore}</p>
@@ -184,7 +218,9 @@ export default async function ScanReportPage({
           </div>
 
           <div className="mt-6 rounded-3xl border border-cyan-300/20 bg-cyan-300/10 p-6">
-            <h2 className="text-xl font-bold text-cyan-100">{copy.aiSummaryTitle}</h2>
+            <h2 className="text-xl font-bold text-cyan-100">
+              {copy.aiSummaryTitle}
+            </h2>
             <p className="mt-3 leading-7 text-cyan-50/90">{aiSummary}</p>
           </div>
 
@@ -216,7 +252,8 @@ export default async function ScanReportPage({
                     <h3 className="text-xl font-bold">{finding.title}</h3>
                     <span
                       className={`w-fit rounded-full border px-3 py-1 text-xs font-bold uppercase tracking-wide ${
-                        severityClasses[finding.severity] ?? severityClasses.info
+                        severityClasses[finding.severity] ??
+                        severityClasses.info
                       }`}
                     >
                       {finding.severity}
@@ -224,15 +261,21 @@ export default async function ScanReportPage({
                   </div>
 
                   <div className="mb-4 rounded-2xl border border-cyan-300/20 bg-cyan-300/10 p-4">
-                    <p className="text-sm font-bold text-cyan-100">{copy.plainExplanation}</p>
+                    <p className="text-sm font-bold text-cyan-100">
+                      {copy.plainExplanation}
+                    </p>
                     <p className="mt-1 text-sm leading-6 text-cyan-50/90">
                       {explainFinding(finding, language)}
                     </p>
                   </div>
 
-                  <p className="leading-7 text-slate-300">{finding.description}</p>
+                  <p className="leading-7 text-slate-300">
+                    {finding.description}
+                  </p>
                   <div className="mt-4 rounded-2xl border border-cyan-300/20 bg-cyan-300/10 p-4">
-                    <p className="text-sm font-bold text-cyan-100">{copy.recommendation}</p>
+                    <p className="text-sm font-bold text-cyan-100">
+                      {copy.recommendation}
+                    </p>
                     <p className="mt-1 text-sm leading-6 text-cyan-50/90">
                       {finding.recommendation}
                     </p>

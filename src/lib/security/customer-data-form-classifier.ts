@@ -1,4 +1,5 @@
-export type CustomerDataFormSeverity = "info" | "low" | "medium" | "high" | "critical";
+export type CustomerDataFormSeverity =
+  "info" | "low" | "medium" | "high" | "critical";
 
 export type CustomerDataFormFinding = {
   id: string;
@@ -10,7 +11,8 @@ export type CustomerDataFormFinding = {
   evidence: string;
   recommendation: string;
   confidence?: "high" | "medium" | "low";
-  verification_status?: "verified_by_scan" | "likely_signal" | "needs_confirmation" | "not_visible";
+  verification_status?:
+    "verified_by_scan" | "likely_signal" | "needs_confirmation" | "not_visible";
   evidence_type?: "html_signal" | "crawler_page" | "scan_quality" | "unknown";
   source_url?: string;
   observed_value?: string;
@@ -33,7 +35,11 @@ function cleanHtml(value: string) {
 }
 
 function stripTags(value: string) {
-  return value.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim().toLowerCase();
+  return value
+    .replace(/<[^>]+>/g, " ")
+    .replace(/\s+/g, " ")
+    .trim()
+    .toLowerCase();
 }
 
 function extractForms(html: string) {
@@ -42,7 +48,8 @@ function extractForms(html: string) {
 
   if (forms.length > 0) return forms.slice(0, 12);
 
-  const fieldCount = (cleaned.match(/<(input|textarea|select)\b/gi) || []).length;
+  const fieldCount = (cleaned.match(/<(input|textarea|select)\b/gi) || [])
+    .length;
   return fieldCount >= 2 ? [cleaned] : [];
 }
 
@@ -54,13 +61,18 @@ function fieldSignals(formHtml: string) {
   while ((match = fieldRegex.exec(formHtml)) !== null) {
     const tag = match[0] || "";
     const attrs = Array.from(
-      tag.matchAll(/\b(type|name|id|placeholder|aria-label|autocomplete)\s*=\s*["']?([^"'\s>]+)/gi)
+      tag.matchAll(
+        /\b(type|name|id|placeholder|aria-label|autocomplete)\s*=\s*["']?([^"'\s>]+)/gi,
+      ),
     ).map((item) => item[2]);
 
     signals.push(...attrs);
   }
 
-  return Array.from(new Set(signals.map((item) => item.toLowerCase()))).slice(0, 30);
+  return Array.from(new Set(signals.map((item) => item.toLowerCase()))).slice(
+    0,
+    30,
+  );
 }
 
 function hasAny(text: string, words: string[]) {
@@ -73,25 +85,88 @@ function classifyForm(formHtml: string) {
 
   const categories: string[] = [];
 
-  if (hasAny(text, ["name", "fullname", "first-name", "last-name"])) categories.push("name");
+  if (hasAny(text, ["name", "fullname", "first-name", "last-name"]))
+    categories.push("name");
   if (hasAny(text, ["email", "e-mail"])) categories.push("email");
-  if (hasAny(text, ["phone", "mobile", "whatsapp", "telephone"])) categories.push("phone/mobile");
-  if (hasAny(text, ["address", "city", "state", "pincode", "shipping", "billing"])) categories.push("address/location");
-  if (hasAny(text, ["message", "query", "enquiry", "inquiry", "comment"])) categories.push("message/enquiry");
-  if (hasAny(text, ["appointment", "booking", "schedule", "consultation", "slot"])) categories.push("appointment/booking");
-  if (hasAny(text, ["student", "admission", "class", "course", "school", "college", "parent", "guardian"])) categories.push("student/admission");
-  if (hasAny(text, ["patient", "doctor", "clinic", "hospital", "medical", "health", "symptom"])) categories.push("patient/health");
-  if (hasAny(text, ["age", "dob", "date-of-birth", "birthdate"])) categories.push("age/date of birth");
-  if (hasAny(text, ["password", "login", "signin", "account", "otp"])) categories.push("login/account");
-  if (hasAny(text, ["file", "upload", "resume", "document", "attachment", "photo"])) categories.push("file upload/document");
-  if (hasAny(text, ["order", "checkout", "cart", "payment", "upi", "card", "razorpay", "stripe", "paypal"])) categories.push("order/payment");
+  if (hasAny(text, ["phone", "mobile", "whatsapp", "telephone"]))
+    categories.push("phone/mobile");
+  if (
+    hasAny(text, ["address", "city", "state", "pincode", "shipping", "billing"])
+  )
+    categories.push("address/location");
+  if (hasAny(text, ["message", "query", "enquiry", "inquiry", "comment"]))
+    categories.push("message/enquiry");
+  if (
+    hasAny(text, ["appointment", "booking", "schedule", "consultation", "slot"])
+  )
+    categories.push("appointment/booking");
+  if (
+    hasAny(text, [
+      "student",
+      "admission",
+      "class",
+      "course",
+      "school",
+      "college",
+      "parent",
+      "guardian",
+    ])
+  )
+    categories.push("student/admission");
+  if (
+    hasAny(text, [
+      "patient",
+      "doctor",
+      "clinic",
+      "hospital",
+      "medical",
+      "health",
+      "symptom",
+    ])
+  )
+    categories.push("patient/health");
+  if (hasAny(text, ["age", "dob", "date-of-birth", "birthdate"]))
+    categories.push("age/date of birth");
+  if (hasAny(text, ["password", "login", "signin", "account", "otp"]))
+    categories.push("login/account");
+  if (
+    hasAny(text, [
+      "file",
+      "upload",
+      "resume",
+      "document",
+      "attachment",
+      "photo",
+    ])
+  )
+    categories.push("file upload/document");
+  if (
+    hasAny(text, [
+      "order",
+      "checkout",
+      "cart",
+      "payment",
+      "upi",
+      "card",
+      "razorpay",
+      "stripe",
+      "paypal",
+    ])
+  )
+    categories.push("order/payment");
 
   const uniqueCategories = Array.from(new Set(categories));
 
   if (uniqueCategories.length === 0) return null;
 
   const sensitive = uniqueCategories.some((category) =>
-    ["patient/health", "age/date of birth", "login/account", "file upload/document", "order/payment"].includes(category)
+    [
+      "patient/health",
+      "age/date of birth",
+      "login/account",
+      "file upload/document",
+      "order/payment",
+    ].includes(category),
   );
 
   return {
@@ -101,9 +176,16 @@ function classifyForm(formHtml: string) {
   };
 }
 
-function buildEvidence(input: CustomerDataFormInput, forms: Array<{ categories: string[]; signals: string[]; sensitive: boolean }>) {
-  const categories = Array.from(new Set(forms.flatMap((form) => form.categories)));
-  const signals = Array.from(new Set(forms.flatMap((form) => form.signals))).slice(0, 16);
+function buildEvidence(
+  input: CustomerDataFormInput,
+  forms: Array<{ categories: string[]; signals: string[]; sensitive: boolean }>,
+) {
+  const categories = Array.from(
+    new Set(forms.flatMap((form) => form.categories)),
+  );
+  const signals = Array.from(
+    new Set(forms.flatMap((form) => form.signals)),
+  ).slice(0, 16);
 
   return [
     `Source URL: ${input.pageUrl || "unknown"}`,
@@ -123,7 +205,7 @@ function finding(
   evidence: string,
   recommendation: string,
   description: string,
-  input: CustomerDataFormInput
+  input: CustomerDataFormInput,
 ): CustomerDataFormFinding {
   return {
     id,
@@ -139,16 +221,28 @@ function finding(
     evidence_type: "html_signal",
     source_url: input.pageUrl,
     observed_value: title,
-    expected_value: "Customer-data collection should be clearly identified and protected.",
-    limitation: "Passive scan only. Form submission and backend handling are not tested.",
+    expected_value:
+      "Customer-data collection should be clearly identified and protected.",
+    limitation:
+      "Passive scan only. Form submission and backend handling are not tested.",
     root_cause: "customer_data_form_visibility",
   };
 }
 
-export function customerDataFormFindingsFromScan(input: CustomerDataFormInput): CustomerDataFormFinding[] {
+export function customerDataFormFindingsFromScan(
+  input: CustomerDataFormInput,
+): CustomerDataFormFinding[] {
   const forms = extractForms(input.html)
     .map(classifyForm)
-    .filter((form): form is { categories: string[]; signals: string[]; sensitive: boolean } => Boolean(form));
+    .filter(
+      (
+        form,
+      ): form is {
+        categories: string[];
+        signals: string[];
+        sensitive: boolean;
+      } => Boolean(form),
+    );
 
   if (forms.length === 0) return [];
 
@@ -163,8 +257,8 @@ export function customerDataFormFindingsFromScan(input: CustomerDataFormInput): 
       buildEvidence(input, forms),
       "Keep an inventory of customer data collected by each form and map it to privacy notice, consent, retention, and access-control requirements.",
       "The scan found visible website forms that appear to collect customer or user data.",
-      input
-    )
+      input,
+    ),
   );
 
   if (sensitiveForms.length > 0) {
@@ -176,8 +270,8 @@ export function customerDataFormFindingsFromScan(input: CustomerDataFormInput): 
         buildEvidence(input, sensitiveForms),
         "Review these forms for privacy notice, consent, secure transmission, access control, and retention requirements.",
         "The scan found visible form signals related to health, payment/order, account/login, age/date of birth, or file-upload data.",
-        input
-      )
+        input,
+      ),
     );
   }
 

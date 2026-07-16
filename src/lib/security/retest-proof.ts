@@ -1,4 +1,5 @@
-export type RetestSeverity = "info" | "low" | "medium" | "high" | "critical" | "unknown";
+export type RetestSeverity =
+  "info" | "low" | "medium" | "high" | "critical" | "unknown";
 
 export type RetestFindingInput = {
   id?: unknown;
@@ -62,7 +63,8 @@ export function normalizeRetestSeverity(value: unknown): RetestSeverity {
 
   if (normalized.includes("critical")) return "critical";
   if (normalized.includes("high")) return "high";
-  if (normalized.includes("medium") || normalized.includes("moderate")) return "medium";
+  if (normalized.includes("medium") || normalized.includes("moderate"))
+    return "medium";
   if (normalized.includes("low")) return "low";
   if (normalized.includes("info")) return "info";
 
@@ -134,7 +136,10 @@ function buildFindingMap(findings: RetestFindingInput[]) {
     const item = toProofItem(finding);
     const existing = map.get(item.key);
 
-    if (!existing || severityRank(item.severity) > severityRank(existing.severity)) {
+    if (
+      !existing ||
+      severityRank(item.severity) > severityRank(existing.severity)
+    ) {
       map.set(item.key, item);
     }
   }
@@ -143,7 +148,11 @@ function buildFindingMap(findings: RetestFindingInput[]) {
 }
 
 function sortBySeverity(items: RetestProofItem[]) {
-  return [...items].sort((a, b) => severityRank(b.severity) - severityRank(a.severity) || a.title.localeCompare(b.title));
+  return [...items].sort(
+    (a, b) =>
+      severityRank(b.severity) - severityRank(a.severity) ||
+      a.title.localeCompare(b.title),
+  );
 }
 
 function clampPercent(value: number) {
@@ -160,9 +169,15 @@ function statusLabel(input: {
 }) {
   if (input.previousFindingCount === 0) return "Baseline scan only";
   if (input.highRiskNewCount > 0) return "Needs review";
-  if (input.fixedCount > 0 && input.stillOpenCount === 0 && input.newCount === 0) return "Improved";
+  if (
+    input.fixedCount > 0 &&
+    input.stillOpenCount === 0 &&
+    input.newCount === 0
+  )
+    return "Improved";
   if (input.fixedCount > input.newCount) return "Improved with remaining work";
-  if (input.fixedCount === 0 && input.stillOpenCount > 0) return "No clear improvement";
+  if (input.fixedCount === 0 && input.stillOpenCount > 0)
+    return "No clear improvement";
   return "Mixed retest result";
 }
 
@@ -170,8 +185,12 @@ export function calculateRetestProof(input: {
   previousFindings: RetestFindingInput[];
   currentFindings: RetestFindingInput[];
 }): RetestProofResult {
-  const previousMap = buildFindingMap(Array.isArray(input.previousFindings) ? input.previousFindings : []);
-  const currentMap = buildFindingMap(Array.isArray(input.currentFindings) ? input.currentFindings : []);
+  const previousMap = buildFindingMap(
+    Array.isArray(input.previousFindings) ? input.previousFindings : [],
+  );
+  const currentMap = buildFindingMap(
+    Array.isArray(input.currentFindings) ? input.currentFindings : [],
+  );
 
   const fixed: RetestProofItem[] = [];
   const stillOpen: RetestProofItem[] = [];
@@ -196,17 +215,32 @@ export function calculateRetestProof(input: {
   const fixedCount = fixed.length;
   const stillOpenCount = stillOpen.length;
   const newCount = newlyDetected.length;
-  const highRiskFixedCount = fixed.filter((finding) => isHighRisk(finding.severity)).length;
-  const highRiskStillOpenCount = stillOpen.filter((finding) => isHighRisk(finding.severity)).length;
-  const highRiskNewCount = newlyDetected.filter((finding) => isHighRisk(finding.severity)).length;
+  const highRiskFixedCount = fixed.filter((finding) =>
+    isHighRisk(finding.severity),
+  ).length;
+  const highRiskStillOpenCount = stillOpen.filter((finding) =>
+    isHighRisk(finding.severity),
+  ).length;
+  const highRiskNewCount = newlyDetected.filter((finding) =>
+    isHighRisk(finding.severity),
+  ).length;
 
-  const improvementPercent = previousFindingCount > 0
-    ? clampPercent((fixedCount / previousFindingCount) * 100)
-    : 0;
+  const improvementPercent =
+    previousFindingCount > 0
+      ? clampPercent((fixedCount / previousFindingCount) * 100)
+      : 0;
 
-  const retestProofScore = previousFindingCount > 0
-    ? clampPercent(100 - stillOpenCount * 12 - newCount * 8 - highRiskStillOpenCount * 10 - highRiskNewCount * 14 + fixedCount * 5)
-    : 0;
+  const retestProofScore =
+    previousFindingCount > 0
+      ? clampPercent(
+          100 -
+            stillOpenCount * 12 -
+            newCount * 8 -
+            highRiskStillOpenCount * 10 -
+            highRiskNewCount * 14 +
+            fixedCount * 5,
+        )
+      : 0;
 
   const notes = [
     "Retest proof compares normalized finding root causes between two scans.",

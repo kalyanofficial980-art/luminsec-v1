@@ -16,7 +16,8 @@ export default function ErrorPage({
         </p>
         <h1 className="mt-4 text-4xl font-black">Something went wrong</h1>
         <p className="mt-4 leading-8 text-red-50/90">
-          Please try again. If the problem continues, contact support with the page you were using.
+          Please try again. If the problem continues, contact support with the
+          page you were using.
         </p>
 
         <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">

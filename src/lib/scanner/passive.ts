@@ -104,7 +104,8 @@ function headerValue(headers: Headers, key: string) {
 
 function pushFinding(findings: PassiveFinding[], finding: PassiveFinding) {
   const duplicate = findings.some(
-    (item) => item.title === finding.title && item.category === finding.category
+    (item) =>
+      item.title === finding.title && item.category === finding.category,
   );
 
   if (!duplicate) {
@@ -112,10 +113,16 @@ function pushFinding(findings: PassiveFinding[], finding: PassiveFinding) {
   }
 }
 
-function categoryWeight(category: PassiveFindingCategory, severity: PassiveFindingSeverity) {
+function categoryWeight(
+  category: PassiveFindingCategory,
+  severity: PassiveFindingSeverity,
+) {
   if (severity === "info") return 0;
 
-  const weights: Record<PassiveFindingCategory, Record<Exclude<PassiveFindingSeverity, "info">, number>> = {
+  const weights: Record<
+    PassiveFindingCategory,
+    Record<Exclude<PassiveFindingSeverity, "info">, number>
+  > = {
     security: {
       high: 24,
       medium: 13,
@@ -164,12 +171,21 @@ function buildScoreBreakdown(findings: PassiveFinding[]): ScoreBreakdown {
       };
     });
 
-  const securityDeductions = deductions.filter((item) => item.category === "security");
-  const privacyDeductions = deductions.filter((item) => item.category === "privacy");
-  const trustDeductions = deductions.filter((item) => item.category === "trust");
+  const securityDeductions = deductions.filter(
+    (item) => item.category === "security",
+  );
+  const privacyDeductions = deductions.filter(
+    (item) => item.category === "privacy",
+  );
+  const trustDeductions = deductions.filter(
+    (item) => item.category === "trust",
+  );
 
   function categoryScore(categoryDeductions: ScoreDeduction[]) {
-    const totalDeduction = categoryDeductions.reduce((total, item) => total + item.points, 0);
+    const totalDeduction = categoryDeductions.reduce(
+      (total, item) => total + item.points,
+      0,
+    );
     return Math.max(0, Math.min(100, 100 - totalDeduction));
   }
 
@@ -178,7 +194,7 @@ function buildScoreBreakdown(findings: PassiveFinding[]): ScoreBreakdown {
   const trustScore = categoryScore(trustDeductions);
 
   const overallScore = Math.round(
-    securityScore * 0.45 + privacyScore * 0.25 + trustScore * 0.3
+    securityScore * 0.45 + privacyScore * 0.25 + trustScore * 0.3,
   );
 
   const topReasons = [...deductions]
@@ -205,7 +221,10 @@ function calculateRiskLevel(score: number): "low" | "medium" | "high" {
   return "high";
 }
 
-function countSeverity(findings: PassiveFinding[], severity: PassiveFindingSeverity) {
+function countSeverity(
+  findings: PassiveFinding[],
+  severity: PassiveFindingSeverity,
+) {
   return findings.filter((finding) => finding.severity === severity).length;
 }
 
@@ -231,11 +250,21 @@ function bodyHasLinkLike(body: string, patterns: RegExp[]) {
 }
 
 function looksLikeHtml(response: Response, body: string) {
-  const contentType = headerValue(response.headers, "content-type").toLowerCase();
-  return contentType.includes("text/html") || /<html|<!doctype html|<body/i.test(body);
+  const contentType = headerValue(
+    response.headers,
+    "content-type",
+  ).toLowerCase();
+  return (
+    contentType.includes("text/html") ||
+    /<html|<!doctype html|<body/i.test(body)
+  );
 }
 
-function analyzeSecurityHeaders(headers: Headers, findings: PassiveFinding[], finalUrl: string) {
+function analyzeSecurityHeaders(
+  headers: Headers,
+  findings: PassiveFinding[],
+  finalUrl: string,
+) {
   const isHttps = finalUrl.startsWith("https://");
   const csp = headerValue(headers, "content-security-policy");
   const frameOptions = headerValue(headers, "x-frame-options");
@@ -334,8 +363,7 @@ function analyzeExposureHeaders(headers: Headers, findings: PassiveFinding[]) {
       title: "Server technology is exposed",
       description:
         "The public response exposes a Server header. This is common, but reducing version details can lower information exposure.",
-      recommendation:
-        "Hide unnecessary server version details where possible.",
+      recommendation: "Hide unnecessary server version details where possible.",
       evidence: `Server: ${server}`,
     });
   }
@@ -354,7 +382,11 @@ function analyzeExposureHeaders(headers: Headers, findings: PassiveFinding[]) {
   }
 }
 
-function analyzeCookies(headers: Headers, findings: PassiveFinding[], finalUrl: string) {
+function analyzeCookies(
+  headers: Headers,
+  findings: PassiveFinding[],
+  finalUrl: string,
+) {
   const setCookie = headerValue(headers, "set-cookie");
 
   if (!setCookie) {
@@ -404,7 +436,11 @@ function analyzeCookies(headers: Headers, findings: PassiveFinding[], finalUrl: 
   }
 }
 
-function analyzeHtmlSignals(body: string, findings: PassiveFinding[], finalUrl: string) {
+function analyzeHtmlSignals(
+  body: string,
+  findings: PassiveFinding[],
+  finalUrl: string,
+) {
   const lowerBody = body.toLowerCase();
 
   const hasPrivacy = bodyHasLinkLike(lowerBody, [
@@ -469,7 +505,10 @@ function analyzeHtmlSignals(body: string, findings: PassiveFinding[], finalUrl: 
     });
   }
 
-  if (finalUrl.startsWith("https://") && /(?:src|href)=["']http:\/\//i.test(body)) {
+  if (
+    finalUrl.startsWith("https://") &&
+    /(?:src|href)=["']http:\/\//i.test(body)
+  ) {
     pushFinding(findings, {
       category: "security",
       severity: "medium",
@@ -498,7 +537,10 @@ async function checkPublicFile(origin: string, path: string) {
   }
 }
 
-async function analyzeRobotsAndSitemap(origin: string, findings: PassiveFinding[]) {
+async function analyzeRobotsAndSitemap(
+  origin: string,
+  findings: PassiveFinding[],
+) {
   const robots = await checkPublicFile(origin, "/robots.txt");
 
   if (!robots.ok) {
@@ -510,12 +552,16 @@ async function analyzeRobotsAndSitemap(origin: string, findings: PassiveFinding[
         "A public robots.txt file was not found or did not return a successful response.",
       recommendation:
         "Add a robots.txt file to guide search engines and reference the sitemap if available.",
-      evidence: robots.status ? `robots.txt status ${robots.status}` : "robots.txt unavailable",
+      evidence: robots.status
+        ? `robots.txt status ${robots.status}`
+        : "robots.txt unavailable",
     });
   }
 
   const sitemap = await checkPublicFile(origin, "/sitemap.xml");
-  const sitemapIndex = sitemap.ok ? sitemap : await checkPublicFile(origin, "/sitemap_index.xml");
+  const sitemapIndex = sitemap.ok
+    ? sitemap
+    : await checkPublicFile(origin, "/sitemap_index.xml");
 
   if (!sitemapIndex.ok) {
     pushFinding(findings, {
@@ -526,12 +572,17 @@ async function analyzeRobotsAndSitemap(origin: string, findings: PassiveFinding[
         "A public sitemap.xml or sitemap_index.xml file was not found.",
       recommendation:
         "Add a sitemap to help search engines discover important public pages.",
-      evidence: sitemap.status ? `sitemap status ${sitemap.status}` : "sitemap unavailable",
+      evidence: sitemap.status
+        ? `sitemap status ${sitemap.status}`
+        : "sitemap unavailable",
     });
   }
 }
 
-function buildFailureResult(targetUrl: string, message: string): PassiveScanResult {
+function buildFailureResult(
+  targetUrl: string,
+  message: string,
+): PassiveScanResult {
   const findings: PassiveFinding[] = [
     {
       category: "trust",
@@ -576,13 +627,18 @@ function buildFailureResult(targetUrl: string, message: string): PassiveScanResu
   };
 }
 
-export async function runPassiveScan(inputUrl: string): Promise<PassiveScanResult> {
+export async function runPassiveScan(
+  inputUrl: string,
+): Promise<PassiveScanResult> {
   let targetUrl: string;
 
   try {
     targetUrl = normalizeTargetUrl(inputUrl);
   } catch (error) {
-    return buildFailureResult(inputUrl, error instanceof Error ? error.message : "Invalid URL");
+    return buildFailureResult(
+      inputUrl,
+      error instanceof Error ? error.message : "Invalid URL",
+    );
   }
 
   const findings: PassiveFinding[] = [];
@@ -658,7 +714,9 @@ export async function runPassiveScan(inputUrl: string): Promise<PassiveScanResul
           "The public response did not look like normal readable HTML, so page trust signals were limited.",
         recommendation:
           "Confirm the homepage serves standard HTML for normal visitors and search engines.",
-        evidence: headerValue(response.headers, "content-type") || "Unknown content type",
+        evidence:
+          headerValue(response.headers, "content-type") ||
+          "Unknown content type",
       });
     }
 
@@ -713,7 +771,7 @@ export async function runPassiveScan(inputUrl: string): Promise<PassiveScanResul
   } catch (error) {
     return buildFailureResult(
       targetUrl,
-      error instanceof Error ? error.message : "Unknown fetch error"
+      error instanceof Error ? error.message : "Unknown fetch error",
     );
   }
 }

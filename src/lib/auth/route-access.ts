@@ -31,7 +31,9 @@ export async function requireDashboardUser(): Promise<DashboardAuthContext> {
 
   const { data: profileData } = await supabase
     .from("profiles")
-    .select("id, email, full_name, business_name, website_url, role, account_type, onboarding_completed")
+    .select(
+      "id, email, full_name, business_name, website_url, role, account_type, onboarding_completed",
+    )
     .eq("id", user.id)
     .maybeSingle();
 
@@ -71,7 +73,7 @@ export async function requireAgencyAccess() {
   const allowed = await userCanAccessFeature(
     context.supabase,
     context.user.id,
-    "agency_mode"
+    "agency_mode",
   );
 
   if (!allowed) {

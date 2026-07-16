@@ -67,7 +67,10 @@ const MODULE_WEIGHTS: Record<NicheModuleKey, number> = {
   website_trust_security: 15,
 };
 
-const MODULE_LABELS: Record<NicheModuleKey, { label: string; shortLabel: string; explanation: string }> = {
+const MODULE_LABELS: Record<
+  NicheModuleKey,
+  { label: string; shortLabel: string; explanation: string }
+> = {
   customer_data_security: {
     label: "Customer Data Security",
     shortLabel: "Customer Data",
@@ -106,7 +109,9 @@ function clamp(value: number, min: number, max: number) {
   return Math.max(min, Math.min(max, value));
 }
 
-function normalizedSeverity(value: unknown): DeduplicatedFindingGroup["severity"] {
+function normalizedSeverity(
+  value: unknown,
+): DeduplicatedFindingGroup["severity"] {
   const raw = lower(value);
 
   if (raw.includes("critical")) return "critical";
@@ -136,12 +141,14 @@ function severityRank(severity: DeduplicatedFindingGroup["severity"]) {
 
 function highestSeverity(
   a: DeduplicatedFindingGroup["severity"],
-  b: DeduplicatedFindingGroup["severity"]
+  b: DeduplicatedFindingGroup["severity"],
 ) {
   return severityRank(b) > severityRank(a) ? b : a;
 }
 
-function confidenceForFinding(finding: NicheFindingInput): DeduplicatedFindingGroup["confidence"] {
+function confidenceForFinding(
+  finding: NicheFindingInput,
+): DeduplicatedFindingGroup["confidence"] {
   const haystack = [
     finding.title,
     finding.category,
@@ -176,7 +183,9 @@ function confidenceForFinding(finding: NicheFindingInput): DeduplicatedFindingGr
   return "medium";
 }
 
-function confidenceMultiplier(confidence: DeduplicatedFindingGroup["confidence"]) {
+function confidenceMultiplier(
+  confidence: DeduplicatedFindingGroup["confidence"],
+) {
   if (confidence === "high") return 1;
   if (confidence === "medium") return 0.65;
   return 0.35;
@@ -195,7 +204,7 @@ function classifyModule(finding: NicheFindingInput): NicheModuleKey {
 
   if (
     /cert|incident|log retention|180 day|180-day|six hour|6 hour|6-hour|time sync|ntp|backup|restore|security contact|incident owner|audit log/.test(
-      haystack
+      haystack,
     )
   ) {
     return "cert_in_readiness";
@@ -203,7 +212,7 @@ function classifyModule(finding: NicheFindingInput): NicheModuleKey {
 
   if (
     /dpdp|privacy policy|privacy|consent|purpose|grievance|data deletion|data request|processor|vendor disclosure|breach notification|personal data/.test(
-      haystack
+      haystack,
     )
   ) {
     return "dpdp_readiness";
@@ -211,7 +220,7 @@ function classifyModule(finding: NicheFindingInput): NicheModuleKey {
 
   if (
     /form|password field|cookie|payment|razorpay|stripe|paypal|tracking|analytics|tag manager|meta pixel|hotjar|third-party|third party|customer data|checkout/.test(
-      haystack
+      haystack,
     )
   ) {
     return "customer_data_security";
@@ -221,7 +230,9 @@ function classifyModule(finding: NicheFindingInput): NicheModuleKey {
 }
 
 function classifyRootCause(finding: NicheFindingInput) {
-  const explicitRootCause = text((finding as { root_cause?: unknown }).root_cause);
+  const explicitRootCause = text(
+    (finding as { root_cause?: unknown }).root_cause,
+  );
 
   if (explicitRootCause) {
     return explicitRootCause;
@@ -238,7 +249,10 @@ function classifyRootCause(finding: NicheFindingInput) {
     .join(" ");
 
   const rules: Array<[string, RegExp]> = [
-    ["https_transport", /https|http to https|redirect|hsts|strict-transport-security/],
+    [
+      "https_transport",
+      /https|http to https|redirect|hsts|strict-transport-security/,
+    ],
     ["content_security_policy", /\bcsp\b|content-security-policy/],
     ["clickjacking_headers", /x-frame-options|frame-ancestors|clickjack/],
     ["content_type_header", /x-content-type-options|nosniff/],
@@ -248,9 +262,15 @@ function classifyRootCause(finding: NicheFindingInput) {
     ["privacy_policy", /privacy policy|privacy signal|privacy link/],
     ["contact_grievance", /contact|support|grievance/],
     ["consent_purpose", /consent|purpose/],
-    ["data_request_deletion", /data deletion|data request|delete data|access request/],
+    [
+      "data_request_deletion",
+      /data deletion|data request|delete data|access request/,
+    ],
     ["breach_readiness", /breach|notification/],
-    ["cert_incident_reporting", /cert|incident reporting|6 hour|6-hour|six hour/],
+    [
+      "cert_incident_reporting",
+      /cert|incident reporting|6 hour|6-hour|six hour/,
+    ],
     ["log_retention", /log retention|180 day|180-day|logs/],
     ["security_contact", /security contact|incident contact/],
     ["backup_restore", /backup|restore|recovery/],
@@ -259,9 +279,15 @@ function classifyRootCause(finding: NicheFindingInput) {
     ["cookie_security", /cookie|secure flag|httponly|samesite/],
     ["payment_scripts", /payment|razorpay|stripe|paypal|checkout/],
     ["tracking_scripts", /tracking|analytics|tag manager|meta pixel|hotjar/],
-    ["third_party_scripts", /third-party|third party|external script|script count/],
+    [
+      "third_party_scripts",
+      /third-party|third party|external script|script count/,
+    ],
     ["mixed_content", /mixed content|http asset|insecure asset/],
-    ["technology_review", /wordpress|woocommerce|shopify|next\.js|react|vercel|netlify|cloudflare|nginx|apache|technology|x-powered-by|generator/],
+    [
+      "technology_review",
+      /wordpress|woocommerce|shopify|next\.js|react|vercel|netlify|cloudflare|nginx|apache|technology|x-powered-by|generator/,
+    ],
     ["page_metadata", /title tag|meta description|page title/],
     ["public_page_error", /page error|broken link|404|availability/],
   ];
@@ -289,11 +315,17 @@ function shortEvidence(value: unknown) {
   return raw.length > 180 ? `${raw.slice(0, 180)}...` : raw;
 }
 
-function recommendationForGroup(module: NicheModuleKey, title: string, fallback: string) {
+function recommendationForGroup(
+  module: NicheModuleKey,
+  title: string,
+  fallback: string,
+) {
   const cleanFallback = text(fallback);
 
   if (cleanFallback.length > 0) {
-    return cleanFallback.length > 360 ? `${cleanFallback.slice(0, 360)}...` : cleanFallback;
+    return cleanFallback.length > 360
+      ? `${cleanFallback.slice(0, 360)}...`
+      : cleanFallback;
   }
 
   if (module === "customer_data_security") {
@@ -352,10 +384,17 @@ function groupFindings(findings: NicheFindingInput[]) {
     const groupId = `${module}:${rootCause}`;
     const severity = normalizedSeverity(finding.severity);
     const confidence = confidenceForFinding(finding);
-    const basePenalty = severityPenalty(severity) * confidenceMultiplier(confidence);
-    const evidence = shortEvidence(firstNonEmpty(finding.evidence, finding.description, finding.title));
+    const basePenalty =
+      severityPenalty(severity) * confidenceMultiplier(confidence);
+    const evidence = shortEvidence(
+      firstNonEmpty(finding.evidence, finding.description, finding.title),
+    );
     const title = firstNonEmpty(finding.title, rootCause.replace(/_/g, " "));
-    const recommendation = recommendationForGroup(module, title, finding.recommendation || "");
+    const recommendation = recommendationForGroup(
+      module,
+      title,
+      finding.recommendation || "",
+    );
 
     const existing = groups.get(groupId);
 
@@ -379,13 +418,21 @@ function groupFindings(findings: NicheFindingInput[]) {
     existing.findingCount += 1;
     existing.severity = highestSeverity(existing.severity, severity);
 
-    if (confidenceMultiplier(confidence) > confidenceMultiplier(existing.confidence)) {
+    if (
+      confidenceMultiplier(confidence) >
+      confidenceMultiplier(existing.confidence)
+    ) {
       existing.confidence = confidence;
     }
 
-    existing.penalty = Math.max(existing.penalty, basePenalty) + Math.min(2, basePenalty * 0.15);
+    existing.penalty =
+      Math.max(existing.penalty, basePenalty) + Math.min(2, basePenalty * 0.15);
 
-    if (evidence && existing.evidenceSamples.length < 3 && !existing.evidenceSamples.includes(evidence)) {
+    if (
+      evidence &&
+      existing.evidenceSamples.length < 3 &&
+      !existing.evidenceSamples.includes(evidence)
+    ) {
       existing.evidenceSamples.push(evidence);
     }
   }
@@ -398,12 +445,17 @@ function groupFindings(findings: NicheFindingInput[]) {
 
 function moduleScore(
   key: NicheModuleKey,
-  groupedFindings: DeduplicatedFindingGroup[]
+  groupedFindings: DeduplicatedFindingGroup[],
 ): NicheScoreModule {
   const moduleWeight = MODULE_WEIGHTS[key];
-  const moduleFindings = groupedFindings.filter((finding) => finding.module === key);
+  const moduleFindings = groupedFindings.filter(
+    (finding) => finding.module === key,
+  );
 
-  const rawPenalty = moduleFindings.reduce((sum, finding) => sum + finding.penalty, 0);
+  const rawPenalty = moduleFindings.reduce(
+    (sum, finding) => sum + finding.penalty,
+    0,
+  );
   const cappedPenalty = clamp(rawPenalty, 0, moduleWeight);
   const score = Math.round(100 - (cappedPenalty / moduleWeight) * 100);
   const labels = MODULE_LABELS[key];
@@ -417,13 +469,17 @@ function moduleScore(
     penalty: Math.round(cappedPenalty * 10) / 10,
     findingCount: moduleFindings.length,
     highPriorityCount: moduleFindings.filter(
-      (finding) => finding.severity === "critical" || finding.severity === "high"
+      (finding) =>
+        finding.severity === "critical" || finding.severity === "high",
     ).length,
     explanation: labels.explanation,
   };
 }
 
-function prioritySort(a: DeduplicatedFindingGroup, b: DeduplicatedFindingGroup) {
+function prioritySort(
+  a: DeduplicatedFindingGroup,
+  b: DeduplicatedFindingGroup,
+) {
   const severityDiff = severityRank(b.severity) - severityRank(a.severity);
 
   if (severityDiff !== 0) {
@@ -449,7 +505,9 @@ function customerMessage(overallScore: number) {
   return "This website has major visible readiness gaps. Fix the top-priority items before using it as a customer-data trust signal.";
 }
 
-export function calculateNicheScoring(findings: NicheFindingInput[]): NicheScoringResult {
+export function calculateNicheScoring(
+  findings: NicheFindingInput[],
+): NicheScoringResult {
   const safeFindings = Array.isArray(findings) ? findings : [];
   const groupedFindings = groupFindings(safeFindings).sort(prioritySort);
 
@@ -460,7 +518,10 @@ export function calculateNicheScoring(findings: NicheFindingInput[]): NicheScori
     moduleScore("website_trust_security", groupedFindings),
   ];
 
-  const weightedPenalty = modules.reduce((sum, module) => sum + module.penalty, 0);
+  const weightedPenalty = modules.reduce(
+    (sum, module) => sum + module.penalty,
+    0,
+  );
   const overallScore = clamp(Math.round(100 - weightedPenalty), 0, 100);
 
   const scores = {
@@ -489,17 +550,20 @@ export function calculateNicheScoring(findings: NicheFindingInput[]): NicheScori
       totalRawFindings: safeFindings.length,
       groupedFindingCount: groupedFindings.length,
       criticalOrHighGroups: groupedFindings.filter(
-        (finding) => finding.severity === "critical" || finding.severity === "high"
+        (finding) =>
+          finding.severity === "critical" || finding.severity === "high",
       ).length,
-      mediumGroups: groupedFindings.filter((finding) => finding.severity === "medium").length,
+      mediumGroups: groupedFindings.filter(
+        (finding) => finding.severity === "medium",
+      ).length,
       lowOrInfoGroups: groupedFindings.filter(
-        (finding) => finding.severity === "low" || finding.severity === "info"
+        (finding) => finding.severity === "low" || finding.severity === "info",
       ).length,
       scoreExplanation: modules.map(
         (module) =>
           `${module.shortLabel}: ${module.score}/100 with ${module.findingCount} grouped item${
             module.findingCount === 1 ? "" : "s"
-          }.`
+          }.`,
       ),
       customerMessage: customerMessage(overallScore),
     },

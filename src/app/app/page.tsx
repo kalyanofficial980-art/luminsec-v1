@@ -4,7 +4,11 @@ import { FileText, Globe2, LogOut, Plus, ShieldCheck } from "lucide-react";
 import { brand } from "@/config/brand";
 import { createClient } from "@/lib/supabase/server";
 import { logout } from "./actions";
-import { formatDateTime, getRiskBadgeClass, getRiskLabel } from "@/lib/utils/risk";
+import {
+  formatDateTime,
+  getRiskBadgeClass,
+  getRiskLabel,
+} from "@/lib/utils/risk";
 
 export default async function AppDashboardPage() {
   const supabase = await createClient();
@@ -36,7 +40,8 @@ export default async function AppDashboardPage() {
 
   const { data: latestScans } = await supabase
     .from("scan_results")
-    .select(`
+    .select(
+      `
       id,
       overall_score,
       risk_level,
@@ -47,7 +52,8 @@ export default async function AppDashboardPage() {
         domain,
         label
       )
-    `)
+    `,
+    )
     .eq("user_id", user.id)
     .order("created_at", { ascending: false })
     .limit(5);
@@ -55,8 +61,10 @@ export default async function AppDashboardPage() {
   const averageScore =
     latestScans && latestScans.length > 0
       ? Math.round(
-          latestScans.reduce((total, scan) => total + Number(scan.overall_score ?? 0), 0) /
-            latestScans.length
+          latestScans.reduce(
+            (total, scan) => total + Number(scan.overall_score ?? 0),
+            0,
+          ) / latestScans.length,
         )
       : null;
 
@@ -69,7 +77,9 @@ export default async function AppDashboardPage() {
               <ShieldCheck className="h-6 w-6 text-cyan-300" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold">{brand.name} SaaS Dashboard</h1>
+              <h1 className="text-2xl font-bold">
+                {brand.name} SaaS Dashboard
+              </h1>
               <p className="text-slate-400">Logged in as {user.email}</p>
             </div>
           </div>
@@ -135,7 +145,10 @@ export default async function AppDashboardPage() {
         <section className="mt-8">
           <div className="mb-4 flex items-center justify-between gap-4">
             <h2 className="text-2xl font-bold">Latest scan reports</h2>
-            <Link href="/dashboard/scans" className="text-sm font-semibold text-cyan-300 hover:text-cyan-200">
+            <Link
+              href="/dashboard/scans"
+              className="text-sm font-semibold text-cyan-300 hover:text-cyan-200"
+            >
               View all
             </Link>
           </div>
@@ -144,7 +157,9 @@ export default async function AppDashboardPage() {
             <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-8 text-center">
               <FileText className="mx-auto mb-4 h-10 w-10 text-cyan-300" />
               <h3 className="text-xl font-bold">No scan reports yet</h3>
-              <p className="mt-2 text-slate-400">Run a passive scan from your websites page.</p>
+              <p className="mt-2 text-slate-400">
+                Run a passive scan from your websites page.
+              </p>
               <Link
                 href="/dashboard/websites"
                 className="mt-5 inline-flex items-center justify-center gap-2 rounded-2xl bg-cyan-300 px-5 py-3 font-bold text-slate-950 hover:bg-cyan-200"
@@ -169,8 +184,12 @@ export default async function AppDashboardPage() {
                       <div className="flex items-start gap-3">
                         <FileText className="mt-1 h-5 w-5 text-cyan-300" />
                         <div>
-                          <p className="font-bold">{website?.label || website?.domain || "Website"}</p>
-                          <p className="break-all text-sm text-slate-400">{website?.url}</p>
+                          <p className="font-bold">
+                            {website?.label || website?.domain || "Website"}
+                          </p>
+                          <p className="break-all text-sm text-slate-400">
+                            {website?.url}
+                          </p>
                           <p className="mt-1 text-xs text-slate-500">
                             {formatDateTime(scan.created_at)}
                           </p>
@@ -178,10 +197,12 @@ export default async function AppDashboardPage() {
                       </div>
 
                       <div className="flex items-center gap-3">
-                        <span className="text-2xl font-black">{scan.overall_score}</span>
+                        <span className="text-2xl font-black">
+                          {scan.overall_score}
+                        </span>
                         <span
                           className={`rounded-full border px-3 py-1 text-xs font-bold ${getRiskBadgeClass(
-                            scan.risk_level
+                            scan.risk_level,
                           )}`}
                         >
                           {getRiskLabel(scan.risk_level)}
@@ -198,7 +219,10 @@ export default async function AppDashboardPage() {
         <section className="mt-8">
           <div className="mb-4 flex items-center justify-between gap-4">
             <h2 className="text-2xl font-bold">Latest websites</h2>
-            <Link href="/dashboard/websites" className="text-sm font-semibold text-cyan-300 hover:text-cyan-200">
+            <Link
+              href="/dashboard/websites"
+              className="text-sm font-semibold text-cyan-300 hover:text-cyan-200"
+            >
               View all
             </Link>
           </div>
@@ -207,7 +231,9 @@ export default async function AppDashboardPage() {
             <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-8 text-center">
               <Globe2 className="mx-auto mb-4 h-10 w-10 text-cyan-300" />
               <h3 className="text-xl font-bold">No websites added yet</h3>
-              <p className="mt-2 text-slate-400">Add your first website to begin VeyraSec V1 workflow.</p>
+              <p className="mt-2 text-slate-400">
+                Add your first website to begin VeyraSec V1 workflow.
+              </p>
               <Link
                 href="/dashboard/websites/new"
                 className="mt-5 inline-flex items-center justify-center gap-2 rounded-2xl bg-cyan-300 px-5 py-3 font-bold text-slate-950 hover:bg-cyan-200"
@@ -227,8 +253,12 @@ export default async function AppDashboardPage() {
                   <div className="flex items-start gap-3">
                     <Globe2 className="mt-1 h-5 w-5 text-cyan-300" />
                     <div>
-                      <p className="font-bold">{website.label || website.domain}</p>
-                      <p className="break-all text-sm text-slate-400">{website.url}</p>
+                      <p className="font-bold">
+                        {website.label || website.domain}
+                      </p>
+                      <p className="break-all text-sm text-slate-400">
+                        {website.url}
+                      </p>
                     </div>
                   </div>
                 </Link>

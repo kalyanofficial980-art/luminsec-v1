@@ -1,4 +1,5 @@
-export type TlsCertificateSeverity = "info" | "low" | "medium" | "high" | "critical";
+export type TlsCertificateSeverity =
+  "info" | "low" | "medium" | "high" | "critical";
 
 export type TlsCertificateFinding = {
   id: string;
@@ -10,7 +11,8 @@ export type TlsCertificateFinding = {
   evidence: string;
   recommendation: string;
   confidence?: "high" | "medium" | "low";
-  verification_status?: "verified_by_scan" | "likely_signal" | "needs_confirmation" | "not_visible";
+  verification_status?:
+    "verified_by_scan" | "likely_signal" | "needs_confirmation" | "not_visible";
   evidence_type?: "http_probe" | "scan_quality" | "unknown";
   source_url?: string;
   observed_value?: string;
@@ -52,7 +54,7 @@ function finding(
   recommendation: string,
   description: string,
   sourceUrl: string,
-  observedValue: string
+  observedValue: string,
 ): TlsCertificateFinding {
   return {
     id,
@@ -68,15 +70,19 @@ function finding(
     evidence_type: "http_probe",
     source_url: sourceUrl,
     observed_value: observedValue,
-    expected_value: "Website should present a valid, trusted, hostname-matching TLS certificate with safe expiry margin.",
-    limitation: "TLS certificate check uses passive HTTPS handshake only. It does not perform full SSL Labs style protocol grading.",
+    expected_value:
+      "Website should present a valid, trusted, hostname-matching TLS certificate with safe expiry margin.",
+    limitation:
+      "TLS certificate check uses passive HTTPS handshake only. It does not perform full SSL Labs style protocol grading.",
     root_cause: "tls_certificate_quality",
   };
 }
 
 function parseUrl(inputUrl: string) {
   try {
-    const url = new URL(inputUrl.startsWith("http") ? inputUrl : `https://${inputUrl}`);
+    const url = new URL(
+      inputUrl.startsWith("http") ? inputUrl : `https://${inputUrl}`,
+    );
     return {
       checkedUrl: url.toString(),
       host: url.hostname,
@@ -113,7 +119,10 @@ function hostnameMatchesPattern(hostname: string, pattern: string) {
   return leftSide.length > 0 && !leftSide.includes(".");
 }
 
-function certificateMatchesHostname(hostname: string, cert: PeerCertificateLike | null) {
+function certificateMatchesHostname(
+  hostname: string,
+  cert: PeerCertificateLike | null,
+) {
   if (!cert) return false;
 
   const dnsNames = extractDnsNames(cert);
@@ -150,7 +159,10 @@ function daysUntil(date: Date) {
   return Math.ceil((date.getTime() - Date.now()) / 86400000);
 }
 
-function samePartyName(left?: Record<string, string>, right?: Record<string, string>) {
+function samePartyName(
+  left?: Record<string, string>,
+  right?: Record<string, string>,
+) {
   const leftName = `${left?.CN || ""}|${left?.O || ""}`.toLowerCase();
   const rightName = `${right?.CN || ""}|${right?.O || ""}`.toLowerCase();
 
@@ -168,7 +180,9 @@ function certificateSummary(result: TlsProbeResult) {
     `Source URL: ${result.checkedUrl}`,
     `TLS host: ${result.host}:${result.port}`,
     `Authorized by runtime: ${result.authorized}`,
-    result.authorizationError ? `Authorization error: ${result.authorizationError}` : "",
+    result.authorizationError
+      ? `Authorization error: ${result.authorizationError}`
+      : "",
     `Protocol: ${result.protocol || "not visible"}`,
     `Cipher: ${result.cipherName || "not visible"}`,
     `Subject: ${subject}`,
@@ -221,7 +235,9 @@ async function probeTlsCertificate(inputUrl: string): Promise<TlsProbeResult> {
           port: parsed.port,
           checkedUrl: parsed.checkedUrl,
           authorized: Boolean(socket.authorized),
-          authorizationError: socket.authorizationError ? String(socket.authorizationError) : "",
+          authorizationError: socket.authorizationError
+            ? String(socket.authorizationError)
+            : "",
           protocol: socket.getProtocol() || "",
           cipherName: cipher?.name || "",
           cert: peerCert && Object.keys(peerCert).length > 0 ? peerCert : null,
@@ -229,7 +245,7 @@ async function probeTlsCertificate(inputUrl: string): Promise<TlsProbeResult> {
 
         socket.end();
         resolve(result);
-      }
+      },
     );
 
     const timer = setTimeout(() => {
@@ -269,7 +285,9 @@ async function probeTlsCertificate(inputUrl: string): Promise<TlsProbeResult> {
   });
 }
 
-export async function tlsCertificateFindingsForUrl(inputUrl: string): Promise<TlsCertificateFinding[]> {
+export async function tlsCertificateFindingsForUrl(
+  inputUrl: string,
+): Promise<TlsCertificateFinding[]> {
   const result = await probeTlsCertificate(inputUrl);
   const findings: TlsCertificateFinding[] = [];
   const evidence = certificateSummary(result);
@@ -284,8 +302,8 @@ export async function tlsCertificateFindingsForUrl(inputUrl: string): Promise<Tl
         "Confirm the website supports HTTPS on port 443 and presents a valid public certificate.",
         "The scanner could not complete a visible TLS certificate verification for the website.",
         result.checkedUrl,
-        result.error || result.authorizationError || "certificate not visible"
-      )
+        result.error || result.authorizationError || "certificate not visible",
+      ),
     );
 
     return findings;
@@ -301,8 +319,8 @@ export async function tlsCertificateFindingsForUrl(inputUrl: string): Promise<Tl
         "Install a valid certificate from a trusted certificate authority and verify the full certificate chain.",
         "The website presented a TLS certificate, but the runtime did not consider it trusted.",
         result.checkedUrl,
-        result.authorizationError
-      )
+        result.authorizationError,
+      ),
     );
   }
 
@@ -319,8 +337,8 @@ export async function tlsCertificateFindingsForUrl(inputUrl: string): Promise<Tl
         "Review the certificate and confirm its validity period.",
         "The scan could not read clear certificate validity dates.",
         result.checkedUrl,
-        "validity dates not visible"
-      )
+        "validity dates not visible",
+      ),
     );
   } else {
     const remainingDays = daysUntil(validTo);
@@ -335,8 +353,8 @@ export async function tlsCertificateFindingsForUrl(inputUrl: string): Promise<Tl
           "Renew and deploy a valid TLS certificate immediately.",
           "The website certificate appears expired based on the visible validity date.",
           result.checkedUrl,
-          `expired ${Math.abs(remainingDays)} day(s) ago`
-        )
+          `expired ${Math.abs(remainingDays)} day(s) ago`,
+        ),
       );
     } else if (remainingDays <= 14) {
       findings.push(
@@ -348,8 +366,8 @@ export async function tlsCertificateFindingsForUrl(inputUrl: string): Promise<Tl
           "Renew the TLS certificate before expiry and verify auto-renewal.",
           "The website certificate is close to expiry.",
           result.checkedUrl,
-          `${remainingDays} day(s) remaining`
-        )
+          `${remainingDays} day(s) remaining`,
+        ),
       );
     } else if (remainingDays <= 30) {
       findings.push(
@@ -361,8 +379,8 @@ export async function tlsCertificateFindingsForUrl(inputUrl: string): Promise<Tl
           "Check certificate auto-renewal and renewal monitoring.",
           "The website certificate is within a short expiry window.",
           result.checkedUrl,
-          `${remainingDays} day(s) remaining`
-        )
+          `${remainingDays} day(s) remaining`,
+        ),
       );
     }
   }
@@ -377,8 +395,8 @@ export async function tlsCertificateFindingsForUrl(inputUrl: string): Promise<Tl
         "Deploy a certificate whose Subject Alternative Name includes the exact hostname or a valid wildcard match.",
         "The visible certificate names do not clearly match the scanned hostname.",
         result.checkedUrl,
-        `hostname checked: ${result.host}`
-      )
+        `hostname checked: ${result.host}`,
+      ),
     );
   }
 
@@ -393,12 +411,16 @@ export async function tlsCertificateFindingsForUrl(inputUrl: string): Promise<Tl
         "Use a certificate with Subject Alternative Name entries for all covered hostnames.",
         "Modern certificates should include hostname coverage in Subject Alternative Name.",
         result.checkedUrl,
-        "SAN not visible"
-      )
+        "SAN not visible",
+      ),
     );
   }
 
-  if (typeof result.cert.bits === "number" && result.cert.bits > 0 && result.cert.bits < 2048) {
+  if (
+    typeof result.cert.bits === "number" &&
+    result.cert.bits > 0 &&
+    result.cert.bits < 2048
+  ) {
     findings.push(
       finding(
         "tls_certificate_weak_key_size",
@@ -408,8 +430,8 @@ export async function tlsCertificateFindingsForUrl(inputUrl: string): Promise<Tl
         "Use a certificate key size of at least 2048-bit RSA or a modern equivalent.",
         "The visible certificate key size appears weaker than commonly expected.",
         result.checkedUrl,
-        `${result.cert.bits} bits`
-      )
+        `${result.cert.bits} bits`,
+      ),
     );
   }
 
@@ -423,8 +445,8 @@ export async function tlsCertificateFindingsForUrl(inputUrl: string): Promise<Tl
         "Use a certificate issued by a trusted public certificate authority for public websites.",
         "The certificate subject and issuer appear to be the same party.",
         result.checkedUrl,
-        "subject and issuer appear similar"
-      )
+        "subject and issuer appear similar",
+      ),
     );
   }
 

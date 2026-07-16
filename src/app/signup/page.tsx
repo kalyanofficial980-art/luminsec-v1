@@ -19,7 +19,9 @@ export default async function SignupPage({
           </div>
           <div>
             <h1 className="text-2xl font-bold">Create {brand.name} account</h1>
-            <p className="text-sm text-slate-400">Start your V1 security readiness workspace.</p>
+            <p className="text-sm text-slate-400">
+              Start your V1 security readiness workspace.
+            </p>
           </div>
         </div>
 
@@ -31,7 +33,9 @@ export default async function SignupPage({
 
         <form action={signup} className="space-y-4">
           <div>
-            <label className="mb-2 block text-sm text-slate-300">Full name</label>
+            <label className="mb-2 block text-sm text-slate-300">
+              Full name
+            </label>
             <input
               name="full_name"
               type="text"
@@ -52,7 +56,9 @@ export default async function SignupPage({
           </div>
 
           <div>
-            <label className="mb-2 block text-sm text-slate-300">Password</label>
+            <label className="mb-2 block text-sm text-slate-300">
+              Password
+            </label>
             <input
               name="password"
               type="password"
@@ -72,7 +78,10 @@ export default async function SignupPage({
 
         <p className="mt-6 text-center text-sm text-slate-400">
           Already have account?{" "}
-          <Link href="/login" className="font-semibold text-cyan-300 hover:text-cyan-200">
+          <Link
+            href="/login"
+            className="font-semibold text-cyan-300 hover:text-cyan-200"
+          >
             Login
           </Link>
         </p>

@@ -108,13 +108,15 @@ export default function DemoScriptPage() {
             </div>
             <div>
               <h1 className="text-4xl font-black">Customer demo script</h1>
-              <p className="text-slate-400">{brand.name} 7-minute V1 sales demo</p>
+              <p className="text-slate-400">
+                {brand.name} 7-minute V1 sales demo
+              </p>
             </div>
           </div>
 
           <p className="max-w-3xl leading-8 text-slate-300">
-            Use this script when showing VeyraSec to a small business owner, freelancer,
-            web agency, mentor, investor, or early pilot customer.
+            Use this script when showing VeyraSec to a small business owner,
+            freelancer, web agency, mentor, investor, or early pilot customer.
           </p>
         </section>
 
@@ -122,12 +124,17 @@ export default function DemoScriptPage() {
           <div className="rounded-3xl border border-cyan-300/20 bg-cyan-300/10 p-6">
             <div className="mb-5 flex items-center gap-3">
               <ClipboardList className="h-7 w-7 text-cyan-300" />
-              <h2 className="text-2xl font-black text-cyan-100">Live demo checklist</h2>
+              <h2 className="text-2xl font-black text-cyan-100">
+                Live demo checklist
+              </h2>
             </div>
 
             <div className="grid gap-3">
               {liveDemoChecklist.map((item) => (
-                <div key={item} className="flex gap-3 rounded-2xl bg-slate-950/70 p-4">
+                <div
+                  key={item}
+                  className="flex gap-3 rounded-2xl bg-slate-950/70 p-4"
+                >
                   <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-cyan-300" />
                   <span className="text-cyan-50">{item}</span>
                 </div>
@@ -143,16 +150,19 @@ export default function DemoScriptPage() {
 
             <div className="rounded-2xl border border-white/10 bg-slate-950 p-6">
               <p className="text-xl font-bold leading-8 text-white">
-                VeyraSec helps small businesses understand website security, privacy,
-                and trust gaps using safe passive checks and simple PDF reports.
+                VeyraSec helps small businesses understand website security,
+                privacy, and trust gaps using safe passive checks and simple PDF
+                reports.
               </p>
             </div>
 
             <div className="mt-5 rounded-2xl border border-amber-300/20 bg-amber-300/10 p-5">
-              <p className="font-bold text-amber-100">Important safety sentence</p>
+              <p className="font-bold text-amber-100">
+                Important safety sentence
+              </p>
               <p className="mt-2 leading-7 text-amber-50/90">
-                VeyraSec V1 does not hack, exploit, brute force, or perform intrusive scanning.
-                It only checks public website signals.
+                VeyraSec V1 does not hack, exploit, brute force, or perform
+                intrusive scanning. It only checks public website signals.
               </p>
             </div>
           </div>
@@ -166,7 +176,10 @@ export default function DemoScriptPage() {
 
           <div className="grid gap-4">
             {demoSteps.map((step) => (
-              <div key={step.title} className="rounded-3xl border border-white/10 bg-white/[0.04] p-6">
+              <div
+                key={step.title}
+                className="rounded-3xl border border-white/10 bg-white/[0.04] p-6"
+              >
                 <div className="mb-3 flex flex-col justify-between gap-2 sm:flex-row sm:items-center">
                   <h3 className="text-xl font-black">{step.title}</h3>
                   <span className="w-fit rounded-full border border-cyan-300/20 bg-cyan-300/10 px-3 py-1 text-sm font-bold text-cyan-100">
@@ -180,23 +193,29 @@ export default function DemoScriptPage() {
         </section>
 
         <section className="mt-8 rounded-3xl border border-white/10 bg-white/[0.04] p-8">
-          <h2 className="text-3xl font-black">Telugu-English customer version</h2>
+          <h2 className="text-3xl font-black">
+            Telugu-English customer version
+          </h2>
 
           <div className="mt-5 space-y-4 leading-8 text-slate-300">
             <p>
-              "Sir/Madam, VeyraSec ane tool small business websites kosam. Mee website lo basic
-              security, privacy, trust signals correct ga unnaya leda ani simple report laga chupistundi."
+              "Sir/Madam, VeyraSec ane tool small business websites kosam. Mee
+              website lo basic security, privacy, trust signals correct ga
+              unnaya leda ani simple report laga chupistundi."
             </p>
             <p>
-              "Idi hacking tool kaadu. Website ni attack cheyyadu. Public ga available website response
-              based on safe passive checks matrame chestundi."
+              "Idi hacking tool kaadu. Website ni attack cheyyadu. Public ga
+              available website response based on safe passive checks matrame
+              chestundi."
             </p>
             <p>
-              "Report lo score, findings, recommendations untayi. Mee developer ki direct ga share chesi
-              fixes cheyyinchachu. PDF report kuda download cheyyachu."
+              "Report lo score, findings, recommendations untayi. Mee developer
+              ki direct ga share chesi fixes cheyyinchachu. PDF report kuda
+              download cheyyachu."
             </p>
             <p>
-              "Web agencies ki idi useful, because clients ki professional before-after report chupinchachu."
+              "Web agencies ki idi useful, because clients ki professional
+              before-after report chupinchachu."
             </p>
           </div>
         </section>
@@ -206,8 +225,13 @@ export default function DemoScriptPage() {
 
           <div className="grid gap-4 md:grid-cols-2">
             {objections.map((item) => (
-              <div key={item.question} className="rounded-3xl border border-white/10 bg-white/[0.04] p-6">
-                <h3 className="text-xl font-bold text-white">{item.question}</h3>
+              <div
+                key={item.question}
+                className="rounded-3xl border border-white/10 bg-white/[0.04] p-6"
+              >
+                <h3 className="text-xl font-bold text-white">
+                  {item.question}
+                </h3>
                 <p className="mt-3 leading-7 text-slate-300">{item.answer}</p>
               </div>
             ))}
@@ -217,8 +241,9 @@ export default function DemoScriptPage() {
         <section className="mt-8 rounded-3xl border border-cyan-300/20 bg-cyan-300/10 p-8 text-center">
           <h2 className="text-3xl font-black text-cyan-100">Demo close</h2>
           <p className="mx-auto mt-3 max-w-3xl leading-8 text-cyan-50/90">
-            "I am currently taking pilot users. I can scan your website, explain the report,
-            and give you a PDF that your developer can use for basic improvements."
+            "I am currently taking pilot users. I can scan your website, explain
+            the report, and give you a PDF that your developer can use for basic
+            improvements."
           </p>
 
           <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">

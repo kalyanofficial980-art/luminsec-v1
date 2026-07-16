@@ -1,4 +1,5 @@
-export type CrawlerFindingSeverity = "info" | "low" | "medium" | "high" | "critical";
+export type CrawlerFindingSeverity =
+  "info" | "low" | "medium" | "high" | "critical";
 
 export type SafeCrawlerFinding = {
   id: string;
@@ -69,7 +70,9 @@ function normalizeInputUrl(input: string) {
     throw new Error("Website URL is required.");
   }
 
-  const withProtocol = /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
+  const withProtocol = /^https?:\/\//i.test(trimmed)
+    ? trimmed
+    : `https://${trimmed}`;
   const url = new URL(withProtocol);
 
   url.hash = "";
@@ -96,7 +99,7 @@ function finding(
   category: string,
   evidence: string,
   recommendation: string,
-  description: string
+  description: string,
 ): SafeCrawlerFinding {
   return {
     id,
@@ -113,7 +116,9 @@ function finding(
 function isLikelyHtmlUrl(url: URL) {
   const path = url.pathname.toLowerCase();
 
-  return !/\.(png|jpg|jpeg|gif|webp|svg|ico|css|js|pdf|zip|rar|7z|mp4|mp3|avi|mov|woff|woff2|ttf|eot|xml|json)$/i.test(path);
+  return !/\.(png|jpg|jpeg|gif|webp|svg|ico|css|js|pdf|zip|rar|7z|mp4|mp3|avi|mov|woff|woff2|ttf|eot|xml|json)$/i.test(
+    path,
+  );
 }
 
 function isUnsafePath(url: URL) {
@@ -139,7 +144,11 @@ function isUnsafePath(url: URL) {
   ].some((word) => path.includes(word));
 }
 
-function normalizeDiscoveredUrl(rawHref: string, baseUrl: string, origin: string) {
+function normalizeDiscoveredUrl(
+  rawHref: string,
+  baseUrl: string,
+  origin: string,
+) {
   const href = text(rawHref);
 
   if (!href) {
@@ -206,7 +215,7 @@ function extractTitle(body: string) {
       ?.replace(/\s+/g, " ")
       .replace(/&amp;/g, "&")
       .replace(/&lt;/g, "<")
-      .replace(/&gt;/g, ">")
+      .replace(/&gt;/g, ">"),
   );
 }
 
@@ -215,23 +224,43 @@ function countMatches(body: string, pattern: RegExp) {
 }
 
 function hasPrivacySignal(body: string) {
-  return /privacy\s*policy|\/privacy|data\s*protection|cookie\s*policy/i.test(body);
+  return /privacy\s*policy|\/privacy|data\s*protection|cookie\s*policy/i.test(
+    body,
+  );
 }
 
 function hasContactSignal(body: string) {
   return /contact|support|mailto:|tel:|whatsapp|help\s*center/i.test(body);
 }
 
-function pageSignals(url: string, status: number | null, body: string, error?: string): CrawledPageSignal {
+function pageSignals(
+  url: string,
+  status: number | null,
+  body: string,
+  error?: string,
+): CrawledPageSignal {
   const title = extractTitle(body);
   const formCount = countMatches(body, /<form\b/gi);
-  const passwordFieldCount = countMatches(body, /<input\b[^>]*type=["']password["'][^>]*>/gi);
-  const insecureAssetCount = countMatches(body, /\b(?:src|href)=["']http:\/\/[^"']+["']/gi);
-  const insecureLinkCount = countMatches(body, /<a\b[^>]*href=["']http:\/\/[^"']+["'][^>]*>/gi);
-  const externalScriptCount = countMatches(body, /<script\b[^>]*\bsrc=["']https?:\/\/[^"']+["'][^>]*>/gi);
-  const blankTargetMatches = body.match(/<a\b[^>]*target=["']_blank["'][^>]*>/gi) || [];
+  const passwordFieldCount = countMatches(
+    body,
+    /<input\b[^>]*type=["']password["'][^>]*>/gi,
+  );
+  const insecureAssetCount = countMatches(
+    body,
+    /\b(?:src|href)=["']http:\/\/[^"']+["']/gi,
+  );
+  const insecureLinkCount = countMatches(
+    body,
+    /<a\b[^>]*href=["']http:\/\/[^"']+["'][^>]*>/gi,
+  );
+  const externalScriptCount = countMatches(
+    body,
+    /<script\b[^>]*\bsrc=["']https?:\/\/[^"']+["'][^>]*>/gi,
+  );
+  const blankTargetMatches =
+    body.match(/<a\b[^>]*target=["']_blank["'][^>]*>/gi) || [];
   const blankTargetWithoutRelCount = blankTargetMatches.filter(
-    (anchor) => !/rel=["'][^"']*(noopener|noreferrer)[^"']*["']/i.test(anchor)
+    (anchor) => !/rel=["'][^"']*(noopener|noreferrer)[^"']*["']/i.test(anchor),
   ).length;
 
   return {
@@ -299,17 +328,31 @@ async function fetchPage(url: string): Promise<FetchResult> {
   }
 }
 
-function buildCrawlerFindings(result: Omit<SafeCrawlerResult, "findings">): SafeCrawlerFinding[] {
+function buildCrawlerFindings(
+  result: Omit<SafeCrawlerResult, "findings">,
+): SafeCrawlerFinding[] {
   const findings: SafeCrawlerFinding[] = [];
   const pages = result.pages;
 
-  const errorPages = pages.filter((page) => page.error || (page.status !== null && page.status >= 400));
+  const errorPages = pages.filter(
+    (page) => page.error || (page.status !== null && page.status >= 400),
+  );
   const pagesWithForms = pages.filter((page) => page.formCount > 0);
-  const pagesWithPasswordFields = pages.filter((page) => page.passwordFieldCount > 0);
-  const pagesWithMixedContent = pages.filter((page) => page.insecureAssetCount > 0);
-  const pagesWithInsecureLinks = pages.filter((page) => page.insecureLinkCount > 0);
-  const pagesWithBlankTargetWithoutRel = pages.filter((page) => page.blankTargetWithoutRelCount > 0);
-  const highScriptPages = pages.filter((page) => page.externalScriptCount >= 20);
+  const pagesWithPasswordFields = pages.filter(
+    (page) => page.passwordFieldCount > 0,
+  );
+  const pagesWithMixedContent = pages.filter(
+    (page) => page.insecureAssetCount > 0,
+  );
+  const pagesWithInsecureLinks = pages.filter(
+    (page) => page.insecureLinkCount > 0,
+  );
+  const pagesWithBlankTargetWithoutRel = pages.filter(
+    (page) => page.blankTargetWithoutRelCount > 0,
+  );
+  const highScriptPages = pages.filter(
+    (page) => page.externalScriptCount >= 20,
+  );
   const pagesWithoutTitle = pages.filter((page) => !page.title);
 
   if (pages.length > 1) {
@@ -319,7 +362,9 @@ function buildCrawlerFindings(result: Omit<SafeCrawlerResult, "findings">): Safe
         "Limited same-domain public pages reviewed",
         "info",
         "content",
-        pages.map((page) => `${page.status ?? "no status"} ${page.url}`).join("\n"),
+        pages
+          .map((page) => `${page.status ?? "no status"} ${page.url}`)
+          .join("\n"),
         "Use this as a safe site-level posture snapshot. Increase crawl depth only after authorization, rate limits, and monitoring are mature.",
         [
           "What we found: VeyraSec safely reviewed a limited number of public same-domain pages.",
@@ -331,8 +376,8 @@ function buildCrawlerFindings(result: Omit<SafeCrawlerResult, "findings">): Safe
           "Technical impact: This crawler uses GET requests only and does not submit forms, attempt login, inject payloads, or guess hidden paths.",
           "",
           "Confidence: High confidence",
-        ].join("\n")
-      )
+        ].join("\n"),
+      ),
     );
   }
 
@@ -355,8 +400,8 @@ function buildCrawlerFindings(result: Omit<SafeCrawlerResult, "findings">): Safe
           "Technical impact: Add a consistent privacy policy link in footer/navigation and verify it is reachable.",
           "",
           "Confidence: Medium confidence",
-        ].join("\n")
-      )
+        ].join("\n"),
+      ),
     );
   }
 
@@ -379,8 +424,8 @@ function buildCrawlerFindings(result: Omit<SafeCrawlerResult, "findings">): Safe
           "Technical impact: Add contact/support links in navigation or footer and verify they are visible on important pages.",
           "",
           "Confidence: Medium confidence",
-        ].join("\n")
-      )
+        ].join("\n"),
+      ),
     );
   }
 
@@ -405,8 +450,8 @@ function buildCrawlerFindings(result: Omit<SafeCrawlerResult, "findings">): Safe
           "Technical impact: Review form action, method, data handling, validation, spam protection, and privacy notice.",
           "",
           "Confidence: High confidence",
-        ].join("\n")
-      )
+        ].join("\n"),
+      ),
     );
   }
 
@@ -418,7 +463,10 @@ function buildCrawlerFindings(result: Omit<SafeCrawlerResult, "findings">): Safe
         "medium",
         "forms",
         pagesWithPasswordFields
-          .map((page) => `${page.url} - password fields: ${page.passwordFieldCount}`)
+          .map(
+            (page) =>
+              `${page.url} - password fields: ${page.passwordFieldCount}`,
+          )
           .join("\n"),
         "Confirm login/account pages are expected, protected by HTTPS, and supported by strong authentication and session settings.",
         [
@@ -431,8 +479,8 @@ function buildCrawlerFindings(result: Omit<SafeCrawlerResult, "findings">): Safe
           "Technical impact: Review authentication flow, session cookies, password reset, rate limits, and security headers.",
           "",
           "Confidence: High confidence",
-        ].join("\n")
-      )
+        ].join("\n"),
+      ),
     );
   }
 
@@ -444,7 +492,10 @@ function buildCrawlerFindings(result: Omit<SafeCrawlerResult, "findings">): Safe
         "medium",
         "content",
         pagesWithMixedContent
-          .map((page) => `${page.url} - insecure assets: ${page.insecureAssetCount}`)
+          .map(
+            (page) =>
+              `${page.url} - insecure assets: ${page.insecureAssetCount}`,
+          )
           .join("\n"),
         "Replace HTTP asset references with HTTPS or remove the insecure references.",
         [
@@ -457,8 +508,8 @@ function buildCrawlerFindings(result: Omit<SafeCrawlerResult, "findings">): Safe
           "Technical impact: Update HTTP asset URLs to HTTPS and retest the affected pages.",
           "",
           "Confidence: Medium confidence",
-        ].join("\n")
-      )
+        ].join("\n"),
+      ),
     );
   }
 
@@ -483,8 +534,8 @@ function buildCrawlerFindings(result: Omit<SafeCrawlerResult, "findings">): Safe
           "Technical impact: Replace HTTP links with HTTPS equivalents where possible.",
           "",
           "Confidence: Medium confidence",
-        ].join("\n")
-      )
+        ].join("\n"),
+      ),
     );
   }
 
@@ -496,9 +547,12 @@ function buildCrawlerFindings(result: Omit<SafeCrawlerResult, "findings">): Safe
         "low",
         "content",
         pagesWithBlankTargetWithoutRel
-          .map((page) => `${page.url} - target=_blank links without rel protection: ${page.blankTargetWithoutRelCount}`)
+          .map(
+            (page) =>
+              `${page.url} - target=_blank links without rel protection: ${page.blankTargetWithoutRelCount}`,
+          )
           .join("\n"),
-        "Add rel=\"noopener noreferrer\" to target=\"_blank\" links.",
+        'Add rel="noopener noreferrer" to target="_blank" links.',
         [
           "What we found: Some links opening in a new tab appear to lack rel=noopener/noreferrer.",
           "",
@@ -506,11 +560,11 @@ function buildCrawlerFindings(result: Omit<SafeCrawlerResult, "findings">): Safe
           "",
           "Business impact: Small hygiene fixes improve professional trust posture.",
           "",
-          "Technical impact: Add rel=\"noopener noreferrer\" to target=\"_blank\" links.",
+          'Technical impact: Add rel="noopener noreferrer" to target="_blank" links.',
           "",
           "Confidence: Medium confidence",
-        ].join("\n")
-      )
+        ].join("\n"),
+      ),
     );
   }
 
@@ -522,7 +576,10 @@ function buildCrawlerFindings(result: Omit<SafeCrawlerResult, "findings">): Safe
         "low",
         "technology",
         highScriptPages
-          .map((page) => `${page.url} - external scripts: ${page.externalScriptCount}`)
+          .map(
+            (page) =>
+              `${page.url} - external scripts: ${page.externalScriptCount}`,
+          )
           .join("\n"),
         "Review third-party scripts and remove unused scripts to reduce dependency and supply-chain exposure.",
         [
@@ -535,8 +592,8 @@ function buildCrawlerFindings(result: Omit<SafeCrawlerResult, "findings">): Safe
           "Technical impact: Audit third-party scripts, remove unused scripts, and document necessary vendors.",
           "",
           "Confidence: Medium confidence",
-        ].join("\n")
-      )
+        ].join("\n"),
+      ),
     );
   }
 
@@ -559,8 +616,8 @@ function buildCrawlerFindings(result: Omit<SafeCrawlerResult, "findings">): Safe
           "Technical impact: Add concise and accurate title tags to public pages.",
           "",
           "Confidence: Medium confidence",
-        ].join("\n")
-      )
+        ].join("\n"),
+      ),
     );
   }
 
@@ -572,7 +629,10 @@ function buildCrawlerFindings(result: Omit<SafeCrawlerResult, "findings">): Safe
         "low",
         "availability",
         errorPages
-          .map((page) => `${page.status ?? "no status"} ${page.url}${page.error ? ` - ${page.error}` : ""}`)
+          .map(
+            (page) =>
+              `${page.status ?? "no status"} ${page.url}${page.error ? ` - ${page.error}` : ""}`,
+          )
           .join("\n"),
         "Review broken public links and fix or redirect them.",
         [
@@ -585,8 +645,8 @@ function buildCrawlerFindings(result: Omit<SafeCrawlerResult, "findings">): Safe
           "Technical impact: Fix broken links, add redirects, or remove stale references.",
           "",
           "Confidence: Medium confidence",
-        ].join("\n")
-      )
+        ].join("\n"),
+      ),
     );
   }
 
@@ -597,12 +657,15 @@ export async function runSafeSameDomainCrawler(
   inputUrl: string,
   options?: {
     maxPages?: number;
-  }
+  },
 ): Promise<SafeCrawlerResult> {
   const start = Date.now();
   const normalized = normalizeInputUrl(inputUrl);
   const origin = normalized.origin;
-  const maxPages = Math.max(1, Math.min(options?.maxPages ?? DEFAULT_MAX_PAGES, 10));
+  const maxPages = Math.max(
+    1,
+    Math.min(options?.maxPages ?? DEFAULT_MAX_PAGES, 10),
+  );
 
   const queue: string[] = [normalized.toString()];
   const seen = new Set<string>();
@@ -625,15 +688,28 @@ export async function runSafeSameDomainCrawler(
     seen.add(currentUrl);
 
     const response = await fetchPage(currentUrl);
-    const signal = pageSignals(response.finalUrl || currentUrl, response.status, response.body, response.error);
+    const signal = pageSignals(
+      response.finalUrl || currentUrl,
+      response.status,
+      response.body,
+      response.error,
+    );
 
     if (response.body) {
-      const links = extractLinks(response.body, response.finalUrl || currentUrl, origin);
+      const links = extractLinks(
+        response.body,
+        response.finalUrl || currentUrl,
+        origin,
+      );
       signal.internalLinksFound = links.length;
       discoveredInternalLinks += links.length;
 
       for (const link of links) {
-        if (!seen.has(link) && !queue.includes(link) && pages.length + queue.length < maxPages) {
+        if (
+          !seen.has(link) &&
+          !queue.includes(link) &&
+          pages.length + queue.length < maxPages
+        ) {
           queue.push(link);
         }
       }
@@ -659,11 +735,19 @@ export async function runSafeSameDomainCrawler(
       crawledPages: pages.length,
       discoveredInternalLinks,
       pagesWithForms: pages.filter((page) => page.formCount > 0).length,
-      pagesWithPasswordFields: pages.filter((page) => page.passwordFieldCount > 0).length,
-      pagesWithMixedContent: pages.filter((page) => page.insecureAssetCount > 0).length,
-      pagesWithInsecureLinks: pages.filter((page) => page.insecureLinkCount > 0).length,
-      pagesWithBlankTargetWithoutRel: pages.filter((page) => page.blankTargetWithoutRelCount > 0).length,
-      pagesWithErrors: pages.filter((page) => page.error || (page.status !== null && page.status >= 400)).length,
+      pagesWithPasswordFields: pages.filter(
+        (page) => page.passwordFieldCount > 0,
+      ).length,
+      pagesWithMixedContent: pages.filter((page) => page.insecureAssetCount > 0)
+        .length,
+      pagesWithInsecureLinks: pages.filter((page) => page.insecureLinkCount > 0)
+        .length,
+      pagesWithBlankTargetWithoutRel: pages.filter(
+        (page) => page.blankTargetWithoutRelCount > 0,
+      ).length,
+      pagesWithErrors: pages.filter(
+        (page) => page.error || (page.status !== null && page.status >= 400),
+      ).length,
       privacySignalFound: pages.some((page) => page.hasPrivacySignal),
       contactSignalFound: pages.some((page) => page.hasContactSignal),
       stoppedReason,

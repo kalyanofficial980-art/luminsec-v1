@@ -5,10 +5,7 @@ import { normalizeProfile, type DashboardProfile } from "@/lib/auth/profile";
 type SupabaseServerClient = Awaited<ReturnType<typeof createClient>>;
 
 export type FeatureKey =
-  | "pdf_reports"
-  | "public_share"
-  | "agency_mode"
-  | "manual_payments";
+  "pdf_reports" | "public_share" | "agency_mode" | "manual_payments";
 
 export type PlanFeatureSet = {
   planId: string;
@@ -112,11 +109,13 @@ export function featureEnabled(features: PlanFeatureSet, feature: FeatureKey) {
 
 export async function getPlanFeaturesForUser(
   supabase: SupabaseServerClient,
-  userId: string
+  userId: string,
 ): Promise<PlanFeatureSet> {
   const { data } = await supabase
     .from("user_subscriptions")
-    .select("plan_id, status, subscription_plans(name, pdf_reports_enabled, public_share_enabled, agency_mode_enabled, manual_payments_enabled)")
+    .select(
+      "plan_id, status, subscription_plans(name, pdf_reports_enabled, public_share_enabled, agency_mode_enabled, manual_payments_enabled)",
+    )
     .eq("user_id", userId)
     .maybeSingle();
 
@@ -133,17 +132,29 @@ export async function getPlanFeaturesForUser(
     planId,
     planName: text(plan?.name, planId === "trial" ? "Trial" : planId),
     status: text(row.status, fallbackFeatures.status),
-    pdfReportsEnabled: boolValue(plan?.pdf_reports_enabled, fallbackFeatures.pdfReportsEnabled),
-    publicShareEnabled: boolValue(plan?.public_share_enabled, fallbackFeatures.publicShareEnabled),
-    agencyModeEnabled: boolValue(plan?.agency_mode_enabled, fallbackFeatures.agencyModeEnabled),
-    manualPaymentsEnabled: boolValue(plan?.manual_payments_enabled, fallbackFeatures.manualPaymentsEnabled),
+    pdfReportsEnabled: boolValue(
+      plan?.pdf_reports_enabled,
+      fallbackFeatures.pdfReportsEnabled,
+    ),
+    publicShareEnabled: boolValue(
+      plan?.public_share_enabled,
+      fallbackFeatures.publicShareEnabled,
+    ),
+    agencyModeEnabled: boolValue(
+      plan?.agency_mode_enabled,
+      fallbackFeatures.agencyModeEnabled,
+    ),
+    manualPaymentsEnabled: boolValue(
+      plan?.manual_payments_enabled,
+      fallbackFeatures.manualPaymentsEnabled,
+    ),
   };
 }
 
 export async function userCanAccessFeature(
   supabase: SupabaseServerClient,
   userId: string,
-  feature: FeatureKey
+  feature: FeatureKey,
 ) {
   const { data: profileData } = await supabase
     .from("profiles")
@@ -160,7 +171,9 @@ export async function userCanAccessFeature(
   return featureEnabled(features, feature);
 }
 
-export async function requireFeatureAccess(feature: FeatureKey): Promise<FeatureAccessContext> {
+export async function requireFeatureAccess(
+  feature: FeatureKey,
+): Promise<FeatureAccessContext> {
   const supabase = await createClient();
 
   const {
@@ -173,7 +186,9 @@ export async function requireFeatureAccess(feature: FeatureKey): Promise<Feature
 
   const { data: profileData } = await supabase
     .from("profiles")
-    .select("id, email, full_name, business_name, website_url, role, account_type, onboarding_completed")
+    .select(
+      "id, email, full_name, business_name, website_url, role, account_type, onboarding_completed",
+    )
     .eq("id", user.id)
     .maybeSingle();
 

@@ -44,7 +44,8 @@ export async function updateProfileSettings(formData: FormData) {
   try {
     websiteUrl = normalizeWebsiteUrl(websiteUrlInput);
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Invalid website URL";
+    const message =
+      error instanceof Error ? error.message : "Invalid website URL";
     redirect(`/dashboard/settings?message=${encodeURIComponent(message)}`);
   }
 
@@ -62,7 +63,9 @@ export async function updateProfileSettings(formData: FormData) {
     .eq("id", user.id);
 
   if (error) {
-    redirect(`/dashboard/settings?message=${encodeURIComponent(error.message)}`);
+    redirect(
+      `/dashboard/settings?message=${encodeURIComponent(error.message)}`,
+    );
   }
 
   revalidatePath("/dashboard");
@@ -82,27 +85,27 @@ export async function updateReportSettings(formData: FormData) {
 
   const { supabase, user } = await requireDashboardUser();
 
-  const { error } = await supabase
-    .from("business_settings")
-    .upsert(
-      {
-        user_id: user.id,
-        business_name: businessName || null,
-        report_prepared_by: reportPreparedBy || null,
-        contact_email: contactEmail || null,
-        phone: phone || null,
-        website: website || null,
-        address: address || null,
-        footer_note: footerNote || null,
-        updated_at: new Date().toISOString(),
-      },
-      {
-        onConflict: "user_id",
-      }
-    );
+  const { error } = await supabase.from("business_settings").upsert(
+    {
+      user_id: user.id,
+      business_name: businessName || null,
+      report_prepared_by: reportPreparedBy || null,
+      contact_email: contactEmail || null,
+      phone: phone || null,
+      website: website || null,
+      address: address || null,
+      footer_note: footerNote || null,
+      updated_at: new Date().toISOString(),
+    },
+    {
+      onConflict: "user_id",
+    },
+  );
 
   if (error) {
-    redirect(`/dashboard/settings?message=${encodeURIComponent(error.message)}`);
+    redirect(
+      `/dashboard/settings?message=${encodeURIComponent(error.message)}`,
+    );
   }
 
   revalidatePath("/dashboard/settings");

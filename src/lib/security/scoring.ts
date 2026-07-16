@@ -10,7 +10,10 @@ function clampScore(value: number) {
   return Math.max(0, Math.min(100, Math.round(value)));
 }
 
-function categoryPenalty(findings: ProfessionalFinding[], categories: SecurityCategory[]) {
+function categoryPenalty(
+  findings: ProfessionalFinding[],
+  categories: SecurityCategory[],
+) {
   return findings
     .filter((finding) => categories.includes(finding.category))
     .reduce((total, finding) => total + severityWeight(finding.severity), 0);
@@ -23,7 +26,9 @@ export function riskFromScore(score: number): SecuritySeverity {
   return "critical";
 }
 
-export function calculateScoreBreakdown(findings: ProfessionalFinding[]): ScoreBreakdown {
+export function calculateScoreBreakdown(
+  findings: ProfessionalFinding[],
+): ScoreBreakdown {
   const securityPenalty = categoryPenalty(findings, [
     "https_tls",
     "security_headers",
@@ -77,7 +82,7 @@ export function calculateScoreBreakdown(findings: ProfessionalFinding[]): ScoreB
       privacy * 0.15 +
       trust * 0.2 +
       exposure * 0.15 +
-      technicalHygiene * 0.15
+      technicalHygiene * 0.15,
   );
 
   return {

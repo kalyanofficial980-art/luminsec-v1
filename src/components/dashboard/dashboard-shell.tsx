@@ -39,7 +39,7 @@ type NavSection = {
 
 function getNavSections(
   profile: DashboardProfile,
-  subscription: DashboardNavSubscription
+  subscription: DashboardNavSubscription,
 ): NavSection[] {
   const mainItems: NavItem[] = [
     {
@@ -155,13 +155,7 @@ function isActive(pathname: string, href: string) {
   return pathname.startsWith(href);
 }
 
-function NavLink({
-  item,
-  active,
-}: {
-  item: NavItem;
-  active: boolean;
-}) {
+function NavLink({ item, active }: { item: NavItem; active: boolean }) {
   const Icon = item.icon;
 
   return (
@@ -179,13 +173,7 @@ function NavLink({
   );
 }
 
-function MobileNavLink({
-  item,
-  active,
-}: {
-  item: NavItem;
-  active: boolean;
-}) {
+function MobileNavLink({ item, active }: { item: NavItem; active: boolean }) {
   const Icon = item.icon;
 
   return (
@@ -233,9 +221,17 @@ export function DashboardShell({
         </Link>
 
         <div className="mb-5 rounded-3xl border border-cyan-300/20 bg-cyan-300/10 p-4">
-          <p className="text-xs uppercase tracking-[0.2em] text-cyan-100/70">Account</p>
-          <p className="mt-2 font-black text-cyan-100">{accountTypeLabel(profile.account_type)}</p>
-          <p className="mt-1 text-xs text-cyan-50/70">{profile.role === "admin" ? "Admin full access" : planStatusLabel(subscription)}</p>
+          <p className="text-xs uppercase tracking-[0.2em] text-cyan-100/70">
+            Account
+          </p>
+          <p className="mt-2 font-black text-cyan-100">
+            {accountTypeLabel(profile.account_type)}
+          </p>
+          <p className="mt-1 text-xs text-cyan-50/70">
+            {profile.role === "admin"
+              ? "Admin full access"
+              : planStatusLabel(subscription)}
+          </p>
           <p className="mt-1 text-xs text-cyan-50/70">
             {profile.role === "admin" ? "Founder admin" : "SaaS user"}
           </p>
@@ -262,7 +258,8 @@ export function DashboardShell({
         </nav>
         <div className="mt-5 rounded-3xl border border-cyan-300/20 bg-cyan-300/10 p-4 text-xs leading-6 text-cyan-50/90">
           Passive website trust reports only. Not advanced security testing.
-        </div></aside>
+        </div>
+      </aside>
 
       <div className="border-b border-white/10 bg-slate-950/95 p-4 backdrop-blur lg:hidden">
         <Link href="/dashboard" className="mb-4 flex items-center gap-3">
@@ -272,7 +269,10 @@ export function DashboardShell({
           <div>
             <p className="font-black">{brand.name}</p>
             <p className="text-xs text-slate-400">
-              {accountTypeLabel(profile.account_type)} · {profile.role === "admin" ? "Admin full access" : planStatusLabel(subscription)}
+              {accountTypeLabel(profile.account_type)} ·{" "}
+              {profile.role === "admin"
+                ? "Admin full access"
+                : planStatusLabel(subscription)}
             </p>
           </div>
         </Link>

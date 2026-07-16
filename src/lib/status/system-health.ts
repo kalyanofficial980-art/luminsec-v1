@@ -58,7 +58,7 @@ export async function safeCount(
   options?: {
     userId?: string;
     userScoped?: boolean;
-  }
+  },
 ): Promise<CountResult> {
   let query = supabase.from(table).select("id", {
     count: "exact",

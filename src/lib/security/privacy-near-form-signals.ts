@@ -1,4 +1,5 @@
-export type PrivacyNearFormSeverity = "info" | "low" | "medium" | "high" | "critical";
+export type PrivacyNearFormSeverity =
+  "info" | "low" | "medium" | "high" | "critical";
 
 export type PrivacyNearFormFinding = {
   id: string;
@@ -10,7 +11,8 @@ export type PrivacyNearFormFinding = {
   evidence: string;
   recommendation: string;
   confidence?: "high" | "medium" | "low";
-  verification_status?: "verified_by_scan" | "likely_signal" | "needs_confirmation" | "not_visible";
+  verification_status?:
+    "verified_by_scan" | "likely_signal" | "needs_confirmation" | "not_visible";
   evidence_type?: "html_signal" | "crawler_page" | "scan_quality" | "unknown";
   source_url?: string;
   observed_value?: string;
@@ -61,7 +63,8 @@ function extractFormBlocks(html: string) {
 
   if (blocks.length > 0) return blocks;
 
-  const fieldCount = (cleaned.match(/<(input|textarea|select)\b/gi) || []).length;
+  const fieldCount = (cleaned.match(/<(input|textarea|select)\b/gi) || [])
+    .length;
 
   if (fieldCount >= 2) {
     return [{ formHtml: cleaned, nearbyHtml: cleaned.slice(0, 8000) }];
@@ -78,13 +81,18 @@ function fieldSignals(formHtml: string) {
   while ((match = fieldRegex.exec(formHtml)) !== null) {
     const tag = match[0] || "";
     const attrs = Array.from(
-      tag.matchAll(/\b(type|name|id|placeholder|aria-label|autocomplete)\s*=\s*["']?([^"'\s>]+)/gi)
+      tag.matchAll(
+        /\b(type|name|id|placeholder|aria-label|autocomplete)\s*=\s*["']?([^"'\s>]+)/gi,
+      ),
     ).map((item) => item[2]);
 
     signals.push(...attrs);
   }
 
-  return Array.from(new Set(signals.map((item) => item.toLowerCase()))).slice(0, 30);
+  return Array.from(new Set(signals.map((item) => item.toLowerCase()))).slice(
+    0,
+    30,
+  );
 }
 
 function hasAny(text: string, words: string[]) {
@@ -96,24 +104,87 @@ function dataSignalsForForm(formHtml: string) {
   const text = `${stripTags(formHtml)} ${signals.join(" ")}`.toLowerCase();
   const categories: string[] = [];
 
-  if (hasAny(text, ["name", "fullname", "first-name", "last-name"])) categories.push("name");
+  if (hasAny(text, ["name", "fullname", "first-name", "last-name"]))
+    categories.push("name");
   if (hasAny(text, ["email", "e-mail"])) categories.push("email");
-  if (hasAny(text, ["phone", "mobile", "whatsapp", "telephone"])) categories.push("phone/mobile");
-  if (hasAny(text, ["address", "city", "state", "pincode", "shipping", "billing"])) categories.push("address/location");
-  if (hasAny(text, ["message", "query", "enquiry", "inquiry", "comment"])) categories.push("message/enquiry");
-  if (hasAny(text, ["appointment", "booking", "schedule", "consultation", "slot"])) categories.push("appointment/booking");
-  if (hasAny(text, ["student", "admission", "class", "course", "school", "college", "parent", "guardian"])) categories.push("student/admission");
-  if (hasAny(text, ["patient", "doctor", "clinic", "hospital", "medical", "health", "symptom"])) categories.push("patient/health");
-  if (hasAny(text, ["age", "dob", "date-of-birth", "birthdate"])) categories.push("age/date of birth");
-  if (hasAny(text, ["password", "login", "signin", "account", "otp"])) categories.push("login/account");
-  if (hasAny(text, ["file", "upload", "resume", "document", "attachment", "photo"])) categories.push("file upload/document");
-  if (hasAny(text, ["order", "checkout", "cart", "payment", "upi", "card", "razorpay", "stripe", "paypal"])) categories.push("order/payment");
+  if (hasAny(text, ["phone", "mobile", "whatsapp", "telephone"]))
+    categories.push("phone/mobile");
+  if (
+    hasAny(text, ["address", "city", "state", "pincode", "shipping", "billing"])
+  )
+    categories.push("address/location");
+  if (hasAny(text, ["message", "query", "enquiry", "inquiry", "comment"]))
+    categories.push("message/enquiry");
+  if (
+    hasAny(text, ["appointment", "booking", "schedule", "consultation", "slot"])
+  )
+    categories.push("appointment/booking");
+  if (
+    hasAny(text, [
+      "student",
+      "admission",
+      "class",
+      "course",
+      "school",
+      "college",
+      "parent",
+      "guardian",
+    ])
+  )
+    categories.push("student/admission");
+  if (
+    hasAny(text, [
+      "patient",
+      "doctor",
+      "clinic",
+      "hospital",
+      "medical",
+      "health",
+      "symptom",
+    ])
+  )
+    categories.push("patient/health");
+  if (hasAny(text, ["age", "dob", "date-of-birth", "birthdate"]))
+    categories.push("age/date of birth");
+  if (hasAny(text, ["password", "login", "signin", "account", "otp"]))
+    categories.push("login/account");
+  if (
+    hasAny(text, [
+      "file",
+      "upload",
+      "resume",
+      "document",
+      "attachment",
+      "photo",
+    ])
+  )
+    categories.push("file upload/document");
+  if (
+    hasAny(text, [
+      "order",
+      "checkout",
+      "cart",
+      "payment",
+      "upi",
+      "card",
+      "razorpay",
+      "stripe",
+      "paypal",
+    ])
+  )
+    categories.push("order/payment");
 
   return Array.from(new Set(categories));
 }
 
 function isSensitiveDataSignal(signal: string) {
-  return ["patient/health", "age/date of birth", "login/account", "file upload/document", "order/payment"].includes(signal);
+  return [
+    "patient/health",
+    "age/date of birth",
+    "login/account",
+    "file upload/document",
+    "order/payment",
+  ].includes(signal);
 }
 
 function detectPrivacySignals(nearbyHtml: string) {
@@ -122,21 +193,60 @@ function detectPrivacySignals(nearbyHtml: string) {
   const signals: string[] = [];
 
   if (
-    hasAny(text, ["privacy policy", "privacy notice", "data protection", "personal data", "personal information"]) ||
+    hasAny(text, [
+      "privacy policy",
+      "privacy notice",
+      "data protection",
+      "personal data",
+      "personal information",
+    ]) ||
     hasAny(linkText, ["privacy-policy", "/privacy", "privacy"])
   ) {
     signals.push("privacy notice/policy");
   }
 
-  if (hasAny(text, ["i agree", "agree to", "consent", "by submitting", "terms and conditions", "terms of service", "accept"])) {
+  if (
+    hasAny(text, [
+      "i agree",
+      "agree to",
+      "consent",
+      "by submitting",
+      "terms and conditions",
+      "terms of service",
+      "accept",
+    ])
+  ) {
     signals.push("consent/agreement");
   }
 
-  if (hasAny(text, ["we use your", "used to contact", "used for", "purpose", "to process", "to respond", "to schedule", "to book", "to deliver"])) {
+  if (
+    hasAny(text, [
+      "we use your",
+      "used to contact",
+      "used for",
+      "purpose",
+      "to process",
+      "to respond",
+      "to schedule",
+      "to book",
+      "to deliver",
+    ])
+  ) {
     signals.push("purpose/use explanation");
   }
 
-  if (hasAny(text, ["grievance", "complaint", "contact us", "support", "help", "email us", "data protection officer", "dpo"])) {
+  if (
+    hasAny(text, [
+      "grievance",
+      "complaint",
+      "contact us",
+      "support",
+      "help",
+      "email us",
+      "data protection officer",
+      "dpo",
+    ])
+  ) {
     signals.push("grievance/contact/support");
   }
 
@@ -168,19 +278,28 @@ function analyze(input: PrivacyNearFormInput) {
     const privacySignals = detectPrivacySignals(block.nearbyHtml);
     result.detectedPrivacySignals.push(...privacySignals);
 
-    if (!privacySignals.includes("privacy notice/policy")) result.formsMissingPrivacyNotice += 1;
-    if (!privacySignals.includes("consent/agreement")) result.formsMissingConsentSignal += 1;
-    if (!privacySignals.includes("purpose/use explanation")) result.formsMissingPurposeSignal += 1;
-    if (!privacySignals.includes("grievance/contact/support")) result.formsMissingGrievanceSignal += 1;
+    if (!privacySignals.includes("privacy notice/policy"))
+      result.formsMissingPrivacyNotice += 1;
+    if (!privacySignals.includes("consent/agreement"))
+      result.formsMissingConsentSignal += 1;
+    if (!privacySignals.includes("purpose/use explanation"))
+      result.formsMissingPurposeSignal += 1;
+    if (!privacySignals.includes("grievance/contact/support"))
+      result.formsMissingGrievanceSignal += 1;
   }
 
   result.detectedDataSignals = Array.from(new Set(result.detectedDataSignals));
-  result.detectedPrivacySignals = Array.from(new Set(result.detectedPrivacySignals));
+  result.detectedPrivacySignals = Array.from(
+    new Set(result.detectedPrivacySignals),
+  );
 
   return result;
 }
 
-function buildEvidence(input: PrivacyNearFormInput, result: ReturnType<typeof analyze>) {
+function buildEvidence(
+  input: PrivacyNearFormInput,
+  result: ReturnType<typeof analyze>,
+) {
   return [
     `Source URL: ${input.pageUrl || "unknown"}`,
     `Customer-data forms checked: ${result.customerDataFormCount}`,
@@ -202,7 +321,7 @@ function finding(
   evidence: string,
   recommendation: string,
   description: string,
-  input: PrivacyNearFormInput
+  input: PrivacyNearFormInput,
 ): PrivacyNearFormFinding {
   return {
     id,
@@ -218,13 +337,17 @@ function finding(
     evidence_type: "html_signal",
     source_url: input.pageUrl,
     observed_value: title,
-    expected_value: "Customer-data forms should show nearby privacy, consent, purpose, and contact/grievance signals where appropriate.",
-    limitation: "Passive scan only. This is DPDP readiness evidence, not legal certification.",
+    expected_value:
+      "Customer-data forms should show nearby privacy, consent, purpose, and contact/grievance signals where appropriate.",
+    limitation:
+      "Passive scan only. This is DPDP readiness evidence, not legal certification.",
     root_cause: "dpdp_privacy_signals_near_customer_forms",
   };
 }
 
-export function privacyNearFormFindingsFromScan(input: PrivacyNearFormInput): PrivacyNearFormFinding[] {
+export function privacyNearFormFindingsFromScan(
+  input: PrivacyNearFormInput,
+): PrivacyNearFormFinding[] {
   const result = analyze(input);
 
   if (result.customerDataFormCount === 0) return [];
@@ -232,7 +355,11 @@ export function privacyNearFormFindingsFromScan(input: PrivacyNearFormInput): Pr
   const findings: PrivacyNearFormFinding[] = [];
   const evidence = buildEvidence(input, result);
 
-  if (result.formsMissingPrivacyNotice > 0 || result.formsMissingConsentSignal > 0 || result.formsMissingPurposeSignal > 0) {
+  if (
+    result.formsMissingPrivacyNotice > 0 ||
+    result.formsMissingConsentSignal > 0 ||
+    result.formsMissingPurposeSignal > 0
+  ) {
     findings.push(
       finding(
         "dpdp_privacy_signals_missing_near_forms",
@@ -241,12 +368,15 @@ export function privacyNearFormFindingsFromScan(input: PrivacyNearFormInput): Pr
         evidence,
         "Place clear privacy notice, consent/agreement wording, and purpose/use explanation near customer-data forms, especially for sensitive or higher-risk forms.",
         "The scan found visible customer-data forms where nearby privacy, consent, or purpose signals appear incomplete.",
-        input
-      )
+        input,
+      ),
     );
   }
 
-  if (result.formsMissingGrievanceSignal > 0 && result.detectedPrivacySignals.length === 0) {
+  if (
+    result.formsMissingGrievanceSignal > 0 &&
+    result.detectedPrivacySignals.length === 0
+  ) {
     findings.push(
       finding(
         "dpdp_contact_or_grievance_signal_missing_near_forms",
@@ -255,8 +385,8 @@ export function privacyNearFormFindingsFromScan(input: PrivacyNearFormInput): Pr
         evidence,
         "Add a clear contact/support/grievance path from privacy-related pages or near important customer-data forms.",
         "The scan did not find a visible nearby contact, support, or grievance signal around customer-data forms.",
-        input
-      )
+        input,
+      ),
     );
   }
 

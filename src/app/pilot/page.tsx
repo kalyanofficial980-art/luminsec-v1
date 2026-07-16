@@ -58,13 +58,17 @@ export default async function PilotPage({
             </h1>
 
             <p className="mt-6 max-w-3xl text-lg leading-8 text-slate-300">
-              {brand.name} V1 helps small businesses and agencies understand starter
-              website security, privacy, and trust readiness using safe passive checks.
+              {brand.name} V1 helps small businesses and agencies understand
+              starter website security, privacy, and trust readiness using safe
+              passive checks.
             </p>
 
             <div className="mt-8 grid gap-4 sm:grid-cols-2">
               {pilotBenefits.map((item) => (
-                <div key={item} className="flex gap-3 rounded-2xl border border-white/10 bg-slate-950 p-4">
+                <div
+                  key={item}
+                  className="flex gap-3 rounded-2xl border border-white/10 bg-slate-950 p-4"
+                >
                   <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-cyan-300" />
                   <span className="text-slate-300">{item}</span>
                 </div>
@@ -74,23 +78,32 @@ export default async function PilotPage({
             <div className="mt-8 rounded-3xl border border-amber-300/20 bg-amber-300/10 p-6">
               <div className="mb-3 flex items-center gap-3">
                 <ShieldCheck className="h-6 w-6 text-amber-200" />
-                <h2 className="text-xl font-black text-amber-100">Important V1 limit</h2>
+                <h2 className="text-xl font-black text-amber-100">
+                  Important V1 limit
+                </h2>
               </div>
               <p className="leading-7 text-amber-50/90">
-                This is not legal advice, not a full cybersecurity audit, and not a penetration test.
-                It is a safe passive website readiness report.
+                This is not legal advice, not a full cybersecurity audit, and
+                not a penetration test. It is a safe passive website readiness
+                report.
               </p>
             </div>
           </div>
 
-          <form action={submitPilotLead} className="rounded-3xl border border-cyan-300/20 bg-cyan-300/10 p-8">
+          <form
+            action={submitPilotLead}
+            className="rounded-3xl border border-cyan-300/20 bg-cyan-300/10 p-8"
+          >
             <div className="mb-6 flex items-center gap-3">
               <Rocket className="h-7 w-7 text-cyan-300" />
-              <h2 className="text-3xl font-black text-cyan-100">Apply for pilot</h2>
+              <h2 className="text-3xl font-black text-cyan-100">
+                Apply for pilot
+              </h2>
             </div>
 
             <p className="leading-7 text-cyan-50/90">
-              Submit your website. We will review it with VeyraSec V1 and contact you for the next step.
+              Submit your website. We will review it with VeyraSec V1 and
+              contact you for the next step.
             </p>
 
             {params.message ? (
@@ -104,7 +117,9 @@ export default async function PilotPage({
 
             <div className="mt-6 grid gap-4">
               <label className="grid gap-2">
-                <span className="text-sm font-semibold text-cyan-100">Name *</span>
+                <span className="text-sm font-semibold text-cyan-100">
+                  Name *
+                </span>
                 <input
                   name="name"
                   placeholder="Your name"
@@ -113,7 +128,9 @@ export default async function PilotPage({
               </label>
 
               <label className="grid gap-2">
-                <span className="text-sm font-semibold text-cyan-100">Email *</span>
+                <span className="text-sm font-semibold text-cyan-100">
+                  Email *
+                </span>
                 <input
                   name="email"
                   type="email"
@@ -123,7 +140,9 @@ export default async function PilotPage({
               </label>
 
               <label className="grid gap-2">
-                <span className="text-sm font-semibold text-cyan-100">Phone / WhatsApp</span>
+                <span className="text-sm font-semibold text-cyan-100">
+                  Phone / WhatsApp
+                </span>
                 <input
                   name="phone"
                   placeholder="+91 90000 00000"
@@ -132,7 +151,9 @@ export default async function PilotPage({
               </label>
 
               <label className="grid gap-2">
-                <span className="text-sm font-semibold text-cyan-100">Business / Business name</span>
+                <span className="text-sm font-semibold text-cyan-100">
+                  Business / Business name
+                </span>
                 <input
                   name="company_name"
                   placeholder="Business name"
@@ -141,7 +162,9 @@ export default async function PilotPage({
               </label>
 
               <label className="grid gap-2">
-                <span className="text-sm font-semibold text-cyan-100">Website URL *</span>
+                <span className="text-sm font-semibold text-cyan-100">
+                  Website URL *
+                </span>
                 <input
                   name="website_url"
                   placeholder="https://example.com"
@@ -150,7 +173,9 @@ export default async function PilotPage({
               </label>
 
               <label className="grid gap-2">
-                <span className="text-sm font-semibold text-cyan-100">What do you need?</span>
+                <span className="text-sm font-semibold text-cyan-100">
+                  What do you need?
+                </span>
                 <textarea
                   name="message"
                   rows={4}
@@ -179,7 +204,10 @@ export default async function PilotPage({
 
             <div className="grid gap-3">
               {pilotFit.map((item) => (
-                <div key={item} className="flex gap-3 rounded-2xl border border-white/10 bg-slate-950 p-4">
+                <div
+                  key={item}
+                  className="flex gap-3 rounded-2xl border border-white/10 bg-slate-950 p-4"
+                >
                   <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-cyan-300" />
                   <span className="text-slate-300">{item}</span>
                 </div>
@@ -194,8 +222,8 @@ export default async function PilotPage({
             </div>
 
             <p className="leading-8 text-slate-300">
-              View a public sample report first. Then submit your website if the report format
-              looks useful for your business or clients.
+              View a public sample report first. Then submit your website if the
+              report format looks useful for your business or clients.
             </p>
 
             <Link

@@ -4,7 +4,13 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireAdmin } from "@/lib/auth/route-access";
 
-const allowedStatuses = ["requested", "in_review", "approved", "rejected", "delivered"] as const;
+const allowedStatuses = [
+  "requested",
+  "in_review",
+  "approved",
+  "rejected",
+  "delivered",
+] as const;
 
 type VerifiedReportAdminStatus = (typeof allowedStatuses)[number];
 
@@ -18,7 +24,9 @@ export async function updateVerifiedReportRequestAction(formData: FormData) {
   const adminNotes = clean(formData.get("admin_notes"));
 
   if (!requestId || !allowedStatuses.includes(status)) {
-    redirect("/dashboard/admin/verified-reports?message=Request and valid status are required");
+    redirect(
+      "/dashboard/admin/verified-reports?message=Request and valid status are required",
+    );
   }
 
   const { supabase, user } = await requireAdmin();
@@ -38,11 +46,15 @@ export async function updateVerifiedReportRequestAction(formData: FormData) {
     .eq("id", requestId);
 
   if (error) {
-    redirect(`/dashboard/admin/verified-reports?message=${encodeURIComponent(error.message)}`);
+    redirect(
+      `/dashboard/admin/verified-reports?message=${encodeURIComponent(error.message)}`,
+    );
   }
 
   revalidatePath("/dashboard/admin/verified-reports");
   revalidatePath("/dashboard/scans");
 
-  redirect(`/dashboard/admin/verified-reports?message=${encodeURIComponent(`Verified report marked ${status}`)}`);
+  redirect(
+    `/dashboard/admin/verified-reports?message=${encodeURIComponent(`Verified report marked ${status}`)}`,
+  );
 }

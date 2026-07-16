@@ -84,9 +84,9 @@ export default function PaidPilotChecklistPage() {
           </h1>
 
           <p className="mt-6 max-w-3xl text-lg leading-8 text-slate-300">
-            This checklist is the exact execution system for your first paid V1 customer.
-            Keep it simple: explain the report, collect payment manually, deliver PDF,
-            record feedback, and ask for testimonial.
+            This checklist is the exact execution system for your first paid V1
+            customer. Keep it simple: explain the report, collect payment
+            manually, deliver PDF, record feedback, and ask for testimonial.
           </p>
 
           <div className="mt-8 grid gap-4 sm:grid-cols-3">
@@ -114,7 +114,10 @@ export default function PaidPilotChecklistPage() {
 
             <div className="grid gap-3">
               {beforeCall.map((item) => (
-                <div key={item} className="flex gap-3 rounded-2xl border border-white/10 bg-slate-950 p-4">
+                <div
+                  key={item}
+                  className="flex gap-3 rounded-2xl border border-white/10 bg-slate-950 p-4"
+                >
                   <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-cyan-300" />
                   <span className="text-slate-300">{item}</span>
                 </div>
@@ -130,7 +133,10 @@ export default function PaidPilotChecklistPage() {
 
             <div className="grid gap-3">
               {demoFlow.map((item, index) => (
-                <div key={item} className="flex gap-4 rounded-2xl bg-slate-950/70 p-4">
+                <div
+                  key={item}
+                  className="flex gap-4 rounded-2xl bg-slate-950/70 p-4"
+                >
                   <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-cyan-300 text-sm font-black text-slate-950">
                     {index + 1}
                   </div>
@@ -149,9 +155,16 @@ export default function PaidPilotChecklistPage() {
 
           <div className="grid gap-4">
             {closeScript.map((line, index) => (
-              <div key={line} className="rounded-3xl border border-white/10 bg-slate-950 p-6">
-                <p className="mb-2 text-sm font-bold text-cyan-300">Line {index + 1}</p>
-                <p className="text-lg font-semibold leading-8 text-slate-200">"{line}"</p>
+              <div
+                key={line}
+                className="rounded-3xl border border-white/10 bg-slate-950 p-6"
+              >
+                <p className="mb-2 text-sm font-bold text-cyan-300">
+                  Line {index + 1}
+                </p>
+                <p className="text-lg font-semibold leading-8 text-slate-200">
+                  "{line}"
+                </p>
               </div>
             ))}
           </div>
@@ -165,15 +178,16 @@ export default function PaidPilotChecklistPage() {
             </div>
 
             <p className="leading-8 text-slate-300">
-              For V1 pilot, do not waste time integrating payment gateway. Use manual UPI or bank transfer.
-              After payment, generate the report and deliver the PDF.
+              For V1 pilot, do not waste time integrating payment gateway. Use
+              manual UPI or bank transfer. After payment, generate the report
+              and deliver the PDF.
             </p>
 
             <div className="mt-6 rounded-2xl border border-amber-300/20 bg-amber-300/10 p-5">
               <p className="font-bold text-amber-100">Payment message</p>
               <p className="mt-2 leading-7 text-amber-50/90">
-                "For the pilot report, payment is INR 499. After payment, I will prepare the report,
-                explain the findings, and share the PDF."
+                "For the pilot report, payment is INR 499. After payment, I will
+                prepare the report, explain the findings, and share the PDF."
               </p>
             </div>
           </div>
@@ -186,7 +200,10 @@ export default function PaidPilotChecklistPage() {
 
             <div className="grid gap-3">
               {deliveryChecklist.map((item) => (
-                <div key={item} className="flex gap-3 rounded-2xl border border-white/10 bg-slate-950 p-4">
+                <div
+                  key={item}
+                  className="flex gap-3 rounded-2xl border border-white/10 bg-slate-950 p-4"
+                >
                   <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-cyan-300" />
                   <span className="text-slate-300">{item}</span>
                 </div>
@@ -196,10 +213,15 @@ export default function PaidPilotChecklistPage() {
         </section>
 
         <section className="mt-8 rounded-3xl border border-cyan-300/20 bg-cyan-300/10 p-8">
-          <h2 className="text-3xl font-black text-cyan-100">Feedback questions</h2>
+          <h2 className="text-3xl font-black text-cyan-100">
+            Feedback questions
+          </h2>
           <div className="mt-6 grid gap-3 md:grid-cols-2">
             {feedbackQuestions.map((question) => (
-              <div key={question} className="rounded-2xl bg-slate-950/70 p-5 font-semibold text-cyan-50">
+              <div
+                key={question}
+                className="rounded-2xl bg-slate-950/70 p-5 font-semibold text-cyan-50"
+              >
                 {question}
               </div>
             ))}
@@ -209,8 +231,9 @@ export default function PaidPilotChecklistPage() {
         <section className="mt-8 rounded-3xl border border-white/10 bg-white/[0.04] p-8 text-center">
           <h2 className="text-3xl font-black">V1 is now pilot-launch ready</h2>
           <p className="mx-auto mt-4 max-w-3xl leading-8 text-slate-300">
-            Stop building more features for now. Use VeyraSec with real customers.
-            Your next milestone is one paid pilot and one testimonial.
+            Stop building more features for now. Use VeyraSec with real
+            customers. Your next milestone is one paid pilot and one
+            testimonial.
           </p>
 
           <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">

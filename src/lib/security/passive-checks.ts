@@ -21,7 +21,8 @@ import {
   type VerificationStatus,
 } from "./accuracy-foundation";
 
-export type PassiveCheckSeverity = "info" | "low" | "medium" | "high" | "critical";
+export type PassiveCheckSeverity =
+  "info" | "low" | "medium" | "high" | "critical";
 
 export type PassiveCheckFinding = {
   id: string;
@@ -73,7 +74,9 @@ function normalizeInputUrl(input: string) {
     throw new Error("Website URL is required.");
   }
 
-  const withProtocol = /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
+  const withProtocol = /^https?:\/\//i.test(trimmed)
+    ? trimmed
+    : `https://${trimmed}`;
   const url = new URL(withProtocol);
 
   url.hash = "";
@@ -92,7 +95,7 @@ function finding(
   category: string,
   evidence: string,
   recommendation: string,
-  description?: string
+  description?: string,
 ): PassiveCheckFinding {
   return {
     id,
@@ -136,7 +139,11 @@ function getSetCookieHeader(headers: Headers | null) {
   return headers.get("set-cookie") || "";
 }
 
-async function fetchWithTimeout(url: string, options?: RequestInit, timeoutMs = 8000): Promise<FetchResult> {
+async function fetchWithTimeout(
+  url: string,
+  options?: RequestInit,
+  timeoutMs = 8000,
+): Promise<FetchResult> {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
 
@@ -191,7 +198,11 @@ async function fetchWithTimeout(url: string, options?: RequestInit, timeoutMs = 
   }
 }
 
-function checkHttps(url: URL, result: FetchResult, findings: PassiveCheckFinding[]) {
+function checkHttps(
+  url: URL,
+  result: FetchResult,
+  findings: PassiveCheckFinding[],
+) {
   if (url.protocol !== "https:") {
     findings.push(
       finding(
@@ -201,8 +212,8 @@ function checkHttps(url: URL, result: FetchResult, findings: PassiveCheckFinding
         "https_tls",
         `Checked URL: ${url.toString()}`,
         "Use HTTPS as the default public website URL.",
-        "The checked website URL does not start with HTTPS. HTTPS protects traffic integrity and customer trust."
-      )
+        "The checked website URL does not start with HTTPS. HTTPS protects traffic integrity and customer trust.",
+      ),
     );
   }
 
@@ -219,13 +230,17 @@ function checkHttps(url: URL, result: FetchResult, findings: PassiveCheckFinding
         "https_tls",
         `Checked URL: ${url.toString()}\nStatus: ${result.status ?? "no status"}\nError: ${result.error || "none"}`,
         "Ask your hosting provider or developer to verify TLS certificate, DNS, and HTTPS configuration.",
-        "The HTTPS version of the website did not respond successfully during this passive check."
-      )
+        "The HTTPS version of the website did not respond successfully during this passive check.",
+      ),
     );
   }
 }
 
-function checkHttpRedirect(url: URL, result: FetchResult, findings: PassiveCheckFinding[]) {
+function checkHttpRedirect(
+  url: URL,
+  result: FetchResult,
+  findings: PassiveCheckFinding[],
+) {
   const finalUrl = result.finalUrl || "";
   const redirectedToHttps = finalUrl.toLowerCase().startsWith("https://");
 
@@ -238,8 +253,8 @@ function checkHttpRedirect(url: URL, result: FetchResult, findings: PassiveCheck
         "https_tls",
         `HTTP probe: ${result.url}\nStatus: ${result.status ?? "no status"}\nError: ${result.error || "none"}`,
         "Confirm that HTTP requests redirect to HTTPS.",
-        "VeyraSec could not confirm that the HTTP version upgrades visitors to HTTPS."
-      )
+        "VeyraSec could not confirm that the HTTP version upgrades visitors to HTTPS.",
+      ),
     );
 
     return;
@@ -254,13 +269,16 @@ function checkHttpRedirect(url: URL, result: FetchResult, findings: PassiveCheck
         "https_tls",
         `HTTP probe: ${result.url}\nFinal URL: ${finalUrl}\nStatus: ${result.status ?? "no status"}`,
         "Configure the website or CDN to redirect all HTTP traffic to HTTPS.",
-        "Visitors using an HTTP link may not be automatically upgraded to HTTPS."
-      )
+        "Visitors using an HTTP link may not be automatically upgraded to HTTPS.",
+      ),
     );
   }
 }
 
-function checkSecurityHeaders(result: FetchResult, findings: PassiveCheckFinding[]) {
+function checkSecurityHeaders(
+  result: FetchResult,
+  findings: PassiveCheckFinding[],
+) {
   const headers = result.headers;
 
   if (!hasHeader(headers, "strict-transport-security")) {
@@ -272,8 +290,8 @@ function checkSecurityHeaders(result: FetchResult, findings: PassiveCheckFinding
         "security_headers",
         `Header checked: Strict-Transport-Security\nResult: missing`,
         "Add an HSTS header after confirming HTTPS is stable across the site.",
-        "The website does not advertise HSTS, which helps browsers enforce HTTPS for future visits."
-      )
+        "The website does not advertise HSTS, which helps browsers enforce HTTPS for future visits.",
+      ),
     );
   }
 
@@ -286,12 +304,17 @@ function checkSecurityHeaders(result: FetchResult, findings: PassiveCheckFinding
         "security_headers",
         `Header checked: Content-Security-Policy\nResult: missing`,
         "Add a Content-Security-Policy appropriate for your website and test it carefully before enforcing.",
-        "A Content-Security-Policy can reduce the impact of injected or unexpected scripts when configured correctly."
-      )
+        "A Content-Security-Policy can reduce the impact of injected or unexpected scripts when configured correctly.",
+      ),
     );
   }
 
-  if (!hasHeader(headers, "x-frame-options") && !headerValue(headers, "content-security-policy").toLowerCase().includes("frame-ancestors")) {
+  if (
+    !hasHeader(headers, "x-frame-options") &&
+    !headerValue(headers, "content-security-policy")
+      .toLowerCase()
+      .includes("frame-ancestors")
+  ) {
     findings.push(
       finding(
         "missing_x_frame_options",
@@ -300,8 +323,8 @@ function checkSecurityHeaders(result: FetchResult, findings: PassiveCheckFinding
         "security_headers",
         `Headers checked: X-Frame-Options and CSP frame-ancestors\nResult: missing`,
         "Add X-Frame-Options or CSP frame-ancestors to control where the site can be framed.",
-        "The website does not show a visible frame protection policy in response headers."
-      )
+        "The website does not show a visible frame protection policy in response headers.",
+      ),
     );
   }
 
@@ -314,8 +337,8 @@ function checkSecurityHeaders(result: FetchResult, findings: PassiveCheckFinding
         "security_headers",
         `Header checked: X-Content-Type-Options\nResult: missing`,
         "Add X-Content-Type-Options: nosniff.",
-        "The website does not send a visible nosniff header."
-      )
+        "The website does not send a visible nosniff header.",
+      ),
     );
   }
 
@@ -328,8 +351,8 @@ function checkSecurityHeaders(result: FetchResult, findings: PassiveCheckFinding
         "privacy",
         `Header checked: Referrer-Policy\nResult: missing`,
         "Add a Referrer-Policy header such as strict-origin-when-cross-origin.",
-        "The website does not declare a visible referrer policy, which can affect privacy posture."
-      )
+        "The website does not declare a visible referrer policy, which can affect privacy posture.",
+      ),
     );
   }
 
@@ -342,8 +365,8 @@ function checkSecurityHeaders(result: FetchResult, findings: PassiveCheckFinding
         "privacy",
         `Header checked: Permissions-Policy\nResult: missing`,
         "Add a Permissions-Policy header to limit browser features that the site does not need.",
-        "The website does not declare a visible browser permissions policy."
-      )
+        "The website does not declare a visible browser permissions policy.",
+      ),
     );
   }
 }
@@ -354,11 +377,15 @@ function checkCookies(result: FetchResult, findings: PassiveCheckFinding[]) {
       headers: result.headers,
       finalUrl: result.finalUrl,
       checkedUrl: result.url,
-    })
+    }),
   );
 }
 
-function checkContentSignals(url: URL, result: FetchResult, findings: PassiveCheckFinding[]) {
+function checkContentSignals(
+  url: URL,
+  result: FetchResult,
+  findings: PassiveCheckFinding[],
+) {
   const body = result.body || "";
   const lowerBody = body.toLowerCase();
 
@@ -371,8 +398,8 @@ function checkContentSignals(url: URL, result: FetchResult, findings: PassiveChe
         "availability",
         `Checked URL: ${url.toString()}\nStatus: ${result.status ?? "no status"}`,
         "Confirm the homepage returns readable HTML to public visitors.",
-        "The passive scanner could not review the homepage body for trust and privacy signals."
-      )
+        "The passive scanner could not review the homepage body for trust and privacy signals.",
+      ),
     );
 
     return;
@@ -393,8 +420,8 @@ function checkContentSignals(url: URL, result: FetchResult, findings: PassiveChe
         "privacy",
         `Homepage reviewed: ${url.toString()}\nSignal searched: privacy policy link/text`,
         "Add a clearly visible privacy policy link, especially if the website collects personal data.",
-        "The homepage does not show an obvious privacy policy signal in visible HTML."
-      )
+        "The homepage does not show an obvious privacy policy signal in visible HTML.",
+      ),
     );
   }
 
@@ -415,8 +442,8 @@ function checkContentSignals(url: URL, result: FetchResult, findings: PassiveChe
         "trust_signals",
         `Homepage reviewed: ${url.toString()}\nSignal searched: contact/support/mail/phone`,
         "Add a clear contact, support, or business identity signal for visitors.",
-        "The homepage does not show an obvious contact or support trust signal in visible HTML."
-      )
+        "The homepage does not show an obvious contact or support trust signal in visible HTML.",
+      ),
     );
   }
 
@@ -429,12 +456,13 @@ function checkContentSignals(url: URL, result: FetchResult, findings: PassiveChe
         "content",
         `Homepage reviewed: ${url.toString()}\nSignal: HTML contains src=\"http://...\"`,
         "Update HTTP asset references to HTTPS or remove the insecure asset.",
-        "The HTTPS page appears to reference at least one HTTP asset in visible HTML."
-      )
+        "The HTTPS page appears to reference at least one HTTP asset in visible HTML.",
+      ),
     );
   }
 
-  const externalScriptCount = (body.match(/<script\b[^>]*\bsrc=/gi) || []).length;
+  const externalScriptCount = (body.match(/<script\b[^>]*\bsrc=/gi) || [])
+    .length;
 
   if (externalScriptCount >= 20) {
     findings.push(
@@ -445,8 +473,8 @@ function checkContentSignals(url: URL, result: FetchResult, findings: PassiveChe
         "technology",
         `Homepage reviewed: ${url.toString()}\nScript tags with src observed: ${externalScriptCount}`,
         "Review third-party scripts and remove unused scripts to reduce attack surface and improve performance.",
-        "The homepage loads a high number of script references, which can increase dependency and supply-chain exposure."
-      )
+        "The homepage loads a high number of script references, which can increase dependency and supply-chain exposure.",
+      ),
     );
   }
 }
@@ -459,7 +487,7 @@ function checkWellKnownFile(
   result: FetchResult,
   findings: PassiveCheckFinding[],
   recommendation: string,
-  description: string
+  description: string,
 ) {
   if (!result.ok || !result.body.trim()) {
     findings.push(
@@ -470,13 +498,15 @@ function checkWellKnownFile(
         category,
         `Checked: ${url}\nStatus: ${result.status ?? "no status"}\nError: ${result.error || "none"}`,
         recommendation,
-        description
-      )
+        description,
+      ),
     );
   }
 }
 
-export async function runAdvancedPassiveSecurityChecks(inputUrl: string): Promise<AdvancedPassiveScanResult> {
+export async function runAdvancedPassiveSecurityChecks(
+  inputUrl: string,
+): Promise<AdvancedPassiveScanResult> {
   const normalized = normalizeInputUrl(inputUrl);
   const findings: PassiveCheckFinding[] = [];
 
@@ -491,11 +521,12 @@ export async function runAdvancedPassiveSecurityChecks(inputUrl: string): Promis
   const robotsTxtUrl = sameOriginUrl(normalized, "/robots.txt");
   const sitemapXmlUrl = sameOriginUrl(normalized, "/sitemap.xml");
 
-  const [securityTxtResult, robotsTxtResult, sitemapXmlResult] = await Promise.all([
-    fetchWithTimeout(securityTxtUrl, {}, 6000),
-    fetchWithTimeout(robotsTxtUrl, {}, 6000),
-    fetchWithTimeout(sitemapXmlUrl, {}, 6000),
-  ]);
+  const [securityTxtResult, robotsTxtResult, sitemapXmlResult] =
+    await Promise.all([
+      fetchWithTimeout(securityTxtUrl, {}, 6000),
+      fetchWithTimeout(robotsTxtUrl, {}, 6000),
+      fetchWithTimeout(sitemapXmlUrl, {}, 6000),
+    ]);
 
   const technologyDetection = detectTechnologySignals({
     url: normalized.toString(),
@@ -507,9 +538,12 @@ export async function runAdvancedPassiveSecurityChecks(inputUrl: string): Promis
   findings.push(...technologyFindingsFromSignals(technologyDetection));
   findings.push(...knownRiskFindingsFromTechnology(technologyDetection));
 
-  const safeCrawlerResult = await runSafeSameDomainCrawler(normalized.toString(), {
-    maxPages: 6,
-  });
+  const safeCrawlerResult = await runSafeSameDomainCrawler(
+    normalized.toString(),
+    {
+      maxPages: 6,
+    },
+  );
 
   findings.push(...safeCrawlerResult.findings);
 
@@ -527,7 +561,7 @@ export async function runAdvancedPassiveSecurityChecks(inputUrl: string): Promis
     securityTxtResult,
     findings,
     "Consider publishing /.well-known/security.txt with a security contact and disclosure policy.",
-    "A security.txt file helps security researchers and responsible reporters find the right contact path."
+    "A security.txt file helps security researchers and responsible reporters find the right contact path.",
   );
 
   checkWellKnownFile(
@@ -538,7 +572,7 @@ export async function runAdvancedPassiveSecurityChecks(inputUrl: string): Promis
     robotsTxtResult,
     findings,
     "Add a robots.txt file if the website needs crawler guidance.",
-    "robots.txt is not a security control, but it is a useful public website hygiene signal."
+    "robots.txt is not a security control, but it is a useful public website hygiene signal.",
   );
 
   checkWellKnownFile(
@@ -549,36 +583,42 @@ export async function runAdvancedPassiveSecurityChecks(inputUrl: string): Promis
     sitemapXmlResult,
     findings,
     "Add sitemap.xml if search engines and site discovery should be guided.",
-    "sitemap.xml is not a security control, but it helps public site discoverability and content hygiene."
+    "sitemap.xml is not a security control, but it helps public site discoverability and content hygiene.",
   );
 
   findings.push(
     ...privacyNearFormFindingsFromScan({
       html: String(
-        (targetResult as { body?: string; html?: string; text?: string }).body ||
-          (targetResult as { body?: string; html?: string; text?: string }).html ||
-          (targetResult as { body?: string; html?: string; text?: string }).text ||
-          ""
+        (targetResult as { body?: string; html?: string; text?: string })
+          .body ||
+          (targetResult as { body?: string; html?: string; text?: string })
+            .html ||
+          (targetResult as { body?: string; html?: string; text?: string })
+            .text ||
+          "",
       ),
       pageUrl:
         (targetResult as { finalUrl?: string; url?: string }).finalUrl ||
         (targetResult as { finalUrl?: string; url?: string }).url ||
         normalized.toString(),
-    })
+    }),
   );
   findings.push(
     ...customerDataFormFindingsFromScan({
       html: String(
-        (targetResult as { body?: string; html?: string; text?: string }).body ||
-          (targetResult as { body?: string; html?: string; text?: string }).html ||
-          (targetResult as { body?: string; html?: string; text?: string }).text ||
-          ""
+        (targetResult as { body?: string; html?: string; text?: string })
+          .body ||
+          (targetResult as { body?: string; html?: string; text?: string })
+            .html ||
+          (targetResult as { body?: string; html?: string; text?: string })
+            .text ||
+          "",
       ),
       pageUrl:
         (targetResult as { finalUrl?: string; url?: string }).finalUrl ||
         (targetResult as { finalUrl?: string; url?: string }).url ||
         normalized.toString(),
-    })
+    }),
   );
 
   findings.push(...(await tlsCertificateFindingsForUrl(normalized.toString())));
@@ -619,19 +659,27 @@ export async function runAdvancedPassiveSecurityChecks(inputUrl: string): Promis
         hasHsts: hasHeader(targetResult.headers, "strict-transport-security"),
         hasCsp: hasHeader(targetResult.headers, "content-security-policy"),
         hasXFrameOptions: hasHeader(targetResult.headers, "x-frame-options"),
-        hasXContentTypeOptions: hasHeader(targetResult.headers, "x-content-type-options"),
+        hasXContentTypeOptions: hasHeader(
+          targetResult.headers,
+          "x-content-type-options",
+        ),
         hasReferrerPolicy: hasHeader(targetResult.headers, "referrer-policy"),
-        hasPermissionsPolicy: hasHeader(targetResult.headers, "permissions-policy"),
+        hasPermissionsPolicy: hasHeader(
+          targetResult.headers,
+          "permissions-policy",
+        ),
         hasCookies: Boolean(getSetCookieHeader(targetResult.headers)),
         securityTxtStatus: securityTxtResult.status,
         robotsTxtStatus: robotsTxtResult.status,
         sitemapXmlStatus: sitemapXmlResult.status,
         findingCount: guardedFindings.length,
         rawFindingCountBeforeGuard,
-        falsePositiveGuardReducedBy: rawFindingCountBeforeGuard - guardedFindings.length,
+        falsePositiveGuardReducedBy:
+          rawFindingCountBeforeGuard - guardedFindings.length,
         technologySummary: technologyDetection.summary,
         technologyDetection: technologyDetection.raw,
-        knownRiskFindingCount: knownRiskFindingsFromTechnology(technologyDetection).length,
+        knownRiskFindingCount:
+          knownRiskFindingsFromTechnology(technologyDetection).length,
         safeCrawlerSummary: safeCrawlerResult.summary,
         safeCrawlerPages: safeCrawlerResult.pages,
       },

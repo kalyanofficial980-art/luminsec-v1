@@ -26,13 +26,15 @@ export function isSubscriptionUsable(status: string) {
 
 export function canShowAgencyNavigation(
   profile: DashboardProfile,
-  subscription: DashboardNavSubscription
+  subscription: DashboardNavSubscription,
 ) {
   if (profile.role === "admin") {
     return true;
   }
 
-  return isSubscriptionUsable(subscription.status) && subscription.agencyModeEnabled;
+  return (
+    isSubscriptionUsable(subscription.status) && subscription.agencyModeEnabled
+  );
 }
 
 export function canShowFounderNavigation(profile: DashboardProfile) {

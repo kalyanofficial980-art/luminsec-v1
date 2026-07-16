@@ -34,10 +34,16 @@ function text(value: unknown, fallback = "") {
 
 function safeDate(value: unknown) {
   const date = value ? new Date(String(value)) : null;
-  return date && !Number.isNaN(date.getTime()) ? date.toLocaleString("en-IN") : "Not available";
+  return date && !Number.isNaN(date.getTime())
+    ? date.toLocaleString("en-IN")
+    : "Not available";
 }
 
-function statCard(label: string, value: string | number, tone: "good" | "warn" | "bad" | "neutral" = "neutral") {
+function statCard(
+  label: string,
+  value: string | number,
+  tone: "good" | "warn" | "bad" | "neutral" = "neutral",
+) {
   const toneClass =
     tone === "good"
       ? "border-emerald-400/20 bg-emerald-400/10 text-emerald-100"
@@ -55,14 +61,19 @@ function statCard(label: string, value: string | number, tone: "good" | "warn" |
   );
 }
 
-export default async function VerifiedReportRequestPage({ params, searchParams }: PageProps) {
+export default async function VerifiedReportRequestPage({
+  params,
+  searchParams,
+}: PageProps) {
   const { id } = await params;
   const query = await searchParams;
   const { supabase, user, profile } = await requireDashboardUser();
 
   let scanQuery = supabase
     .from("scan_results")
-    .select("id, user_id, url, domain, overall_score, score, risk_level, created_at")
+    .select(
+      "id, user_id, url, domain, overall_score, score, risk_level, created_at",
+    )
     .eq("id", id);
 
   if (profile.role !== "admin") {
@@ -77,7 +88,9 @@ export default async function VerifiedReportRequestPage({ params, searchParams }
 
   let findingsQuery = supabase
     .from("scan_findings")
-    .select("id, category, severity, title, manual_review_status, verified_for_paid_report")
+    .select(
+      "id, category, severity, title, manual_review_status, verified_for_paid_report",
+    )
     .eq("scan_result_id", scan.id);
 
   if (profile.role !== "admin") {
@@ -88,15 +101,27 @@ export default async function VerifiedReportRequestPage({ params, searchParams }
 
   const { data: request } = await supabase
     .from("verified_report_requests")
-    .select("id, status, customer_message, admin_notes, reviewed_at, delivered_at, created_at, updated_at")
+    .select(
+      "id, status, customer_message, admin_notes, reviewed_at, delivered_at, created_at, updated_at",
+    )
     .eq("scan_result_id", scan.id)
     .eq("user_id", scan.user_id)
     .maybeSingle();
 
   const rows = findings ?? [];
-  const approvedCount = rows.filter((finding) => finding.verified_for_paid_report || finding.manual_review_status === "approved").length;
-  const pendingCount = rows.filter((finding) => !finding.manual_review_status || finding.manual_review_status === "pending").length;
-  const rejectedCount = rows.filter((finding) => finding.manual_review_status === "rejected").length;
+  const approvedCount = rows.filter(
+    (finding) =>
+      finding.verified_for_paid_report ||
+      finding.manual_review_status === "approved",
+  ).length;
+  const pendingCount = rows.filter(
+    (finding) =>
+      !finding.manual_review_status ||
+      finding.manual_review_status === "pending",
+  ).length;
+  const rejectedCount = rows.filter(
+    (finding) => finding.manual_review_status === "rejected",
+  ).length;
 
   const readiness = calculateVerifiedReportReadiness({
     requestStatus: request?.status,
@@ -137,8 +162,9 @@ export default async function VerifiedReportRequestPage({ params, searchParams }
               </h1>
 
               <p className="mt-6 max-w-3xl text-lg leading-8 text-slate-300">
-                Request a manual-reviewed paid report. Admin-approved findings become verified evidence.
-                Pending and rejected findings are not treated as verified.
+                Request a manual-reviewed paid report. Admin-approved findings
+                become verified evidence. Pending and rejected findings are not
+                treated as verified.
               </p>
 
               <p className="mt-5 text-sm text-slate-500">
@@ -148,11 +174,15 @@ export default async function VerifiedReportRequestPage({ params, searchParams }
 
             <div className="rounded-3xl border border-white/10 bg-slate-950 p-6 text-center">
               <p className="text-sm font-bold text-slate-400">Request status</p>
-              <div className={`mt-4 rounded-full border px-5 py-3 text-sm font-black ${verifiedReportStatusClass(readiness.status)}`}>
+              <div
+                className={`mt-4 rounded-full border px-5 py-3 text-sm font-black ${verifiedReportStatusClass(readiness.status)}`}
+              >
                 {verifiedReportStatusLabel(readiness.status)}
               </div>
 
-              <p className="mt-6 text-sm font-bold text-slate-400">Verified evidence</p>
+              <p className="mt-6 text-sm font-bold text-slate-400">
+                Verified evidence
+              </p>
               <p className="mt-3 text-6xl font-black text-cyan-300">
                 {readiness.verifiedPercent}%
               </p>
@@ -168,9 +198,21 @@ export default async function VerifiedReportRequestPage({ params, searchParams }
 
         <section className="mt-8 grid gap-4 md:grid-cols-4">
           {statCard("Total findings", readiness.totalFindingCount)}
-          {statCard("Approved", readiness.approvedFindingCount, readiness.approvedFindingCount > 0 ? "good" : "neutral")}
-          {statCard("Pending review", readiness.pendingFindingCount, readiness.pendingFindingCount > 0 ? "warn" : "good")}
-          {statCard("Rejected", readiness.rejectedFindingCount, readiness.rejectedFindingCount > 0 ? "bad" : "neutral")}
+          {statCard(
+            "Approved",
+            readiness.approvedFindingCount,
+            readiness.approvedFindingCount > 0 ? "good" : "neutral",
+          )}
+          {statCard(
+            "Pending review",
+            readiness.pendingFindingCount,
+            readiness.pendingFindingCount > 0 ? "warn" : "good",
+          )}
+          {statCard(
+            "Rejected",
+            readiness.rejectedFindingCount,
+            readiness.rejectedFindingCount > 0 ? "bad" : "neutral",
+          )}
         </section>
 
         {readiness.readyForDelivery ? (
@@ -180,8 +222,9 @@ export default async function VerifiedReportRequestPage({ params, searchParams }
               Ready for verified paid report delivery
             </h2>
             <p className="mt-3 max-w-4xl leading-8 text-emerald-50/90">
-              This report request is approved and has manually approved findings.
-              Use the main report, print page, retest proof page, and admin notes for customer delivery.
+              This report request is approved and has manually approved
+              findings. Use the main report, print page, retest proof page, and
+              admin notes for customer delivery.
             </p>
           </section>
         ) : (
@@ -191,7 +234,8 @@ export default async function VerifiedReportRequestPage({ params, searchParams }
               Not ready for verified delivery yet
             </h2>
             <p className="mt-3 max-w-4xl leading-8 text-amber-50/90">
-              A verified paid report should be delivered only after manual review is complete and admin approval is given.
+              A verified paid report should be delivered only after manual
+              review is complete and admin approval is given.
             </p>
           </section>
         )}
@@ -206,26 +250,36 @@ export default async function VerifiedReportRequestPage({ params, searchParams }
             <div className="grid gap-4 md:grid-cols-2">
               <div className="rounded-2xl border border-white/10 bg-slate-950 p-5">
                 <p className="text-sm text-slate-400">Requested</p>
-                <p className="mt-2 font-bold text-white">{safeDate(request.created_at)}</p>
+                <p className="mt-2 font-bold text-white">
+                  {safeDate(request.created_at)}
+                </p>
               </div>
 
               <div className="rounded-2xl border border-white/10 bg-slate-950 p-5">
                 <p className="text-sm text-slate-400">Last updated</p>
-                <p className="mt-2 font-bold text-white">{safeDate(request.updated_at)}</p>
+                <p className="mt-2 font-bold text-white">
+                  {safeDate(request.updated_at)}
+                </p>
               </div>
             </div>
 
             {request.customer_message ? (
               <div className="mt-5 rounded-2xl border border-white/10 bg-slate-950 p-5">
-                <p className="text-sm font-black text-cyan-100">Customer message</p>
-                <p className="mt-3 leading-7 text-slate-300">{request.customer_message}</p>
+                <p className="text-sm font-black text-cyan-100">
+                  Customer message
+                </p>
+                <p className="mt-3 leading-7 text-slate-300">
+                  {request.customer_message}
+                </p>
               </div>
             ) : null}
 
             {request.admin_notes ? (
               <div className="mt-5 rounded-2xl border border-white/10 bg-slate-950 p-5">
                 <p className="text-sm font-black text-cyan-100">Admin notes</p>
-                <p className="mt-3 leading-7 text-slate-300">{request.admin_notes}</p>
+                <p className="mt-3 leading-7 text-slate-300">
+                  {request.admin_notes}
+                </p>
               </div>
             ) : null}
           </section>
@@ -233,13 +287,21 @@ export default async function VerifiedReportRequestPage({ params, searchParams }
           <section className="mt-8 rounded-3xl border border-white/10 bg-white/[0.04] p-8">
             <div className="mb-6 flex items-center gap-3">
               <CreditCard className="h-7 w-7 text-cyan-300" />
-              <h2 className="text-3xl font-black">Request verified paid report</h2>
+              <h2 className="text-3xl font-black">
+                Request verified paid report
+              </h2>
             </div>
 
-            <form action={requestVerifiedPaidReportAction} className="grid gap-4">
+            <form
+              action={requestVerifiedPaidReportAction}
+              className="grid gap-4"
+            >
               <input type="hidden" name="scan_id" value={scan.id} />
 
-              <label className="text-sm font-black text-slate-300" htmlFor="customer-message">
+              <label
+                className="text-sm font-black text-slate-300"
+                htmlFor="customer-message"
+              >
                 Message for reviewer
               </label>
 
@@ -267,7 +329,10 @@ export default async function VerifiedReportRequestPage({ params, searchParams }
 
           <div className="mt-6 grid gap-3">
             {readiness.notes.map((note) => (
-              <p key={note} className="rounded-2xl border border-white/10 bg-slate-950 p-4 leading-7 text-slate-300">
+              <p
+                key={note}
+                className="rounded-2xl border border-white/10 bg-slate-950 p-4 leading-7 text-slate-300"
+              >
                 {note}
               </p>
             ))}
@@ -275,11 +340,15 @@ export default async function VerifiedReportRequestPage({ params, searchParams }
         </section>
 
         <section className="mt-8 rounded-3xl border border-amber-300/20 bg-amber-300/10 p-8">
-          <h2 className="text-2xl font-black text-amber-100">Important scope note</h2>
+          <h2 className="text-2xl font-black text-amber-100">
+            Important scope note
+          </h2>
           <p className="mt-4 max-w-4xl leading-8 text-amber-50/90">
-            Verified paid report means the included evidence was manually reviewed for report delivery.
-            It is not legal advice, legal compliance certification, exploit testing, vulnerability exploitation,
-            login testing, brute force testing, or a penetration test.
+            Verified paid report means the included evidence was manually
+            reviewed for report delivery. It is not legal advice, legal
+            compliance certification, exploit testing, vulnerability
+            exploitation, login testing, brute force testing, or a penetration
+            test.
           </p>
         </section>
       </div>

@@ -4,7 +4,12 @@ import { ArrowLeft, Globe2, Languages, ShieldCheck } from "lucide-react";
 import { brand } from "@/config/brand";
 import { PrintButton } from "@/components/report/print-button";
 import { createClient } from "@/lib/supabase/server";
-import { getAiStyleSummary, explainFinding, getReportCopy, getReportLanguage } from "@/lib/report/explain";
+import {
+  getAiStyleSummary,
+  explainFinding,
+  getReportCopy,
+  getReportLanguage,
+} from "@/lib/report/explain";
 import { formatDateTime, getRiskLabel } from "@/lib/utils/risk";
 
 export default async function ScanPrintPage({
@@ -31,7 +36,8 @@ export default async function ScanPrintPage({
 
   const { data: result, error } = await supabase
     .from("scan_results")
-    .select(`
+    .select(
+      `
       id,
       overall_score,
       security_score,
@@ -46,7 +52,8 @@ export default async function ScanPrintPage({
         domain,
         label
       )
-    `)
+    `,
+    )
     .eq("id", id)
     .eq("user_id", user.id)
     .single();
@@ -57,7 +64,9 @@ export default async function ScanPrintPage({
 
   const { data: findings } = await supabase
     .from("scan_findings")
-    .select("id, category, severity, title, description, recommendation, evidence, created_at")
+    .select(
+      "id, category, severity, title, description, recommendation, evidence, created_at",
+    )
     .eq("scan_result_id", result.id)
     .eq("user_id", user.id)
     .order("created_at", { ascending: true });
@@ -94,7 +103,9 @@ export default async function ScanPrintPage({
               <Link
                 href={`/dashboard/scans/${result.id}/print?lang=en`}
                 className={`rounded-xl px-3 py-2 text-sm font-bold ${
-                  language === "en" ? "bg-slate-950 text-white" : "text-slate-700 hover:bg-slate-100"
+                  language === "en"
+                    ? "bg-slate-950 text-white"
+                    : "text-slate-700 hover:bg-slate-100"
                 }`}
               >
                 EN
@@ -102,7 +113,9 @@ export default async function ScanPrintPage({
               <Link
                 href={`/dashboard/scans/${result.id}/print?lang=te`}
                 className={`rounded-xl px-3 py-2 text-sm font-bold ${
-                  language === "te" ? "bg-slate-950 text-white" : "text-slate-700 hover:bg-slate-100"
+                  language === "te"
+                    ? "bg-slate-950 text-white"
+                    : "text-slate-700 hover:bg-slate-100"
                 }`}
               >
                 TE-EN
@@ -129,14 +142,17 @@ export default async function ScanPrintPage({
               </div>
 
               <p className="max-w-2xl text-sm leading-6 text-slate-600">
-                Basic passive website security, privacy, and trust readiness report.
+                Basic passive website security, privacy, and trust readiness
+                report.
               </p>
             </div>
 
             <div className="rounded-2xl border border-slate-200 p-4 text-right">
               <p className="text-sm text-slate-500">{copy.overallScore}</p>
               <p className="text-5xl font-black">{result.overall_score}</p>
-              <p className="text-sm font-bold">{getRiskLabel(result.risk_level)}</p>
+              <p className="text-sm font-bold">
+                {getRiskLabel(result.risk_level)}
+              </p>
             </div>
           </div>
         </header>
@@ -147,15 +163,21 @@ export default async function ScanPrintPage({
             <div className="mt-2 flex items-start gap-2">
               <Globe2 className="mt-1 h-5 w-5 text-slate-500" />
               <div>
-                <p className="font-bold">{website?.label || website?.domain || "Website"}</p>
-                <p className="break-all text-sm text-slate-600">{website?.url}</p>
+                <p className="font-bold">
+                  {website?.label || website?.domain || "Website"}
+                </p>
+                <p className="break-all text-sm text-slate-600">
+                  {website?.url}
+                </p>
               </div>
             </div>
           </div>
 
           <div>
             <p className="text-sm font-bold text-slate-500">Report details</p>
-            <p className="mt-2 text-sm text-slate-700">Scan date: {formatDateTime(result.created_at)}</p>
+            <p className="mt-2 text-sm text-slate-700">
+              Scan date: {formatDateTime(result.created_at)}
+            </p>
             <p className="text-sm text-slate-700">Report ID: {result.id}</p>
           </div>
         </section>
@@ -195,7 +217,10 @@ export default async function ScanPrintPage({
           ) : (
             <div className="mt-4 grid gap-4">
               {findings.map((finding, index) => (
-                <div key={finding.id} className="break-inside-avoid rounded-2xl border border-slate-200 p-5">
+                <div
+                  key={finding.id}
+                  className="break-inside-avoid rounded-2xl border border-slate-200 p-5"
+                >
                   <div className="mb-2 flex flex-col justify-between gap-2 sm:flex-row sm:items-center">
                     <h3 className="text-lg font-black">
                       {index + 1}. {finding.title}
@@ -206,17 +231,23 @@ export default async function ScanPrintPage({
                   </div>
 
                   <div className="mb-4 rounded-xl bg-slate-100 p-4">
-                    <p className="text-sm font-black">{copy.plainExplanation}</p>
+                    <p className="text-sm font-black">
+                      {copy.plainExplanation}
+                    </p>
                     <p className="mt-1 text-sm leading-6 text-slate-700">
                       {explainFinding(finding, language)}
                     </p>
                   </div>
 
-                  <p className="leading-7 text-slate-700">{finding.description}</p>
+                  <p className="leading-7 text-slate-700">
+                    {finding.description}
+                  </p>
 
                   <div className="mt-4 rounded-xl bg-slate-100 p-4">
                     <p className="text-sm font-black">{copy.recommendation}</p>
-                    <p className="mt-1 text-sm leading-6 text-slate-700">{finding.recommendation}</p>
+                    <p className="mt-1 text-sm leading-6 text-slate-700">
+                      {finding.recommendation}
+                    </p>
                   </div>
                 </div>
               ))}

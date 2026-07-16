@@ -19,10 +19,7 @@ import {
   statusBadgeClass,
   type SubscriptionPlan,
 } from "@/lib/subscription/limits";
-import {
-  updateProfileSettings,
-  updateReportSettings,
-} from "./actions";
+import { updateProfileSettings, updateReportSettings } from "./actions";
 
 type BusinessSettings = {
   business_name: string | null;
@@ -79,19 +76,25 @@ export default async function SettingsPage({
 
   const { data: businessSettingsData } = await supabase
     .from("business_settings")
-    .select("business_name, report_prepared_by, contact_email, phone, website, address, footer_note")
+    .select(
+      "business_name, report_prepared_by, contact_email, phone, website, address, footer_note",
+    )
     .eq("user_id", user.id)
     .maybeSingle();
 
-  const businessSettings = (businessSettingsData ?? null) as BusinessSettings | null;
+  const businessSettings = (businessSettingsData ??
+    null) as BusinessSettings | null;
 
   const { data: subscriptionData } = await supabase
     .from("user_subscriptions")
-    .select("plan_id, status, current_period_start, current_period_end, subscription_plans(*)")
+    .select(
+      "plan_id, status, current_period_start, current_period_end, subscription_plans(*)",
+    )
     .eq("user_id", user.id)
     .maybeSingle();
 
-  const currentPlan = getJoinedPlan(subscriptionData?.subscription_plans) ?? fallbackTrialPlan;
+  const currentPlan =
+    getJoinedPlan(subscriptionData?.subscription_plans) ?? fallbackTrialPlan;
   const currentStatus = subscriptionData?.status ?? "trial";
 
   return (
@@ -109,12 +112,15 @@ export default async function SettingsPage({
               </h1>
 
               <p className="mt-4 max-w-3xl leading-8 text-slate-300">
-                Manage your profile, account type, report branding, and plan visibility.
-                Account type changes do not unlock paid features. Feature access is controlled by your subscription plan.
+                Manage your profile, account type, report branding, and plan
+                visibility. Account type changes do not unlock paid features.
+                Feature access is controlled by your subscription plan.
               </p>
             </div>
 
-            <div className={`rounded-3xl border p-6 text-center ${planBadgeClass(currentPlan.id)}`}>
+            <div
+              className={`rounded-3xl border p-6 text-center ${planBadgeClass(currentPlan.id)}`}
+            >
               <CreditCard className="mx-auto mb-3 h-9 w-9" />
               <p className="text-sm opacity-80">Current plan</p>
               <p className="mt-2 text-4xl font-black">{currentPlan.name}</p>
@@ -130,7 +136,10 @@ export default async function SettingsPage({
         ) : null}
 
         <section className="mt-8 grid gap-8 lg:grid-cols-[0.9fr_1.1fr]">
-          <form action={updateProfileSettings} className="rounded-3xl border border-white/10 bg-white/[0.04] p-8">
+          <form
+            action={updateProfileSettings}
+            className="rounded-3xl border border-white/10 bg-white/[0.04] p-8"
+          >
             <div className="mb-6 flex items-center gap-3">
               <UserRound className="h-7 w-7 text-cyan-300" />
               <h2 className="text-3xl font-black">Profile and account type</h2>
@@ -138,7 +147,9 @@ export default async function SettingsPage({
 
             <div className="grid gap-5">
               <label className="grid gap-2">
-                <span className="text-sm font-semibold text-slate-300">Your name</span>
+                <span className="text-sm font-semibold text-slate-300">
+                  Your name
+                </span>
                 <input
                   name="full_name"
                   defaultValue={profile.full_name ?? ""}
@@ -148,7 +159,9 @@ export default async function SettingsPage({
               </label>
 
               <label className="grid gap-2">
-                <span className="text-sm font-semibold text-slate-300">Business / project name</span>
+                <span className="text-sm font-semibold text-slate-300">
+                  Business / project name
+                </span>
                 <input
                   name="business_name"
                   defaultValue={profile.business_name ?? ""}
@@ -158,7 +171,9 @@ export default async function SettingsPage({
               </label>
 
               <label className="grid gap-2">
-                <span className="text-sm font-semibold text-slate-300">Main website URL</span>
+                <span className="text-sm font-semibold text-slate-300">
+                  Main website URL
+                </span>
                 <input
                   name="website_url"
                   defaultValue={profile.website_url ?? ""}
@@ -181,7 +196,9 @@ export default async function SettingsPage({
                     className="mt-1 h-5 w-5"
                   />
                   <span>
-                    <span className="block font-bold text-white">Small business owner</span>
+                    <span className="block font-bold text-white">
+                      Small business owner
+                    </span>
                     <span className="mt-1 block text-sm leading-6 text-slate-400">
                       Simple dashboard for checking your own website.
                     </span>
@@ -193,13 +210,18 @@ export default async function SettingsPage({
                     name="account_type"
                     type="radio"
                     value="freelancer_agency"
-                    defaultChecked={profile.account_type === "freelancer_agency"}
+                    defaultChecked={
+                      profile.account_type === "freelancer_agency"
+                    }
                     className="mt-1 h-5 w-5"
                   />
                   <span>
-                    <span className="block font-bold text-white">Freelancer / agency</span>
+                    <span className="block font-bold text-white">
+                      Freelancer / agency
+                    </span>
                     <span className="mt-1 block text-sm leading-6 text-slate-400">
-                      Use VeyraSec for client websites. Agency features still require an Agency-enabled plan.
+                      Use VeyraSec for client websites. Agency features still
+                      require an Agency-enabled plan.
                     </span>
                   </span>
                 </label>
@@ -213,7 +235,9 @@ export default async function SettingsPage({
                     className="mt-1 h-5 w-5"
                   />
                   <span>
-                    <span className="block font-bold text-white">Testing VeyraSec</span>
+                    <span className="block font-bold text-white">
+                      Testing VeyraSec
+                    </span>
                     <span className="mt-1 block text-sm leading-6 text-slate-400">
                       Testing mode before using the app with real customers.
                     </span>
@@ -238,13 +262,19 @@ export default async function SettingsPage({
             </div>
 
             <div className="grid gap-4 md:grid-cols-2">
-              <div className={`rounded-3xl border p-5 ${planBadgeClass(currentPlan.id)}`}>
+              <div
+                className={`rounded-3xl border p-5 ${planBadgeClass(currentPlan.id)}`}
+              >
                 <p className="text-sm opacity-80">Plan</p>
                 <p className="mt-2 text-3xl font-black">{currentPlan.name}</p>
-                <p className="mt-2 text-sm font-bold">{priceText(currentPlan)}</p>
+                <p className="mt-2 text-sm font-bold">
+                  {priceText(currentPlan)}
+                </p>
               </div>
 
-              <div className={`rounded-3xl border p-5 ${statusBadgeClass(currentStatus)}`}>
+              <div
+                className={`rounded-3xl border p-5 ${statusBadgeClass(currentStatus)}`}
+              >
                 <p className="text-sm opacity-80">Status</p>
                 <p className="mt-2 text-3xl font-black">{currentStatus}</p>
                 <p className="mt-2 text-sm font-bold">
@@ -287,49 +317,72 @@ export default async function SettingsPage({
           </section>
         </section>
 
-        <form action={updateReportSettings} className="mt-8 rounded-3xl border border-white/10 bg-white/[0.04] p-8">
+        <form
+          action={updateReportSettings}
+          className="mt-8 rounded-3xl border border-white/10 bg-white/[0.04] p-8"
+        >
           <div className="mb-6 flex items-center gap-3">
             <Building2 className="h-7 w-7 text-cyan-300" />
             <h2 className="text-3xl font-black">Report business settings</h2>
           </div>
 
           <p className="mb-6 max-w-3xl leading-8 text-slate-300">
-            These details are used for client-facing reports and receipts where supported.
+            These details are used for client-facing reports and receipts where
+            supported.
           </p>
 
           <div className="grid gap-5 md:grid-cols-2">
             <label className="grid gap-2">
-              <span className="text-sm font-semibold text-slate-300">Report business name</span>
+              <span className="text-sm font-semibold text-slate-300">
+                Report business name
+              </span>
               <input
                 name="report_business_name"
-                defaultValue={businessSettings?.business_name ?? profile.business_name ?? ""}
+                defaultValue={
+                  businessSettings?.business_name ?? profile.business_name ?? ""
+                }
                 placeholder="Your business name"
                 className="rounded-2xl border border-white/10 bg-slate-950 px-4 py-3 text-white outline-none focus:border-cyan-300"
               />
             </label>
 
             <label className="grid gap-2">
-              <span className="text-sm font-semibold text-slate-300">Prepared by</span>
+              <span className="text-sm font-semibold text-slate-300">
+                Prepared by
+              </span>
               <input
                 name="report_prepared_by"
-                defaultValue={businessSettings?.report_prepared_by ?? profile.full_name ?? ""}
+                defaultValue={
+                  businessSettings?.report_prepared_by ??
+                  profile.full_name ??
+                  ""
+                }
                 placeholder="Your name or team name"
                 className="rounded-2xl border border-white/10 bg-slate-950 px-4 py-3 text-white outline-none focus:border-cyan-300"
               />
             </label>
 
             <label className="grid gap-2">
-              <span className="text-sm font-semibold text-slate-300">Contact email</span>
+              <span className="text-sm font-semibold text-slate-300">
+                Contact email
+              </span>
               <input
                 name="contact_email"
-                defaultValue={businessSettings?.contact_email ?? profile.email ?? user.email ?? ""}
+                defaultValue={
+                  businessSettings?.contact_email ??
+                  profile.email ??
+                  user.email ??
+                  ""
+                }
                 placeholder="you@example.com"
                 className="rounded-2xl border border-white/10 bg-slate-950 px-4 py-3 text-white outline-none focus:border-cyan-300"
               />
             </label>
 
             <label className="grid gap-2">
-              <span className="text-sm font-semibold text-slate-300">Phone</span>
+              <span className="text-sm font-semibold text-slate-300">
+                Phone
+              </span>
               <input
                 name="phone"
                 defaultValue={businessSettings?.phone ?? ""}
@@ -339,17 +392,23 @@ export default async function SettingsPage({
             </label>
 
             <label className="grid gap-2">
-              <span className="text-sm font-semibold text-slate-300">Business website</span>
+              <span className="text-sm font-semibold text-slate-300">
+                Business website
+              </span>
               <input
                 name="website"
-                defaultValue={businessSettings?.website ?? profile.website_url ?? ""}
+                defaultValue={
+                  businessSettings?.website ?? profile.website_url ?? ""
+                }
                 placeholder="https://yourwebsite.com"
                 className="rounded-2xl border border-white/10 bg-slate-950 px-4 py-3 text-white outline-none focus:border-cyan-300"
               />
             </label>
 
             <label className="grid gap-2">
-              <span className="text-sm font-semibold text-slate-300">Address</span>
+              <span className="text-sm font-semibold text-slate-300">
+                Address
+              </span>
               <input
                 name="address"
                 defaultValue={businessSettings?.address ?? ""}
@@ -359,7 +418,9 @@ export default async function SettingsPage({
             </label>
 
             <label className="grid gap-2 md:col-span-2">
-              <span className="text-sm font-semibold text-slate-300">Report footer note</span>
+              <span className="text-sm font-semibold text-slate-300">
+                Report footer note
+              </span>
               <textarea
                 name="footer_note"
                 rows={3}
@@ -382,15 +443,19 @@ export default async function SettingsPage({
         </form>
 
         <section className="mt-8 rounded-3xl border border-amber-300/20 bg-amber-300/10 p-8">
-          <h2 className="text-2xl font-black text-amber-100">Important SaaS rule</h2>
+          <h2 className="text-2xl font-black text-amber-100">
+            Important SaaS rule
+          </h2>
           <p className="mt-4 max-w-4xl leading-8 text-amber-50/90">
-            Account type is for dashboard personalization only. It does not unlock paid features.
-            Website limits, scan limits, PDF access, public sharing, agency mode, and manual payment tools
-            are controlled by subscription plan and admin approval.
+            Account type is for dashboard personalization only. It does not
+            unlock paid features. Website limits, scan limits, PDF access,
+            public sharing, agency mode, and manual payment tools are controlled
+            by subscription plan and admin approval.
           </p>
 
           <p className="mt-4 text-sm text-amber-50/80">
-            Current account type: {accountTypeLabel(profile.account_type)} · Role: {profile.role}
+            Current account type: {accountTypeLabel(profile.account_type)} ·
+            Role: {profile.role}
           </p>
         </section>
       </div>

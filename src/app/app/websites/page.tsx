@@ -1,10 +1,21 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { ArrowLeft, FileText, Globe2, PlayCircle, Plus, ShieldCheck } from "lucide-react";
+import {
+  ArrowLeft,
+  FileText,
+  Globe2,
+  PlayCircle,
+  Plus,
+  ShieldCheck,
+} from "lucide-react";
 import { brand } from "@/config/brand";
 import { createClient } from "@/lib/supabase/server";
 import { startPassiveScan } from "./actions";
-import { formatDateTime, getRiskBadgeClass, getRiskLabel } from "@/lib/utils/risk";
+import {
+  formatDateTime,
+  getRiskBadgeClass,
+  getRiskLabel,
+} from "@/lib/utils/risk";
 
 export default async function WebsitesPage({
   searchParams,
@@ -34,7 +45,16 @@ export default async function WebsitesPage({
     .eq("user_id", user.id)
     .order("created_at", { ascending: false });
 
-  const latestScanByWebsite = new Map<string, any>();
+  const latestScanByWebsite = new Map<
+    string,
+    {
+      id: string;
+      website_id: string;
+      overall_score: number | null;
+      risk_level: string | null;
+      created_at: string | null;
+    }
+  >();
 
   for (const scan of scanResults ?? []) {
     if (!latestScanByWebsite.has(scan.website_id)) {
@@ -136,7 +156,7 @@ export default async function WebsitesPage({
                           <span>Score {latestScan.overall_score}</span>
                           <span
                             className={`rounded-full border px-2 py-1 text-xs ${getRiskBadgeClass(
-                              latestScan.risk_level
+                              latestScan.risk_level,
                             )}`}
                           >
                             {getRiskLabel(latestScan.risk_level)}
@@ -149,7 +169,11 @@ export default async function WebsitesPage({
                       )}
 
                       <form action={startPassiveScan}>
-                        <input type="hidden" name="website_id" value={website.id} />
+                        <input
+                          type="hidden"
+                          name="website_id"
+                          value={website.id}
+                        />
                         <button
                           type="submit"
                           className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-cyan-300 px-5 py-3 font-bold text-slate-950 hover:bg-cyan-200"

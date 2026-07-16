@@ -36,7 +36,8 @@ function statusClass(ok: boolean) {
 }
 
 function scoreClass(score: number) {
-  if (score >= 90) return "border-emerald-400/20 bg-emerald-400/10 text-emerald-100";
+  if (score >= 90)
+    return "border-emerald-400/20 bg-emerald-400/10 text-emerald-100";
   if (score >= 70) return "border-amber-400/20 bg-amber-400/10 text-amber-100";
   return "border-red-400/20 bg-red-400/10 text-red-100";
 }
@@ -44,7 +45,7 @@ function scoreClass(score: number) {
 async function checkTable(
   supabase: Awaited<ReturnType<typeof requireAdmin>>["supabase"],
   table: string,
-  label: string
+  label: string,
 ): Promise<CheckResult> {
   try {
     const { count, error } = await supabase
@@ -54,7 +55,7 @@ async function checkTable(
     return {
       label,
       ok: !error,
-      count: error ? null : count ?? 0,
+      count: error ? null : (count ?? 0),
       message: error?.message ?? "Ready",
     };
   } catch (error) {
@@ -79,7 +80,9 @@ export default async function SaasReadinessPage() {
     {
       label: "Supabase publishable key",
       ok: Boolean(process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY),
-      message: process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ? "Configured" : "Missing",
+      message: process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
+        ? "Configured"
+        : "Missing",
     },
     {
       label: "App URL",
@@ -187,7 +190,7 @@ export default async function SaasReadinessPage() {
   ];
 
   const readinessScore = Math.round(
-    (readinessItems.filter(Boolean).length / readinessItems.length) * 100
+    (readinessItems.filter(Boolean).length / readinessItems.length) * 100,
   );
 
   return (
@@ -205,12 +208,15 @@ export default async function SaasReadinessPage() {
               </h1>
 
               <p className="mt-4 max-w-3xl leading-8 text-slate-300">
-                Final admin readiness check for {brand.name} {brand.version}. Use this before production demos,
-                pilot customers, and paid validation.
+                Final admin readiness check for {brand.name} {brand.version}.
+                Use this before production demos, pilot customers, and paid
+                validation.
               </p>
             </div>
 
-            <div className={`rounded-3xl border p-6 text-center ${scoreClass(readinessScore)}`}>
+            <div
+              className={`rounded-3xl border p-6 text-center ${scoreClass(readinessScore)}`}
+            >
               <ShieldCheck className="mx-auto mb-3 h-9 w-9" />
               <p className="text-sm opacity-80">Readiness score</p>
               <p className="mt-2 text-5xl font-black">{readinessScore}%</p>
@@ -222,25 +228,35 @@ export default async function SaasReadinessPage() {
           <div className={`rounded-3xl border p-6 ${statusClass(envReady)}`}>
             <Lock className="mb-4 h-7 w-7" />
             <p className="text-sm opacity-80">Environment</p>
-            <p className="mt-2 text-3xl font-black">{envReady ? "Ready" : "Check"}</p>
+            <p className="mt-2 text-3xl font-black">
+              {envReady ? "Ready" : "Check"}
+            </p>
           </div>
 
           <div className={`rounded-3xl border p-6 ${statusClass(dbReady)}`}>
             <Database className="mb-4 h-7 w-7" />
             <p className="text-sm opacity-80">Database</p>
-            <p className="mt-2 text-3xl font-black">{dbReady ? "Ready" : "Check"}</p>
+            <p className="mt-2 text-3xl font-black">
+              {dbReady ? "Ready" : "Check"}
+            </p>
           </div>
 
-          <div className={`rounded-3xl border p-6 ${statusClass(productReady)}`}>
+          <div
+            className={`rounded-3xl border p-6 ${statusClass(productReady)}`}
+          >
             <Activity className="mb-4 h-7 w-7" />
             <p className="text-sm opacity-80">Product logic</p>
-            <p className="mt-2 text-3xl font-black">{productReady ? "Ready" : "Check"}</p>
+            <p className="mt-2 text-3xl font-black">
+              {productReady ? "Ready" : "Check"}
+            </p>
           </div>
 
           <div className="rounded-3xl border border-cyan-400/20 bg-cyan-400/10 p-6 text-cyan-100">
             <CreditCard className="mb-4 h-7 w-7" />
             <p className="text-sm opacity-80">Pending plan requests</p>
-            <p className="mt-2 text-3xl font-black">{pendingRequestCount ?? 0}</p>
+            <p className="mt-2 text-3xl font-black">
+              {pendingRequestCount ?? 0}
+            </p>
           </div>
         </section>
 
@@ -253,11 +269,16 @@ export default async function SaasReadinessPage() {
 
             <div className="grid gap-3">
               {envChecks.map((check) => (
-                <div key={check.label} className="rounded-2xl border border-white/10 bg-slate-950 p-4">
+                <div
+                  key={check.label}
+                  className="rounded-2xl border border-white/10 bg-slate-950 p-4"
+                >
                   <div className="flex items-center justify-between gap-4">
                     <div>
                       <p className="font-bold">{check.label}</p>
-                      <p className="mt-1 text-sm text-slate-500">{check.message}</p>
+                      <p className="mt-1 text-sm text-slate-500">
+                        {check.message}
+                      </p>
                     </div>
 
                     {check.ok ? (
@@ -280,12 +301,16 @@ export default async function SaasReadinessPage() {
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="rounded-3xl border border-cyan-300/20 bg-cyan-300/10 p-6 text-cyan-100">
                 <p className="text-sm opacity-80">Active subscriptions</p>
-                <p className="mt-2 text-4xl font-black">{activeSubscriptionCount ?? 0}</p>
+                <p className="mt-2 text-4xl font-black">
+                  {activeSubscriptionCount ?? 0}
+                </p>
               </div>
 
               <div className="rounded-3xl border border-amber-300/20 bg-amber-300/10 p-6 text-amber-100">
                 <p className="text-sm opacity-80">Pending requests</p>
-                <p className="mt-2 text-4xl font-black">{pendingRequestCount ?? 0}</p>
+                <p className="mt-2 text-4xl font-black">
+                  {pendingRequestCount ?? 0}
+                </p>
               </div>
             </div>
 
@@ -317,11 +342,16 @@ export default async function SaasReadinessPage() {
 
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             {databaseChecks.map((check) => (
-              <div key={check.label} className="rounded-3xl border border-white/10 bg-slate-950 p-5">
+              <div
+                key={check.label}
+                className="rounded-3xl border border-white/10 bg-slate-950 p-5"
+              >
                 <div className="flex items-start justify-between gap-4">
                   <div>
                     <p className="text-xl font-black">{check.label}</p>
-                    <p className="mt-2 text-sm leading-6 text-slate-500">{check.message}</p>
+                    <p className="mt-2 text-sm leading-6 text-slate-500">
+                      {check.message}
+                    </p>
                     <p className="mt-3 text-sm font-bold text-slate-300">
                       Rows: {check.count ?? "Unknown"}
                     </p>
@@ -353,7 +383,9 @@ export default async function SaasReadinessPage() {
               >
                 <CheckCircle2 className="mb-4 h-7 w-7 text-emerald-300" />
                 <p className="text-xl font-black">{check.label}</p>
-                <p className="mt-2 text-sm leading-6 text-slate-400">{check.message}</p>
+                <p className="mt-2 text-sm leading-6 text-slate-400">
+                  {check.message}
+                </p>
                 <p className="mt-4 inline-flex items-center gap-2 text-sm font-bold text-cyan-300">
                   Open <ArrowRight className="h-4 w-4" />
                 </p>
@@ -365,12 +397,17 @@ export default async function SaasReadinessPage() {
         <section className="mt-8 rounded-3xl border border-white/10 bg-white/[0.04] p-8">
           <div className="mb-6 flex items-center gap-3">
             <Globe2 className="h-7 w-7 text-cyan-300" />
-            <h2 className="text-3xl font-black">Final manual production checklist</h2>
+            <h2 className="text-3xl font-black">
+              Final manual production checklist
+            </h2>
           </div>
 
           <div className="grid gap-3">
             {finalManualChecks.map((item, index) => (
-              <div key={item} className="rounded-2xl border border-white/10 bg-slate-950 p-4">
+              <div
+                key={item}
+                className="rounded-2xl border border-white/10 bg-slate-950 p-4"
+              >
                 <div className="flex gap-3">
                   <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-cyan-300 text-xs font-black text-slate-950">
                     {index + 1}
@@ -383,11 +420,14 @@ export default async function SaasReadinessPage() {
         </section>
 
         <section className="mt-8 rounded-3xl border border-amber-300/20 bg-amber-300/10 p-8">
-          <h2 className="text-2xl font-black text-amber-100">Final launch rule</h2>
+          <h2 className="text-2xl font-black text-amber-100">
+            Final launch rule
+          </h2>
           <p className="mt-4 max-w-4xl leading-8 text-amber-50/90">
-            VeyraSec V2.1 is ready for pilot validation only after build success, secret scan success,
-            Supabase migrations completed, role-based navigation working, subscription approvals working,
-            and plan gates working. Keep it safe passive-only.
+            VeyraSec V2.1 is ready for pilot validation only after build
+            success, secret scan success, Supabase migrations completed,
+            role-based navigation working, subscription approvals working, and
+            plan gates working. Keep it safe passive-only.
           </p>
         </section>
       </div>

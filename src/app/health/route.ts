@@ -6,7 +6,9 @@ export const dynamic = "force-dynamic";
 export async function GET() {
   const requiredEnvironment = {
     NEXT_PUBLIC_SUPABASE_URL: Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL),
-    NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: Boolean(process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY),
+    NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: Boolean(
+      process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY,
+    ),
     APP_URL: Boolean(process.env.APP_URL),
   };
 
@@ -25,6 +27,6 @@ export async function GET() {
       headers: {
         "Cache-Control": "no-store",
       },
-    }
+    },
   );
 }

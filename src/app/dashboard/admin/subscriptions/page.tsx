@@ -72,13 +72,17 @@ export default async function AdminSubscriptionsPage({
 
   const { data: requestsData } = await supabase
     .from("subscription_requests")
-    .select("id, user_id, requested_plan_id, message, status, created_at, subscription_plans(name, monthly_price, currency)")
+    .select(
+      "id, user_id, requested_plan_id, message, status, created_at, subscription_plans(name, monthly_price, currency)",
+    )
     .order("created_at", { ascending: false })
     .limit(50);
 
   const { data: subscriptionsData } = await supabase
     .from("user_subscriptions")
-    .select("id, user_id, plan_id, status, current_period_start, current_period_end, scans_used_this_period, created_at, subscription_plans(name, monthly_price, currency)")
+    .select(
+      "id, user_id, plan_id, status, current_period_start, current_period_end, scans_used_this_period, created_at, subscription_plans(name, monthly_price, currency)",
+    )
     .order("created_at", { ascending: false })
     .limit(50);
 
@@ -90,7 +94,7 @@ export default async function AdminSubscriptionsPage({
     new Set([
       ...requests.map((request: any) => String(request.user_id)),
       ...subscriptions.map((subscription: any) => String(subscription.user_id)),
-    ])
+    ]),
   );
 
   let profiles: ProfileRow[] = [];
@@ -104,8 +108,12 @@ export default async function AdminSubscriptionsPage({
     profiles = (profilesData ?? []) as ProfileRow[];
   }
 
-  const pendingRequests = requests.filter((request: any) => request.status === "pending");
-  const activeSubscriptions = subscriptions.filter((subscription: any) => subscription.status === "active");
+  const pendingRequests = requests.filter(
+    (request: any) => request.status === "pending",
+  );
+  const activeSubscriptions = subscriptions.filter(
+    (subscription: any) => subscription.status === "active",
+  );
 
   return (
     <main className="min-h-screen bg-slate-950 p-6 text-white">
@@ -122,8 +130,8 @@ export default async function AdminSubscriptionsPage({
               </h1>
 
               <p className="mt-4 max-w-3xl leading-8 text-slate-300">
-                Founder/admin panel to approve, reject, and manually update VeyraSec user plans.
-                This is manual subscription control only.
+                Founder/admin panel to approve, reject, and manually update
+                VeyraSec user plans. This is manual subscription control only.
               </p>
             </div>
 
@@ -152,7 +160,9 @@ export default async function AdminSubscriptionsPage({
           <div className="rounded-3xl border border-emerald-400/20 bg-emerald-400/10 p-6 text-emerald-100">
             <CheckCircle2 className="mb-4 h-7 w-7" />
             <p className="text-sm opacity-80">Active subscriptions</p>
-            <p className="mt-2 text-4xl font-black">{activeSubscriptions.length}</p>
+            <p className="mt-2 text-4xl font-black">
+              {activeSubscriptions.length}
+            </p>
           </div>
 
           <div className="rounded-3xl border border-cyan-400/20 bg-cyan-400/10 p-6 text-cyan-100">
@@ -176,7 +186,10 @@ export default async function AdminSubscriptionsPage({
                 const plan = getJoinedPlan(request.subscription_plans);
 
                 return (
-                  <div key={request.id} className="rounded-3xl border border-white/10 bg-slate-950 p-6">
+                  <div
+                    key={request.id}
+                    className="rounded-3xl border border-white/10 bg-slate-950 p-6"
+                  >
                     <div className="flex flex-col justify-between gap-5 lg:flex-row lg:items-start">
                       <div>
                         <div className="mb-3 flex items-center gap-3">
@@ -187,7 +200,8 @@ export default async function AdminSubscriptionsPage({
                         </div>
 
                         <p className="text-sm text-slate-400">
-                          {profile?.email || "No email"} · {profile?.account_type || "No account type"}
+                          {profile?.email || "No email"} ·{" "}
+                          {profile?.account_type || "No account type"}
                         </p>
 
                         <p className="mt-3 text-sm text-slate-500">
@@ -202,7 +216,9 @@ export default async function AdminSubscriptionsPage({
                       </div>
 
                       <div className="min-w-72">
-                        <div className={`rounded-2xl border p-4 ${planBadgeClass(request.requested_plan_id)}`}>
+                        <div
+                          className={`rounded-2xl border p-4 ${planBadgeClass(request.requested_plan_id)}`}
+                        >
                           <p className="text-sm opacity-80">Requested plan</p>
                           <p className="mt-1 text-2xl font-black">
                             {plan?.name || request.requested_plan_id}
@@ -212,14 +228,20 @@ export default async function AdminSubscriptionsPage({
                           </p>
                         </div>
 
-                        <div className={`mt-3 rounded-2xl border p-3 text-center text-sm font-bold ${statusBadgeClass(request.status)}`}>
+                        <div
+                          className={`mt-3 rounded-2xl border p-3 text-center text-sm font-bold ${statusBadgeClass(request.status)}`}
+                        >
                           {request.status}
                         </div>
 
                         {request.status === "pending" ? (
                           <div className="mt-4 grid gap-3 sm:grid-cols-2">
                             <form action={approveSubscriptionRequest}>
-                              <input type="hidden" name="request_id" value={request.id} />
+                              <input
+                                type="hidden"
+                                name="request_id"
+                                value={request.id}
+                              />
                               <button
                                 type="submit"
                                 className="flex w-full items-center justify-center gap-2 rounded-2xl bg-emerald-300 px-4 py-3 text-sm font-black text-slate-950 hover:bg-emerald-200"
@@ -230,7 +252,11 @@ export default async function AdminSubscriptionsPage({
                             </form>
 
                             <form action={rejectSubscriptionRequest}>
-                              <input type="hidden" name="request_id" value={request.id} />
+                              <input
+                                type="hidden"
+                                name="request_id"
+                                value={request.id}
+                              />
                               <button
                                 type="submit"
                                 className="flex w-full items-center justify-center gap-2 rounded-2xl border border-red-400/20 bg-red-400/10 px-4 py-3 text-sm font-black text-red-100 hover:bg-red-400/20"
@@ -261,7 +287,10 @@ export default async function AdminSubscriptionsPage({
             <div className="mt-6 overflow-hidden rounded-3xl border border-white/10">
               <div className="grid grid-cols-1 gap-0 md:grid-cols-[1.3fr_0.8fr_0.8fr_1.2fr]">
                 {subscriptions.map((subscription: any) => {
-                  const profile = getProfile(profiles, String(subscription.user_id));
+                  const profile = getProfile(
+                    profiles,
+                    String(subscription.user_id),
+                  );
                   const plan = getJoinedPlan(subscription.subscription_plans);
 
                   return (
@@ -276,13 +305,17 @@ export default async function AdminSubscriptionsPage({
                       </div>
 
                       <div className="border-b border-white/10 bg-slate-950 p-5">
-                        <span className={`rounded-full border px-3 py-1 text-xs font-bold ${planBadgeClass(subscription.plan_id)}`}>
+                        <span
+                          className={`rounded-full border px-3 py-1 text-xs font-bold ${planBadgeClass(subscription.plan_id)}`}
+                        >
                           {plan?.name || subscription.plan_id}
                         </span>
                       </div>
 
                       <div className="border-b border-white/10 bg-slate-950 p-5">
-                        <span className={`rounded-full border px-3 py-1 text-xs font-bold ${statusBadgeClass(subscription.status)}`}>
+                        <span
+                          className={`rounded-full border px-3 py-1 text-xs font-bold ${statusBadgeClass(subscription.status)}`}
+                        >
                           {subscription.status}
                         </span>
                       </div>
@@ -290,8 +323,15 @@ export default async function AdminSubscriptionsPage({
                       <div className="border-b border-white/10 bg-slate-950 p-5 text-sm text-slate-400">
                         <p>Ends: {safeDate(subscription.current_period_end)}</p>
 
-                        <form action={manuallySetSubscription} className="mt-4 grid gap-3">
-                          <input type="hidden" name="user_id" value={subscription.user_id} />
+                        <form
+                          action={manuallySetSubscription}
+                          className="mt-4 grid gap-3"
+                        >
+                          <input
+                            type="hidden"
+                            name="user_id"
+                            value={subscription.user_id}
+                          />
 
                           <select
                             name="plan_id"
@@ -334,11 +374,13 @@ export default async function AdminSubscriptionsPage({
         </section>
 
         <section className="mt-8 rounded-3xl border border-amber-300/20 bg-amber-300/10 p-8">
-          <h2 className="text-2xl font-black text-amber-100">Manual approval note</h2>
+          <h2 className="text-2xl font-black text-amber-100">
+            Manual approval note
+          </h2>
           <p className="mt-4 leading-8 text-amber-50/90">
-            This panel only changes VeyraSec plan access. It does not verify payment,
-            does not collect money, and does not handle GST/tax/legal compliance.
-            Use an adult guardian and CA/CS before real billing.
+            This panel only changes VeyraSec plan access. It does not verify
+            payment, does not collect money, and does not handle GST/tax/legal
+            compliance. Use an adult guardian and CA/CS before real billing.
           </p>
         </section>
       </div>

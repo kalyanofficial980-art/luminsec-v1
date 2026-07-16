@@ -44,7 +44,8 @@ export async function completeOnboarding(formData: FormData) {
   try {
     websiteUrl = normalizeWebsiteUrl(websiteUrlInput);
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Invalid website URL";
+    const message =
+      error instanceof Error ? error.message : "Invalid website URL";
     redirect(`/onboarding?message=${encodeURIComponent(message)}`);
   }
 

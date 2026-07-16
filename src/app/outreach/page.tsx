@@ -55,26 +55,22 @@ const messageTemplates = [
   {
     title: "WhatsApp short message",
     icon: MessageSquare,
-    text:
-      "Hi, I checked your website with my VeyraSec V1 tool. It creates a starter website trust report using safe passive checks. I found a few improvement areas in security/privacy signals. I can share a free sample report and explain it in 10 minutes. Interested?",
+    text: "Hi, I checked your website with my VeyraSec V1 tool. It creates a starter website trust report using safe passive checks. I found a few improvement areas in security/privacy signals. I can share a free sample report and explain it in 10 minutes. Interested?",
   },
   {
     title: "Web business message",
     icon: Send,
-    text:
-      "Hi, I built VeyraSec for web agencies. It helps create simple website security, privacy, and trust reports for clients. Agencies can use it as a before-after report after website improvements. I am taking pilot feedback. Can I show you a 5-minute demo?",
+    text: "Hi, I built VeyraSec for web agencies. It helps create simple website security, privacy, and trust reports for clients. Agencies can use it as a before-after report after website improvements. I am taking pilot feedback. Can I show you a 5-minute demo?",
   },
   {
     title: "Email message",
     icon: Mail,
-    text:
-      "Subject: Free website trust report for your business\n\nHi,\nI am building VeyraSec, a tool that creates starter website security, privacy, and trust readiness reports using safe passive checks. I would like to create a free sample report for your website and get your feedback. It is not a penetration test and does not attack your website. Would you be open to a short demo?",
+    text: "Subject: Free website trust report for your business\n\nHi,\nI am building VeyraSec, a tool that creates starter website security, privacy, and trust readiness reports using safe passive checks. I would like to create a free sample report for your website and get your feedback. It is not a penetration test and does not attack your website. Would you be open to a short demo?",
   },
   {
     title: "Telugu-English message",
     icon: Phone,
-    text:
-      "Hi sir/madam, nenu VeyraSec ane website trust report tool build chestunna. Mee website lo starter security, privacy, trust signals ela unnayo simple report laga chupistundi. Idi hacking kaadu, safe passive checks only. Mee website ki free sample report create chesi explain cheyyacha?",
+    text: "Hi sir/madam, nenu VeyraSec ane website trust report tool build chestunna. Mee website lo starter security, privacy, trust signals ela unnayo simple report laga chupistundi. Idi hacking kaadu, safe passive checks only. Mee website ki free sample report create chesi explain cheyyacha?",
   },
 ];
 
@@ -115,14 +111,19 @@ export default function OutreachPage() {
               <Users className="h-6 w-6 text-cyan-300" />
             </div>
             <div>
-              <h1 className="text-4xl font-black">First 10 customer outreach system</h1>
-              <p className="text-slate-400">{brand.name} pilot customer validation</p>
+              <h1 className="text-4xl font-black">
+                First 10 customer outreach system
+              </h1>
+              <p className="text-slate-400">
+                {brand.name} pilot customer validation
+              </p>
             </div>
           </div>
 
           <p className="max-w-3xl leading-8 text-slate-300">
-            The first goal is not big revenue. The first goal is proof: find 10 real website owners
-            or agencies, show the report, collect objections, and close one paid pilot.
+            The first goal is not big revenue. The first goal is proof: find 10
+            real website owners or agencies, show the report, collect
+            objections, and close one paid pilot.
           </p>
 
           <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -132,7 +133,10 @@ export default function OutreachPage() {
               ["Feedback replies", "5"],
               ["Paid pilot", "1"],
             ].map(([label, value]) => (
-              <div key={label} className="rounded-3xl border border-white/10 bg-slate-950 p-6">
+              <div
+                key={label}
+                className="rounded-3xl border border-white/10 bg-slate-950 p-6"
+              >
                 <p className="text-sm text-slate-400">{label}</p>
                 <p className="mt-2 text-4xl font-black">{value}</p>
               </div>
@@ -144,12 +148,17 @@ export default function OutreachPage() {
           <div className="rounded-3xl border border-cyan-300/20 bg-cyan-300/10 p-8">
             <div className="mb-6 flex items-center gap-3">
               <Target className="h-7 w-7 text-cyan-300" />
-              <h2 className="text-3xl font-black text-cyan-100">Best first targets</h2>
+              <h2 className="text-3xl font-black text-cyan-100">
+                Best first targets
+              </h2>
             </div>
 
             <div className="grid gap-3">
               {leadTypes.map((item) => (
-                <div key={item} className="flex gap-3 rounded-2xl bg-slate-950/70 p-4">
+                <div
+                  key={item}
+                  className="flex gap-3 rounded-2xl bg-slate-950/70 p-4"
+                >
                   <Building2 className="mt-0.5 h-5 w-5 shrink-0 text-cyan-300" />
                   <span className="text-cyan-50">{item}</span>
                 </div>
@@ -165,7 +174,10 @@ export default function OutreachPage() {
 
             <div className="grid gap-3">
               {outreachSteps.map((step, index) => (
-                <div key={step} className="flex gap-4 rounded-2xl border border-white/10 bg-slate-950 p-4">
+                <div
+                  key={step}
+                  className="flex gap-4 rounded-2xl border border-white/10 bg-slate-950 p-4"
+                >
                   <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-cyan-300 font-black text-slate-950">
                     {index + 1}
                   </div>
@@ -194,7 +206,10 @@ export default function OutreachPage() {
               </thead>
               <tbody>
                 {trackerRows.map((row) => (
-                  <tr key={row[0]} className="border-t border-white/10 bg-slate-950/60">
+                  <tr
+                    key={row[0]}
+                    className="border-t border-white/10 bg-slate-950/60"
+                  >
                     <td className="p-4 font-bold text-cyan-300">{row[0]}</td>
                     <td className="p-4 text-slate-200">{row[1]}</td>
                     <td className="p-4 text-slate-400">{row[2]}</td>
@@ -210,7 +225,8 @@ export default function OutreachPage() {
           </div>
 
           <p className="mt-4 text-sm text-slate-500">
-            Tip: copy this table into Google Sheets and update names, website URLs, contact info, status, and notes.
+            Tip: copy this table into Google Sheets and update names, website
+            URLs, contact info, status, and notes.
           </p>
         </section>
 
@@ -225,7 +241,10 @@ export default function OutreachPage() {
               const Icon = template.icon;
 
               return (
-                <div key={template.title} className="rounded-3xl border border-white/10 bg-white/[0.04] p-6">
+                <div
+                  key={template.title}
+                  className="rounded-3xl border border-white/10 bg-white/[0.04] p-6"
+                >
                   <div className="mb-4 flex items-center gap-3">
                     <Icon className="h-6 w-6 text-cyan-300" />
                     <h3 className="text-xl font-black">{template.title}</h3>
@@ -247,8 +266,13 @@ export default function OutreachPage() {
 
           <div className="grid gap-4">
             {callScript.map((item) => (
-              <div key={item.label} className="rounded-3xl border border-white/10 bg-slate-950 p-6">
-                <h3 className="text-xl font-black text-cyan-300">{item.label}</h3>
+              <div
+                key={item.label}
+                className="rounded-3xl border border-white/10 bg-slate-950 p-6"
+              >
+                <h3 className="text-xl font-black text-cyan-300">
+                  {item.label}
+                </h3>
                 <p className="mt-3 leading-8 text-slate-300">{item.text}</p>
               </div>
             ))}
@@ -257,10 +281,13 @@ export default function OutreachPage() {
 
         <section className="mt-8 rounded-3xl border border-cyan-300/20 bg-cyan-300/10 p-8 text-center">
           <CheckCircle2 className="mx-auto mb-4 h-10 w-10 text-cyan-300" />
-          <h2 className="text-3xl font-black text-cyan-100">First validation target</h2>
+          <h2 className="text-3xl font-black text-cyan-100">
+            First validation target
+          </h2>
           <p className="mx-auto mt-3 max-w-3xl leading-8 text-cyan-50/90">
-            Send 10 messages. Get 5 replies. Book 3 demos. Deliver 5 free reports.
-            Close 1 paid pilot. Then improve VeyraSec based on real objections.
+            Send 10 messages. Get 5 replies. Book 3 demos. Deliver 5 free
+            reports. Close 1 paid pilot. Then improve VeyraSec based on real
+            objections.
           </p>
 
           <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">

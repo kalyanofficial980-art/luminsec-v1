@@ -14,11 +14,15 @@ function cleanText(value: FormDataEntryValue | null) {
 
 export async function updateFindingManualReviewAction(formData: FormData) {
   const findingId = cleanText(formData.get("finding_id"));
-  const status = cleanText(formData.get("manual_review_status")) as ReviewStatus;
+  const status = cleanText(
+    formData.get("manual_review_status"),
+  ) as ReviewStatus;
   const notes = cleanText(formData.get("manual_review_notes"));
 
   if (!findingId || !allowedStatuses.includes(status)) {
-    redirect("/dashboard/admin/manual-review?message=Finding and valid review status are required");
+    redirect(
+      "/dashboard/admin/manual-review?message=Finding and valid review status are required",
+    );
   }
 
   const { supabase, user } = await requireAdmin();
@@ -35,10 +39,14 @@ export async function updateFindingManualReviewAction(formData: FormData) {
     .eq("id", findingId);
 
   if (error) {
-    redirect(`/dashboard/admin/manual-review?message=${encodeURIComponent(error.message)}`);
+    redirect(
+      `/dashboard/admin/manual-review?message=${encodeURIComponent(error.message)}`,
+    );
   }
 
   revalidatePath("/dashboard/admin/manual-review");
 
-  redirect(`/dashboard/admin/manual-review?message=${encodeURIComponent(`Finding marked ${status}`)}`);
+  redirect(
+    `/dashboard/admin/manual-review?message=${encodeURIComponent(`Finding marked ${status}`)}`,
+  );
 }

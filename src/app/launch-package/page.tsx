@@ -96,9 +96,10 @@ export default function LaunchPackagePage() {
           </h1>
 
           <p className="mt-6 max-w-3xl text-lg leading-8 text-slate-300">
-            {brand.name} now has the core SaaS workflow needed to approach first pilot customers:
-            public website, dashboard, scanner, reports, PDF workflow, pricing, safety scope,
-            lead capture, and customer validation tracking.
+            {brand.name} now has the core SaaS workflow needed to approach first
+            pilot customers: public website, dashboard, scanner, reports, PDF
+            workflow, pricing, safety scope, lead capture, and customer
+            validation tracking.
           </p>
 
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
@@ -122,7 +123,8 @@ export default function LaunchPackagePage() {
             <Target className="mb-4 h-7 w-7 text-cyan-300" />
             <h2 className="text-2xl font-black">Launch goal</h2>
             <p className="mt-3 leading-7 text-slate-300">
-              Get 10 real leads, 3 demos, 5 feedback conversations, and 1 paid pilot.
+              Get 10 real leads, 3 demos, 5 feedback conversations, and 1 paid
+              pilot.
             </p>
           </div>
 
@@ -130,15 +132,19 @@ export default function LaunchPackagePage() {
             <Users className="mb-4 h-7 w-7 text-cyan-300" />
             <h2 className="text-2xl font-black">Best customers</h2>
             <p className="mt-3 leading-7 text-slate-300">
-              Web agencies, freelancers, clinics, coaching centers, small businesses, and startup websites.
+              Web agencies, freelancers, clinics, coaching centers, small
+              businesses, and startup websites.
             </p>
           </div>
 
           <div className="rounded-3xl border border-cyan-300/20 bg-cyan-300/10 p-6">
             <ShieldCheck className="mb-4 h-7 w-7 text-cyan-300" />
-            <h2 className="text-2xl font-black text-cyan-100">Safe positioning</h2>
+            <h2 className="text-2xl font-black text-cyan-100">
+              Safe positioning
+            </h2>
             <p className="mt-3 leading-7 text-cyan-50/90">
-              Starter passive website trust report. Not a full audit. Not legal advice. Not a penetration test.
+              Starter passive website trust report. Not a full audit. Not legal
+              advice. Not a penetration test.
             </p>
           </div>
         </section>
@@ -151,9 +157,14 @@ export default function LaunchPackagePage() {
 
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {readyAssets.map((asset) => (
-              <div key={asset.title} className="rounded-3xl border border-white/10 bg-slate-950 p-6">
+              <div
+                key={asset.title}
+                className="rounded-3xl border border-white/10 bg-slate-950 p-6"
+              >
                 <p className="text-sm text-slate-400">{asset.title}</p>
-                <p className="mt-2 break-all text-lg font-bold text-white">{asset.value}</p>
+                <p className="mt-2 break-all text-lg font-bold text-white">
+                  {asset.value}
+                </p>
               </div>
             ))}
           </div>
@@ -168,7 +179,10 @@ export default function LaunchPackagePage() {
 
             <div className="grid gap-3">
               {launchProof.map((item) => (
-                <div key={item} className="flex gap-3 rounded-2xl border border-white/10 bg-slate-950 p-4">
+                <div
+                  key={item}
+                  className="flex gap-3 rounded-2xl border border-white/10 bg-slate-950 p-4"
+                >
                   <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-cyan-300" />
                   <span className="text-slate-300">{item}</span>
                 </div>
@@ -179,12 +193,17 @@ export default function LaunchPackagePage() {
           <div className="rounded-3xl border border-cyan-300/20 bg-cyan-300/10 p-8">
             <div className="mb-6 flex items-center gap-3">
               <FileText className="h-7 w-7 text-cyan-300" />
-              <h2 className="text-3xl font-black text-cyan-100">First paid pilot offer</h2>
+              <h2 className="text-3xl font-black text-cyan-100">
+                First paid pilot offer
+              </h2>
             </div>
 
             <div className="grid gap-3">
               {firstPilotOffer.map((item) => (
-                <div key={item} className="flex gap-3 rounded-2xl bg-slate-950/70 p-4">
+                <div
+                  key={item}
+                  className="flex gap-3 rounded-2xl bg-slate-950/70 p-4"
+                >
                   <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-cyan-300" />
                   <span className="text-cyan-50">{item}</span>
                 </div>
@@ -192,10 +211,15 @@ export default function LaunchPackagePage() {
             </div>
 
             <div className="mt-6 rounded-2xl border border-cyan-300/20 bg-slate-950/70 p-5">
-              <p className="text-sm font-bold text-cyan-100">Suggested pilot price</p>
-              <p className="mt-2 text-3xl font-black text-white">INR 499 - INR 999</p>
+              <p className="text-sm font-bold text-cyan-100">
+                Suggested pilot price
+              </p>
+              <p className="mt-2 text-3xl font-black text-white">
+                INR 499 - INR 999
+              </p>
               <p className="mt-2 text-sm leading-6 text-cyan-50/80">
-                Start low for first customer validation. Increase pricing after proof and testimonials.
+                Start low for first customer validation. Increase pricing after
+                proof and testimonials.
               </p>
             </div>
           </div>
@@ -209,7 +233,10 @@ export default function LaunchPackagePage() {
 
           <div className="grid gap-3 md:grid-cols-2">
             {launchRules.map((item) => (
-              <div key={item} className="rounded-2xl bg-slate-950/70 p-4 font-semibold text-amber-50">
+              <div
+                key={item}
+                className="rounded-2xl bg-slate-950/70 p-4 font-semibold text-amber-50"
+              >
                 {item}
               </div>
             ))}
@@ -219,8 +246,9 @@ export default function LaunchPackagePage() {
         <section className="mt-8 rounded-3xl border border-white/10 bg-white/[0.04] p-8 text-center">
           <h2 className="text-3xl font-black">Final V1 launch statement</h2>
           <p className="mx-auto mt-4 max-w-3xl leading-8 text-slate-300">
-            VeyraSec V1 is ready for pilot launch. The next step is not more features.
-            The next step is customer conversations, feedback, and one paid pilot.
+            VeyraSec V1 is ready for pilot launch. The next step is not more
+            features. The next step is customer conversations, feedback, and one
+            paid pilot.
           </p>
 
           <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">

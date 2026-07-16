@@ -82,9 +82,10 @@ export default function PitchPage() {
             </h1>
 
             <p className="mt-6 max-w-3xl text-lg leading-8 text-slate-300">
-              {brand.name} is a cybersecurity and privacy readiness SaaS for small businesses,
-              freelancers, web agencies, and early-stage startups. V1 proves that a user can add a website,
-              run safe passive checks, view findings, and download a client-ready report.
+              {brand.name} is a cybersecurity and privacy readiness SaaS for
+              small businesses, freelancers, web agencies, and early-stage
+              startups. V1 proves that a user can add a website, run safe
+              passive checks, view findings, and download a client-ready report.
             </p>
 
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
@@ -115,7 +116,10 @@ export default function PitchPage() {
 
             <div className="grid gap-3">
               {proofPoints.map((point) => (
-                <div key={point} className="flex gap-3 rounded-2xl bg-slate-950/60 p-4">
+                <div
+                  key={point}
+                  className="flex gap-3 rounded-2xl bg-slate-950/60 p-4"
+                >
                   <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-cyan-300" />
                   <span className="text-cyan-50">{point}</span>
                 </div>
@@ -129,8 +133,9 @@ export default function PitchPage() {
             <Target className="mb-4 h-7 w-7 text-cyan-300" />
             <h2 className="text-2xl font-black">Problem</h2>
             <p className="mt-3 leading-7 text-slate-300">
-              Small businesses collect leads through websites, but most owners cannot understand
-              starter website security, privacy, and trust gaps.
+              Small businesses collect leads through websites, but most owners
+              cannot understand starter website security, privacy, and trust
+              gaps.
             </p>
           </div>
 
@@ -138,8 +143,9 @@ export default function PitchPage() {
             <FileText className="mb-4 h-7 w-7 text-cyan-300" />
             <h2 className="text-2xl font-black">Solution</h2>
             <p className="mt-3 leading-7 text-slate-300">
-              VeyraSec creates a simple website trust report with scores, findings, recommendations,
-              language modes, and printable PDF output.
+              VeyraSec creates a simple website trust report with scores,
+              findings, recommendations, language modes, and printable PDF
+              output.
             </p>
           </div>
 
@@ -147,8 +153,8 @@ export default function PitchPage() {
             <Users className="mb-4 h-7 w-7 text-cyan-300" />
             <h2 className="text-2xl font-black">Customer</h2>
             <p className="mt-3 leading-7 text-slate-300">
-              Early customers can be web agencies, local business owners, freelancers, clinics,
-              coaching centers, and startup founders.
+              Early customers can be web agencies, local business owners,
+              freelancers, clinics, coaching centers, and startup founders.
             </p>
           </div>
         </section>
@@ -161,7 +167,10 @@ export default function PitchPage() {
 
           <div className="grid gap-4 md:grid-cols-3">
             {marketSignals.map((item) => (
-              <div key={item.title} className="rounded-3xl border border-white/10 bg-slate-950 p-6">
+              <div
+                key={item.title}
+                className="rounded-3xl border border-white/10 bg-slate-950 p-6"
+              >
                 <h3 className="text-xl font-bold">{item.title}</h3>
                 <p className="mt-3 leading-7 text-slate-400">{item.text}</p>
               </div>
@@ -179,15 +188,21 @@ export default function PitchPage() {
             <div className="space-y-4 text-slate-300">
               <div className="rounded-2xl border border-white/10 bg-slate-950 p-5">
                 <p className="font-bold text-white">Starter</p>
-                <p className="mt-1 text-sm">Free beginner for product adoption and feedback.</p>
+                <p className="mt-1 text-sm">
+                  Free beginner for product adoption and feedback.
+                </p>
               </div>
               <div className="rounded-2xl border border-cyan-300/20 bg-cyan-300/10 p-5">
                 <p className="font-bold text-cyan-100">Starter Report</p>
-                <p className="mt-1 text-sm text-cyan-50/80">One website report for small business owners.</p>
+                <p className="mt-1 text-sm text-cyan-50/80">
+                  One website report for small business owners.
+                </p>
               </div>
               <div className="rounded-2xl border border-white/10 bg-slate-950 p-5">
                 <p className="font-bold text-white">Business Pilot</p>
-                <p className="mt-1 text-sm">Recurring package for agencies managing multiple websites.</p>
+                <p className="mt-1 text-sm">
+                  Recurring package for agencies managing multiple websites.
+                </p>
               </div>
             </div>
           </div>
@@ -200,7 +215,10 @@ export default function PitchPage() {
 
             <div className="space-y-4">
               {roadmap.map((item, index) => (
-                <div key={item} className="flex gap-4 rounded-2xl border border-white/10 bg-slate-950 p-5">
+                <div
+                  key={item}
+                  className="flex gap-4 rounded-2xl border border-white/10 bg-slate-950 p-5"
+                >
                   <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-cyan-300 font-black text-slate-950">
                     {index + 1}
                   </div>
@@ -212,11 +230,15 @@ export default function PitchPage() {
         </section>
 
         <section className="mt-8 rounded-3xl border border-cyan-300/20 bg-cyan-300/10 p-8">
-          <h2 className="text-3xl font-black text-cyan-100">Demo flow for investors or customers</h2>
+          <h2 className="text-3xl font-black text-cyan-100">
+            Demo flow for investors or customers
+          </h2>
           <div className="mt-6 grid gap-3 md:grid-cols-2 lg:grid-cols-4">
             {demoFlow.map((item, index) => (
               <div key={item} className="rounded-2xl bg-slate-950/70 p-5">
-                <p className="text-sm font-bold text-cyan-300">Step {index + 1}</p>
+                <p className="text-sm font-bold text-cyan-300">
+                  Step {index + 1}
+                </p>
                 <p className="mt-2 font-semibold text-cyan-50">{item}</p>
               </div>
             ))}
@@ -226,9 +248,10 @@ export default function PitchPage() {
         <section className="mt-8 rounded-3xl border border-white/10 bg-white/[0.04] p-8 text-center">
           <h2 className="text-3xl font-black">V1 funding proof statement</h2>
           <p className="mx-auto mt-4 max-w-3xl leading-8 text-slate-300">
-            VeyraSec V1 is not just an idea. It is a working web product with login, database,
-            scanning workflow, scan history, reports, PDF print mode, language modes, and public
-            sales pages. The next milestone is customer validation with small businesses and agencies.
+            VeyraSec V1 is not just an idea. It is a working web product with
+            login, database, scanning workflow, scan history, reports, PDF print
+            mode, language modes, and public sales pages. The next milestone is
+            customer validation with small businesses and agencies.
           </p>
 
           <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">

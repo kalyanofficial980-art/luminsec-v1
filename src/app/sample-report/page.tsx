@@ -1,5 +1,12 @@
 import Link from "next/link";
-import { ArrowLeft, Download, FileText, Globe2, ShieldAlert, ShieldCheck } from "lucide-react";
+import {
+  ArrowLeft,
+  Download,
+  FileText,
+  Globe2,
+  ShieldAlert,
+  ShieldCheck,
+} from "lucide-react";
 import { brand } from "@/config/brand";
 
 const findings = [
@@ -68,7 +75,9 @@ export default function SampleReportPage() {
                 <Globe2 className="h-5 w-5 text-cyan-300" />
                 <span>sample-business.example</span>
               </div>
-              <p className="mt-1 text-sm text-slate-500">https://sample-business.example</p>
+              <p className="mt-1 text-sm text-slate-500">
+                https://sample-business.example
+              </p>
             </div>
 
             <div className="rounded-3xl border border-cyan-300/20 bg-cyan-300/10 p-6 text-center">
@@ -96,19 +105,26 @@ export default function SampleReportPage() {
           </div>
 
           <div className="mt-6 rounded-3xl border border-cyan-300/20 bg-cyan-300/10 p-6">
-            <h2 className="text-xl font-bold text-cyan-100">Plain-language summary</h2>
+            <h2 className="text-xl font-bold text-cyan-100">
+              Plain-language summary
+            </h2>
             <p className="mt-3 leading-7 text-cyan-50/90">
-              This website is usable but needs improvement. The main weak area is security. Share this report with the website developer to improve security headers and privacy wording.
+              This website is usable but needs improvement. The main weak area
+              is security. Share this report with the website developer to
+              improve security headers and privacy wording.
             </p>
           </div>
 
           <div className="mt-6 rounded-3xl border border-white/10 bg-slate-950 p-6">
             <h2 className="text-xl font-bold">Executive summary</h2>
             <p className="mt-3 leading-7 text-slate-300">
-              The website has a working HTTPS setup and visible trust signals, but several passive checks show improvement areas in browser security headers and privacy wording around contact forms.
+              The website has a working HTTPS setup and visible trust signals,
+              but several passive checks show improvement areas in browser
+              security headers and privacy wording around contact forms.
             </p>
             <p className="mt-4 text-sm text-slate-500">
-              Disclaimer: This is a sample report. VeyraSec V1 performs basic passive readiness checks only.
+              Disclaimer: This is a sample report. VeyraSec V1 performs basic
+              passive readiness checks only.
             </p>
           </div>
         </section>
@@ -131,9 +147,13 @@ export default function SampleReportPage() {
                     {finding.severity}
                   </span>
                 </div>
-                <p className="leading-7 text-slate-300">{finding.description}</p>
+                <p className="leading-7 text-slate-300">
+                  {finding.description}
+                </p>
                 <div className="mt-4 rounded-2xl border border-cyan-300/20 bg-cyan-300/10 p-4">
-                  <p className="text-sm font-bold text-cyan-100">Recommendation</p>
+                  <p className="text-sm font-bold text-cyan-100">
+                    Recommendation
+                  </p>
                   <p className="mt-1 text-sm leading-6 text-cyan-50/90">
                     {finding.recommendation}
                   </p>
@@ -147,7 +167,8 @@ export default function SampleReportPage() {
           <FileText className="mx-auto mb-4 h-10 w-10 text-cyan-300" />
           <h2 className="text-2xl font-black">Generate your own report</h2>
           <p className="mx-auto mt-2 max-w-2xl text-slate-400">
-            Create an account, add your website, run a safe passive scan, and download a PDF report.
+            Create an account, add your website, run a safe passive scan, and
+            download a PDF report.
           </p>
           <Link
             href="/signup"

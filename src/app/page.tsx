@@ -110,12 +110,13 @@ export default function HomePage() {
             </div>
 
             <h1 className="max-w-5xl text-5xl font-black tracking-tight md:text-7xl">
-              Turn a website into a clear security, privacy, and trust readiness report.
+              Turn a website into a clear security, privacy, and trust readiness
+              report.
             </h1>
 
             <p className="mt-6 max-w-3xl text-lg leading-8 text-slate-300">
-              {brand.name} helps Indian small businesses explain
-              basic website trust risks using safe passive checks and business-ready reports.
+              {brand.name} helps Indian small businesses explain basic website
+              trust risks using safe passive checks and business-ready reports.
             </p>
 
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
@@ -135,8 +136,8 @@ export default function HomePage() {
             </div>
 
             <p className="mt-5 text-sm leading-6 text-slate-500">
-              VeyraSec V2 Beta is for controlled pilot use. It is not a full cybersecurity audit,
-              not legal advice, and not a penetration test.
+              VeyraSec V2 Beta is for controlled pilot use. It is not a full
+              cybersecurity audit, not legal advice, and not a penetration test.
             </p>
           </div>
 
@@ -144,7 +145,9 @@ export default function HomePage() {
             <div className="rounded-[1.5rem] border border-cyan-300/20 bg-cyan-300/10 p-6">
               <div className="mb-5 flex items-center justify-between gap-4">
                 <div>
-                  <p className="text-sm text-cyan-100/80">Website Trust Score</p>
+                  <p className="text-sm text-cyan-100/80">
+                    Website Trust Score
+                  </p>
                   <p className="mt-2 text-6xl font-black text-white">78</p>
                 </div>
                 <div className="rounded-2xl bg-slate-950/70 p-4">
@@ -158,7 +161,10 @@ export default function HomePage() {
                   ["Privacy readiness", "80/100"],
                   ["Trust signals", "83/100"],
                 ].map(([label, value]) => (
-                  <div key={label} className="flex items-center justify-between rounded-2xl bg-slate-950/70 p-4">
+                  <div
+                    key={label}
+                    className="flex items-center justify-between rounded-2xl bg-slate-950/70 p-4"
+                  >
                     <span className="text-cyan-50/90">{label}</span>
                     <span className="font-black text-white">{value}</span>
                   </div>
@@ -173,7 +179,10 @@ export default function HomePage() {
                 "Security headers need improvement",
                 "Business-ready PDF available",
               ].map((item) => (
-                <div key={item} className="flex gap-3 rounded-2xl border border-white/10 bg-slate-950 p-4">
+                <div
+                  key={item}
+                  className="flex gap-3 rounded-2xl border border-white/10 bg-slate-950 p-4"
+                >
                   <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-cyan-300" />
                   <span className="text-slate-300">{item}</span>
                 </div>
@@ -189,7 +198,10 @@ export default function HomePage() {
             const Icon = feature.icon;
 
             return (
-              <div key={feature.title} className="rounded-3xl border border-white/10 bg-slate-950 p-6">
+              <div
+                key={feature.title}
+                className="rounded-3xl border border-white/10 bg-slate-950 p-6"
+              >
                 <Icon className="mb-4 h-7 w-7 text-cyan-300" />
                 <h2 className="text-xl font-black">{feature.title}</h2>
                 <p className="mt-3 leading-7 text-slate-400">{feature.text}</p>
@@ -209,7 +221,10 @@ export default function HomePage() {
 
             <div className="grid gap-3">
               {useCases.map((item) => (
-                <div key={item} className="flex gap-3 rounded-2xl border border-white/10 bg-slate-950 p-4">
+                <div
+                  key={item}
+                  className="flex gap-3 rounded-2xl border border-white/10 bg-slate-950 p-4"
+                >
                   <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-cyan-300" />
                   <span className="text-slate-300">{item}</span>
                 </div>
@@ -220,12 +235,17 @@ export default function HomePage() {
           <div className="rounded-3xl border border-cyan-300/20 bg-cyan-300/10 p-8">
             <div className="mb-6 flex items-center gap-3">
               <Lock className="h-7 w-7 text-cyan-300" />
-              <h2 className="text-3xl font-black text-cyan-100">Safe V2 scope</h2>
+              <h2 className="text-3xl font-black text-cyan-100">
+                Safe V2 scope
+              </h2>
             </div>
 
             <div className="grid gap-3">
               {safetyRules.map((item) => (
-                <div key={item} className="rounded-2xl bg-slate-950/70 p-4 font-semibold text-cyan-50">
+                <div
+                  key={item}
+                  className="rounded-2xl bg-slate-950/70 p-4 font-semibold text-cyan-50"
+                >
                   {item}
                 </div>
               ))}
@@ -243,9 +263,12 @@ export default function HomePage() {
 
       <section className="px-6 pb-16">
         <div className="mx-auto rounded-[2rem] border border-white/10 bg-white/[0.04] p-8 text-center md:max-w-5xl md:p-12">
-          <h2 className="text-4xl font-black">Ready to test VeyraSec on a real website?</h2>
+          <h2 className="text-4xl font-black">
+            Ready to test VeyraSec on a real website?
+          </h2>
           <p className="mx-auto mt-4 max-w-3xl leading-8 text-slate-300">
-            Start with one website. Get a basic trust report, PDF output, and a simple explanation call.
+            Start with one website. Get a basic trust report, PDF output, and a
+            simple explanation call.
           </p>
 
           <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
@@ -268,14 +291,20 @@ export default function HomePage() {
 
       <footer className="border-t border-white/10 px-6 py-8 text-sm text-slate-500">
         <div className="mx-auto flex max-w-7xl flex-col justify-between gap-4 md:flex-row md:items-center">
-          <p>© {new Date().getFullYear()} {brand.name}. Safe passive website trust reports.</p>
+          <p>
+            © {new Date().getFullYear()} {brand.name}. Safe passive website
+            trust reports.
+          </p>
 
           <div className="flex flex-wrap gap-3">
             <Link href="/pricing" className="text-cyan-300 hover:text-cyan-200">
               Pricing
             </Link>
             <span>·</span>
-            <Link href="/sample-report" className="text-cyan-300 hover:text-cyan-200">
+            <Link
+              href="/sample-report"
+              className="text-cyan-300 hover:text-cyan-200"
+            >
               Sample report
             </Link>
             <span>·</span>
@@ -283,11 +312,17 @@ export default function HomePage() {
               Contact
             </Link>
             <span>·</span>
-            <Link href="/security" className="text-cyan-300 hover:text-cyan-200">
+            <Link
+              href="/security"
+              className="text-cyan-300 hover:text-cyan-200"
+            >
               Security
             </Link>
             <span>·</span>
-            <Link href="/legal/disclaimer" className="text-cyan-300 hover:text-cyan-200">
+            <Link
+              href="/legal/disclaimer"
+              className="text-cyan-300 hover:text-cyan-200"
+            >
               Disclaimer
             </Link>
           </div>

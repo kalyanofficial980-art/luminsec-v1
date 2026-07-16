@@ -29,7 +29,9 @@ export default async function OnboardingPage({
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("onboarding_completed, full_name, business_name, website_url, account_type")
+    .select(
+      "onboarding_completed, full_name, business_name, website_url, account_type",
+    )
     .eq("id", user.id)
     .maybeSingle();
 
@@ -58,14 +60,16 @@ export default async function OnboardingPage({
               </h1>
 
               <p className="mt-5 leading-8 text-slate-300">
-                Choose how you want to use VeyraSec. This decides which dashboard pages and
-                limits you will see later.
+                Choose how you want to use VeyraSec. This decides which
+                dashboard pages and limits you will see later.
               </p>
 
               <div className="mt-8 grid gap-4">
                 <div className="rounded-3xl border border-cyan-300/20 bg-cyan-300/10 p-5">
                   <Building2 className="mb-3 h-7 w-7 text-cyan-300" />
-                  <h2 className="text-xl font-black text-cyan-100">Small business</h2>
+                  <h2 className="text-xl font-black text-cyan-100">
+                    Small business
+                  </h2>
                   <p className="mt-2 text-sm leading-6 text-cyan-50/90">
                     Simple dashboard for your own website trust report.
                   </p>
@@ -73,9 +77,12 @@ export default async function OnboardingPage({
 
                 <div className="rounded-3xl border border-purple-300/20 bg-purple-300/10 p-5">
                   <Users className="mb-3 h-7 w-7 text-purple-300" />
-                  <h2 className="text-xl font-black text-purple-100">Freelancer / agency</h2>
+                  <h2 className="text-xl font-black text-purple-100">
+                    Freelancer / agency
+                  </h2>
                   <p className="mt-2 text-sm leading-6 text-purple-50/90">
-                    Manage client websites and reports later with agency features.
+                    Manage client websites and reports later with agency
+                    features.
                   </p>
                 </div>
 
@@ -89,7 +96,10 @@ export default async function OnboardingPage({
               </div>
             </div>
 
-            <form action={completeOnboarding} className="rounded-3xl border border-white/10 bg-slate-950 p-6">
+            <form
+              action={completeOnboarding}
+              className="rounded-3xl border border-white/10 bg-slate-950 p-6"
+            >
               <div className="mb-6 flex items-center gap-3">
                 <UserRound className="h-7 w-7 text-cyan-300" />
                 <h2 className="text-3xl font-black">Your details</h2>
@@ -103,7 +113,9 @@ export default async function OnboardingPage({
 
               <div className="grid gap-5">
                 <label className="grid gap-2">
-                  <span className="text-sm font-semibold text-slate-300">Your name</span>
+                  <span className="text-sm font-semibold text-slate-300">
+                    Your name
+                  </span>
                   <input
                     name="full_name"
                     defaultValue={profile?.full_name ?? ""}
@@ -113,7 +125,9 @@ export default async function OnboardingPage({
                 </label>
 
                 <label className="grid gap-2">
-                  <span className="text-sm font-semibold text-slate-300">Business / project name</span>
+                  <span className="text-sm font-semibold text-slate-300">
+                    Business / project name
+                  </span>
                   <input
                     name="business_name"
                     defaultValue={profile?.business_name ?? ""}
@@ -123,7 +137,9 @@ export default async function OnboardingPage({
                 </label>
 
                 <label className="grid gap-2">
-                  <span className="text-sm font-semibold text-slate-300">Website URL</span>
+                  <span className="text-sm font-semibold text-slate-300">
+                    Website URL
+                  </span>
                   <input
                     name="website_url"
                     defaultValue={profile?.website_url ?? ""}
@@ -142,11 +158,15 @@ export default async function OnboardingPage({
                       name="account_type"
                       type="radio"
                       value="small_business"
-                      defaultChecked={profile?.account_type === "small_business"}
+                      defaultChecked={
+                        profile?.account_type === "small_business"
+                      }
                       className="mt-1 h-5 w-5"
                     />
                     <span>
-                      <span className="block font-bold text-white">Small business owner</span>
+                      <span className="block font-bold text-white">
+                        Small business owner
+                      </span>
                       <span className="mt-1 block text-sm leading-6 text-slate-400">
                         I want to check my own website.
                       </span>
@@ -158,11 +178,15 @@ export default async function OnboardingPage({
                       name="account_type"
                       type="radio"
                       value="freelancer_agency"
-                      defaultChecked={profile?.account_type === "freelancer_agency"}
+                      defaultChecked={
+                        profile?.account_type === "freelancer_agency"
+                      }
                       className="mt-1 h-5 w-5"
                     />
                     <span>
-                      <span className="block font-bold text-white">Freelancer / agency</span>
+                      <span className="block font-bold text-white">
+                        Freelancer / agency
+                      </span>
                       <span className="mt-1 block text-sm leading-6 text-slate-400">
                         I want to check websites for clients.
                       </span>
@@ -178,7 +202,9 @@ export default async function OnboardingPage({
                       className="mt-1 h-5 w-5"
                     />
                     <span>
-                      <span className="block font-bold text-white">Testing VeyraSec</span>
+                      <span className="block font-bold text-white">
+                        Testing VeyraSec
+                      </span>
                       <span className="mt-1 block text-sm leading-6 text-slate-400">
                         I am exploring the product first.
                       </span>
@@ -199,7 +225,8 @@ export default async function OnboardingPage({
         </section>
 
         <p className="mt-6 text-center text-sm text-slate-500">
-          Safe passive website trust reports only. Not advanced security testing.
+          Safe passive website trust reports only. Not advanced security
+          testing.
         </p>
       </div>
     </main>

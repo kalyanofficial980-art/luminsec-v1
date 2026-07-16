@@ -76,7 +76,7 @@ function extractSection(body: unknown, label: string) {
   const text = normalizeText(body);
   const pattern = new RegExp(
     `${escapeRegExp(label)}:\\s*([\\s\\S]*?)(?=\\n\\n[A-Z][A-Za-z\\s]+:|$)`,
-    "i"
+    "i",
   );
   const match = text.match(pattern);
 
@@ -96,13 +96,7 @@ function evidenceLines(value: unknown) {
     .filter(Boolean);
 }
 
-function ScoreBox({
-  label,
-  value,
-}: {
-  label: string;
-  value: number;
-}) {
+function ScoreBox({ label, value }: { label: string; value: number }) {
   return (
     <div className={`score-box ${scoreTone(value)}`}>
       <p className="score-label">{label}</p>
@@ -112,13 +106,7 @@ function ScoreBox({
   );
 }
 
-function ListBlock({
-  title,
-  items,
-}: {
-  title: string;
-  items: string[];
-}) {
+function ListBlock({ title, items }: { title: string; items: string[] }) {
   return (
     <section className="report-card avoid-break">
       <h2>{title}</h2>
@@ -143,7 +131,7 @@ export default async function PrintReportPage({ params }: PageProps) {
   let scanQuery = supabase
     .from("scan_results")
     .select(
-      "id, user_id, website_id, url, domain, status, overall_score, score, security_score, privacy_score, trust_score, risk_level, summary, raw_result, raw, created_at"
+      "id, user_id, website_id, url, domain, status, overall_score, score, security_score, privacy_score, trust_score, risk_level, summary, raw_result, raw, created_at",
     )
     .eq("id", id);
 
@@ -159,7 +147,9 @@ export default async function PrintReportPage({ params }: PageProps) {
 
   let findingsQuery = supabase
     .from("scan_findings")
-    .select("id, category, severity, title, description, recommendation, evidence, created_at")
+    .select(
+      "id, category, severity, title, description, recommendation, evidence, created_at",
+    )
     .eq("scan_result_id", scan.id)
     .order("created_at", { ascending: true });
 
@@ -208,19 +198,21 @@ export default async function PrintReportPage({ params }: PageProps) {
   const professionalSummary = rawResult.professional?.summary;
 
   const overallScore = clampScore(
-    professionalSummary?.score?.overall ?? scan.overall_score ?? scan.score
+    professionalSummary?.score?.overall ?? scan.overall_score ?? scan.score,
   );
   const securityScore = clampScore(
-    professionalSummary?.score?.security ?? scan.security_score
+    professionalSummary?.score?.security ?? scan.security_score,
   );
   const privacyScore = clampScore(
-    professionalSummary?.score?.privacy ?? scan.privacy_score
+    professionalSummary?.score?.privacy ?? scan.privacy_score,
   );
   const trustScore = clampScore(
-    professionalSummary?.score?.trust ?? scan.trust_score
+    professionalSummary?.score?.trust ?? scan.trust_score,
   );
   const exposureScore = clampScore(professionalSummary?.score?.exposure ?? 0);
-  const hygieneScore = clampScore(professionalSummary?.score?.technicalHygiene ?? 0);
+  const hygieneScore = clampScore(
+    professionalSummary?.score?.technicalHygiene ?? 0,
+  );
 
   const topRisks = safeArray(professionalSummary?.topRisks);
   const fastestFixes = safeArray(professionalSummary?.fastestFixes);
@@ -774,14 +766,19 @@ export default async function PrintReportPage({ params }: PageProps) {
 
               <h1>{websiteName}</h1>
 
-              <a href={reportUrl} target="_blank" rel="noreferrer" className="url">
+              <a
+                href={reportUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="url"
+              >
                 {reportUrl} <ExternalLink size={13} />
               </a>
 
               <p className="summary">
                 {normalizeText(
                   scan.summary,
-                  "VeyraSec reviewed visible website security posture signals and generated a fix-first report."
+                  "VeyraSec reviewed visible website security posture signals and generated a fix-first report.",
                 )}
               </p>
             </div>
@@ -790,7 +787,9 @@ export default async function PrintReportPage({ params }: PageProps) {
               <p className="hero-score-label">Overall score</p>
               <p className="hero-score-value">{overallScore}</p>
               <p className="hero-score-label">out of 100</p>
-              <span className="risk-pill">{riskLabel(scan.risk_level)} risk</span>
+              <span className="risk-pill">
+                {riskLabel(scan.risk_level)} risk
+              </span>
             </div>
           </div>
         </header>
@@ -804,7 +803,9 @@ export default async function PrintReportPage({ params }: PageProps) {
             <div className="meta-card">
               <p className="meta-label">Scan date</p>
               <p className="meta-value">
-                {scan.created_at ? new Date(scan.created_at).toLocaleString("en-IN") : "Not available"}
+                {scan.created_at
+                  ? new Date(scan.created_at).toLocaleString("en-IN")
+                  : "Not available"}
               </p>
             </div>
             <div className="meta-card">
@@ -841,17 +842,44 @@ export default async function PrintReportPage({ params }: PageProps) {
             (findings ?? []).map((finding, index) => {
               const whatWeFound =
                 extractSection(finding.description, "What we found") ||
-                normalizeText(finding.description, "This item should be reviewed.");
+                normalizeText(
+                  finding.description,
+                  "This item should be reviewed.",
+                );
 
-              const whyItMatters = extractSection(finding.description, "Why it matters");
-              const businessImpact = extractSection(finding.description, "Business impact");
-              const technicalImpact = extractSection(finding.description, "Technical impact");
-              const confidence = extractSection(finding.description, "Confidence");
+              const whyItMatters = extractSection(
+                finding.description,
+                "Why it matters",
+              );
+              const businessImpact = extractSection(
+                finding.description,
+                "Business impact",
+              );
+              const technicalImpact = extractSection(
+                finding.description,
+                "Technical impact",
+              );
+              const confidence = extractSection(
+                finding.description,
+                "Confidence",
+              );
 
-              const priority = extractSection(finding.recommendation, "Priority");
-              const effort = extractSection(finding.recommendation, "Estimated effort");
-              const fixSummary = extractSection(finding.recommendation, "Fix summary");
-              const developerFix = extractSection(finding.recommendation, "Developer fix");
+              const priority = extractSection(
+                finding.recommendation,
+                "Priority",
+              );
+              const effort = extractSection(
+                finding.recommendation,
+                "Estimated effort",
+              );
+              const fixSummary = extractSection(
+                finding.recommendation,
+                "Fix summary",
+              );
+              const developerFix = extractSection(
+                finding.recommendation,
+                "Developer fix",
+              );
               const retest = extractSection(finding.recommendation, "Retest");
 
               const evidence = evidenceLines(finding.evidence);
@@ -866,11 +894,20 @@ export default async function PrintReportPage({ params }: PageProps) {
                       </h3>
 
                       <div className="badge-row">
-                        <span className="badge">{riskLabel(finding.severity)}</span>
                         <span className="badge">
-                          {normalizeText(finding.category, "general").replaceAll("_", " ")}
+                          {riskLabel(finding.severity)}
                         </span>
-                        {confidence ? <span className="badge">Confidence: {confidence}</span> : null}
+                        <span className="badge">
+                          {normalizeText(
+                            finding.category,
+                            "general",
+                          ).replaceAll("_", " ")}
+                        </span>
+                        {confidence ? (
+                          <span className="badge">
+                            Confidence: {confidence}
+                          </span>
+                        ) : null}
                       </div>
                     </div>
                   </div>
@@ -909,14 +946,34 @@ export default async function PrintReportPage({ params }: PageProps) {
 
                     <div className="fix-box">
                       <h4>Fix-first guidance</h4>
-                      {priority ? <p><strong>Priority:</strong> {priority}</p> : null}
-                      {effort ? <p><strong>Estimated effort:</strong> {effort}</p> : null}
+                      {priority ? (
+                        <p>
+                          <strong>Priority:</strong> {priority}
+                        </p>
+                      ) : null}
+                      {effort ? (
+                        <p>
+                          <strong>Estimated effort:</strong> {effort}
+                        </p>
+                      ) : null}
                       <p>
                         <strong>Fix summary:</strong>{" "}
-                        {fixSummary || normalizeText(finding.recommendation, "Review and fix this issue.")}
+                        {fixSummary ||
+                          normalizeText(
+                            finding.recommendation,
+                            "Review and fix this issue.",
+                          )}
                       </p>
-                      {developerFix ? <p><strong>Developer fix:</strong> {developerFix}</p> : null}
-                      {retest ? <p><strong>Retest:</strong> {retest}</p> : null}
+                      {developerFix ? (
+                        <p>
+                          <strong>Developer fix:</strong> {developerFix}
+                        </p>
+                      ) : null}
+                      {retest ? (
+                        <p>
+                          <strong>Retest:</strong> {retest}
+                        </p>
+                      ) : null}
                     </div>
 
                     <div className="evidence-box">
@@ -929,7 +986,9 @@ export default async function PrintReportPage({ params }: PageProps) {
                           </div>
                         ))
                       ) : (
-                        <p className="muted">Evidence was not stored for this item.</p>
+                        <p className="muted">
+                          Evidence was not stored for this item.
+                        </p>
                       )}
                     </div>
                   </div>
@@ -947,9 +1006,11 @@ export default async function PrintReportPage({ params }: PageProps) {
           )}
 
           <section className="scope-note avoid-break">
-            <strong>Important scope note:</strong> This is a passive website security posture report based on visible public signals.
-            It is not legal advice, compliance certification, exploit testing, vulnerability exploitation,
-            login testing, brute force testing, or a penetration test.
+            <strong>Important scope note:</strong> This is a passive website
+            security posture report based on visible public signals. It is not
+            legal advice, compliance certification, exploit testing,
+            vulnerability exploitation, login testing, brute force testing, or a
+            penetration test.
           </section>
 
           <footer className="footer">

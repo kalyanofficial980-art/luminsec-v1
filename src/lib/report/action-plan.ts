@@ -29,7 +29,7 @@ function createAction(
   reason: string,
   steps: string[],
   owner = "Website developer / hosting provider",
-  effort: ReportActionItem["effort"] = "Medium"
+  effort: ReportActionItem["effort"] = "Medium",
 ): ReportActionItem {
   return {
     priority,
@@ -75,8 +75,8 @@ export function buildReportActionPlan(findings: ReportFindingForAction[]) {
             "Run a fresh VeyraSec scan after changes.",
           ],
           "Hosting provider / developer",
-          "Medium"
-        )
+          "Medium",
+        ),
       );
     }
 
@@ -93,8 +93,8 @@ export function buildReportActionPlan(findings: ReportFindingForAction[]) {
             "Rerun the scan and confirm HSTS appears.",
           ],
           "Developer / hosting provider",
-          "Medium"
-        )
+          "Medium",
+        ),
       );
     }
 
@@ -111,8 +111,8 @@ export function buildReportActionPlan(findings: ReportFindingForAction[]) {
             "Move to enforced CSP after testing.",
           ],
           "Developer",
-          "High"
-        )
+          "High",
+        ),
       );
     }
 
@@ -129,8 +129,8 @@ export function buildReportActionPlan(findings: ReportFindingForAction[]) {
             "Rerun scan after deployment.",
           ],
           "Developer",
-          "Low"
-        )
+          "Low",
+        ),
       );
     }
 
@@ -146,8 +146,8 @@ export function buildReportActionPlan(findings: ReportFindingForAction[]) {
             "Verify header appears in public response.",
           ],
           "Developer / hosting provider",
-          "Low"
-        )
+          "Low",
+        ),
       );
     }
 
@@ -163,8 +163,8 @@ export function buildReportActionPlan(findings: ReportFindingForAction[]) {
             "Rerun scan and confirm the header appears.",
           ],
           "Developer",
-          "Low"
-        )
+          "Low",
+        ),
       );
     }
 
@@ -180,8 +180,8 @@ export function buildReportActionPlan(findings: ReportFindingForAction[]) {
             "Test website functionality after deployment.",
           ],
           "Developer",
-          "Low"
-        )
+          "Low",
+        ),
       );
     }
 
@@ -198,12 +198,14 @@ export function buildReportActionPlan(findings: ReportFindingForAction[]) {
             "Ask a legal professional for compliance-specific wording when needed.",
           ],
           "Business owner + developer",
-          "Medium"
-        )
+          "Medium",
+        ),
       );
     }
 
-    if (hasAny(text, ["terms link", "terms of service", "terms and conditions"])) {
+    if (
+      hasAny(text, ["terms link", "terms of service", "terms and conditions"])
+    ) {
       actions.push(
         createAction(
           "improvement",
@@ -215,8 +217,8 @@ export function buildReportActionPlan(findings: ReportFindingForAction[]) {
             "Keep wording clear and relevant to the business.",
           ],
           "Business owner",
-          "Medium"
-        )
+          "Medium",
+        ),
       );
     }
 
@@ -232,8 +234,8 @@ export function buildReportActionPlan(findings: ReportFindingForAction[]) {
             "Make sure contact forms are working.",
           ],
           "Business owner + developer",
-          "Low"
-        )
+          "Low",
+        ),
       );
     }
 
@@ -249,8 +251,8 @@ export function buildReportActionPlan(findings: ReportFindingForAction[]) {
             "Reference sitemap.xml if available.",
           ],
           "Developer",
-          "Low"
-        )
+          "Low",
+        ),
       );
     }
 
@@ -266,8 +268,8 @@ export function buildReportActionPlan(findings: ReportFindingForAction[]) {
             "Reference sitemap in robots.txt.",
           ],
           "Developer",
-          "Low"
-        )
+          "Low",
+        ),
       );
     }
 
@@ -283,8 +285,8 @@ export function buildReportActionPlan(findings: ReportFindingForAction[]) {
             "Keep this as a low-priority hardening task.",
           ],
           "Developer / hosting provider",
-          "Low"
-        )
+          "Low",
+        ),
       );
     }
 
@@ -301,8 +303,8 @@ export function buildReportActionPlan(findings: ReportFindingForAction[]) {
             "Test login and form behavior after changes.",
           ],
           "Developer",
-          "Medium"
-        )
+          "Medium",
+        ),
       );
     }
   }
@@ -322,7 +324,7 @@ export function buildReportActionPlan(findings: ReportFindingForAction[]) {
           "Use comparison page to show before-after progress.",
         ],
         "Business owner + developer",
-        "Medium"
+        "Medium",
       ),
     ];
   }
@@ -338,7 +340,7 @@ export function actionPriorityRank(priority: ReportActionItem["priority"]) {
 
 export function groupActionsByPriority(actions: ReportActionItem[]) {
   const sorted = [...actions].sort(
-    (a, b) => actionPriorityRank(a.priority) - actionPriorityRank(b.priority)
+    (a, b) => actionPriorityRank(a.priority) - actionPriorityRank(b.priority),
   );
 
   return {

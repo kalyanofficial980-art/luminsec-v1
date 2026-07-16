@@ -30,7 +30,9 @@ function text(value: unknown, fallback = "") {
 
 function safeDate(value: unknown) {
   const date = value ? new Date(String(value)) : null;
-  return date && !Number.isNaN(date.getTime()) ? date.toLocaleString("en-IN") : "Not available";
+  return date && !Number.isNaN(date.getTime())
+    ? date.toLocaleString("en-IN")
+    : "Not available";
 }
 
 function getJoinedScan(value: any) {
@@ -38,18 +40,26 @@ function getJoinedScan(value: any) {
   return value;
 }
 
-export default async function AdminVerifiedReportsPage({ searchParams }: PageProps) {
+export default async function AdminVerifiedReportsPage({
+  searchParams,
+}: PageProps) {
   const params = await searchParams;
   const { supabase } = await requireAdmin();
 
-  const requestedStatus = ["requested", "in_review", "approved", "rejected", "delivered"].includes(text(params.status).toLowerCase())
+  const requestedStatus = [
+    "requested",
+    "in_review",
+    "approved",
+    "rejected",
+    "delivered",
+  ].includes(text(params.status).toLowerCase())
     ? text(params.status).toLowerCase()
     : "requested";
 
   let requestsQuery = supabase
     .from("verified_report_requests")
     .select(
-      "id, user_id, scan_result_id, status, customer_message, admin_notes, reviewed_at, delivered_at, created_at, updated_at, scan_results(id, url, domain, overall_score, score, risk_level, created_at)"
+      "id, user_id, scan_result_id, status, customer_message, admin_notes, reviewed_at, delivered_at, created_at, updated_at, scan_results(id, url, domain, overall_score, score, risk_level, created_at)",
     )
     .order("created_at", { ascending: false })
     .limit(80);
@@ -65,7 +75,9 @@ export default async function AdminVerifiedReportsPage({ searchParams }: PagePro
   const counts = {
     visible: rows.length,
     requested: rows.filter((row: any) => row.status === "requested").length,
-    approved: rows.filter((row: any) => row.status === "approved" || row.status === "delivered").length,
+    approved: rows.filter(
+      (row: any) => row.status === "approved" || row.status === "delivered",
+    ).length,
     rejected: rows.filter((row: any) => row.status === "rejected").length,
   };
 
@@ -94,8 +106,8 @@ export default async function AdminVerifiedReportsPage({ searchParams }: PagePro
               </h1>
 
               <p className="mt-4 max-w-3xl leading-8 text-slate-300">
-                Admin workflow for approving, rejecting, and delivering paid report requests.
-                Approve only after manual review is complete.
+                Admin workflow for approving, rejecting, and delivering paid
+                report requests. Approve only after manual review is complete.
               </p>
             </div>
 
@@ -123,15 +135,32 @@ export default async function AdminVerifiedReportsPage({ searchParams }: PagePro
 
         <section className="mt-8 grid gap-4 md:grid-cols-4">
           {[
-            { label: "Visible requests", value: counts.visible, icon: FileText },
-            { label: "Requested", value: counts.requested, icon: AlertTriangle },
-            { label: "Approved/delivered", value: counts.approved, icon: CheckCircle2 },
+            {
+              label: "Visible requests",
+              value: counts.visible,
+              icon: FileText,
+            },
+            {
+              label: "Requested",
+              value: counts.requested,
+              icon: AlertTriangle,
+            },
+            {
+              label: "Approved/delivered",
+              value: counts.approved,
+              icon: CheckCircle2,
+            },
             { label: "Rejected", value: counts.rejected, icon: XCircle },
           ].map((card) => (
-            <div key={card.label} className="rounded-3xl border border-white/10 bg-slate-950/70 p-6">
+            <div
+              key={card.label}
+              className="rounded-3xl border border-white/10 bg-slate-950/70 p-6"
+            >
               <card.icon className="mb-4 h-7 w-7 text-cyan-300" />
               <p className="text-sm text-slate-400">{card.label}</p>
-              <p className="mt-2 text-3xl font-black text-white">{card.value}</p>
+              <p className="mt-2 text-3xl font-black text-white">
+                {card.value}
+              </p>
             </div>
           ))}
         </section>
@@ -164,22 +193,32 @@ export default async function AdminVerifiedReportsPage({ searchParams }: PagePro
           {rows.length > 0 ? (
             rows.map((request: any, index: number) => {
               const scan = getJoinedScan(request.scan_results);
-              const website = text(scan?.domain || scan?.url, "Unknown website");
+              const website = text(
+                scan?.domain || scan?.url,
+                "Unknown website",
+              );
 
               return (
-                <article key={request.id} className="rounded-3xl border border-white/10 bg-white/[0.04] p-6">
+                <article
+                  key={request.id}
+                  className="rounded-3xl border border-white/10 bg-white/[0.04] p-6"
+                >
                   <div className="flex flex-col justify-between gap-5 lg:flex-row lg:items-start">
                     <div>
                       <div className="mb-3 flex flex-wrap gap-2">
                         <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-black text-slate-300">
                           #{index + 1}
                         </span>
-                        <span className={`rounded-full border px-3 py-1 text-xs font-black ${verifiedReportStatusClass(request.status)}`}>
+                        <span
+                          className={`rounded-full border px-3 py-1 text-xs font-black ${verifiedReportStatusClass(request.status)}`}
+                        >
                           {verifiedReportStatusLabel(request.status)}
                         </span>
                       </div>
 
-                      <h2 className="text-2xl font-black text-white">{website}</h2>
+                      <h2 className="text-2xl font-black text-white">
+                        {website}
+                      </h2>
                       <p className="mt-2 text-sm text-slate-400">
                         Requested: {safeDate(request.created_at)}
                       </p>
@@ -206,7 +245,9 @@ export default async function AdminVerifiedReportsPage({ searchParams }: PagePro
 
                   <div className="mt-5 grid gap-4 lg:grid-cols-2">
                     <div className="rounded-2xl border border-white/10 bg-slate-950 p-4">
-                      <h3 className="font-black text-cyan-100">Customer message</h3>
+                      <h3 className="font-black text-cyan-100">
+                        Customer message
+                      </h3>
                       <p className="mt-3 whitespace-pre-wrap break-words text-sm leading-7 text-slate-300">
                         {text(request.customer_message, "No customer message.")}
                       </p>
@@ -220,10 +261,16 @@ export default async function AdminVerifiedReportsPage({ searchParams }: PagePro
                     </div>
                   </div>
 
-                  <form action={updateVerifiedReportRequestAction} className="mt-5 rounded-2xl border border-white/10 bg-slate-950 p-4">
+                  <form
+                    action={updateVerifiedReportRequestAction}
+                    className="mt-5 rounded-2xl border border-white/10 bg-slate-950 p-4"
+                  >
                     <input type="hidden" name="request_id" value={request.id} />
 
-                    <label className="text-sm font-black text-slate-300" htmlFor={`status-${request.id}`}>
+                    <label
+                      className="text-sm font-black text-slate-300"
+                      htmlFor={`status-${request.id}`}
+                    >
                       Workflow status
                     </label>
 
@@ -240,7 +287,10 @@ export default async function AdminVerifiedReportsPage({ searchParams }: PagePro
                       <option value="rejected">Rejected</option>
                     </select>
 
-                    <label className="mt-4 block text-sm font-black text-slate-300" htmlFor={`notes-${request.id}`}>
+                    <label
+                      className="mt-4 block text-sm font-black text-slate-300"
+                      htmlFor={`notes-${request.id}`}
+                    >
                       Admin notes
                     </label>
 
@@ -271,7 +321,8 @@ export default async function AdminVerifiedReportsPage({ searchParams }: PagePro
                 No verified report requests in this status
               </h2>
               <p className="mt-3 leading-7 text-emerald-50/90">
-                Requests will appear here after customers request a verified paid report.
+                Requests will appear here after customers request a verified
+                paid report.
               </p>
             </div>
           )}
@@ -280,8 +331,9 @@ export default async function AdminVerifiedReportsPage({ searchParams }: PagePro
         <section className="mt-8 rounded-3xl border border-amber-300/20 bg-amber-300/10 p-8">
           <h2 className="text-2xl font-black text-amber-100">Delivery rule</h2>
           <p className="mt-4 max-w-4xl leading-8 text-amber-50/90">
-            Deliver only after manual review. A verified paid report means reviewed evidence,
-            not legal certification, compliance proof, exploit testing, or a penetration test.
+            Deliver only after manual review. A verified paid report means
+            reviewed evidence, not legal certification, compliance proof,
+            exploit testing, or a penetration test.
           </p>
         </section>
       </div>

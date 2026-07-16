@@ -75,11 +75,26 @@ function normalizePlan(value: unknown): PlanLimit | null {
     id,
     name: text(row.name, id),
     maxWebsites: numberValue(row.max_websites, fallbackTrialPlan.maxWebsites),
-    maxScansPerMonth: numberValue(row.max_scans_per_month, fallbackTrialPlan.maxScansPerMonth),
-    pdfReportsEnabled: boolValue(row.pdf_reports_enabled, fallbackTrialPlan.pdfReportsEnabled),
-    publicShareEnabled: boolValue(row.public_share_enabled, fallbackTrialPlan.publicShareEnabled),
-    agencyModeEnabled: boolValue(row.agency_mode_enabled, fallbackTrialPlan.agencyModeEnabled),
-    manualPaymentsEnabled: boolValue(row.manual_payments_enabled, fallbackTrialPlan.manualPaymentsEnabled),
+    maxScansPerMonth: numberValue(
+      row.max_scans_per_month,
+      fallbackTrialPlan.maxScansPerMonth,
+    ),
+    pdfReportsEnabled: boolValue(
+      row.pdf_reports_enabled,
+      fallbackTrialPlan.pdfReportsEnabled,
+    ),
+    publicShareEnabled: boolValue(
+      row.public_share_enabled,
+      fallbackTrialPlan.publicShareEnabled,
+    ),
+    agencyModeEnabled: boolValue(
+      row.agency_mode_enabled,
+      fallbackTrialPlan.agencyModeEnabled,
+    ),
+    manualPaymentsEnabled: boolValue(
+      row.manual_payments_enabled,
+      fallbackTrialPlan.manualPaymentsEnabled,
+    ),
   };
 }
 
@@ -100,7 +115,7 @@ function monthStartIso() {
 
 async function getPlanById(
   supabase: SupabaseServerClient,
-  planId: string
+  planId: string,
 ): Promise<PlanLimit | null> {
   const { data } = await supabase
     .from("subscription_plans")
@@ -111,19 +126,24 @@ async function getPlanById(
   return normalizePlan(data);
 }
 
-async function createTrialIfMissing(supabase: SupabaseServerClient, userId: string) {
+async function createTrialIfMissing(
+  supabase: SupabaseServerClient,
+  userId: string,
+) {
   await supabase.from("user_subscriptions").insert({
     user_id: userId,
     plan_id: "trial",
     status: "trial",
     current_period_start: new Date().toISOString(),
-    current_period_end: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString(),
+    current_period_end: new Date(
+      Date.now() + 14 * 24 * 60 * 60 * 1000,
+    ).toISOString(),
   });
 }
 
 export async function getUserIsAdmin(
   supabase: SupabaseServerClient,
-  userId: string
+  userId: string,
 ): Promise<boolean> {
   const { data } = await supabase
     .from("profiles")
@@ -138,11 +158,13 @@ export async function getUserIsAdmin(
 
 export async function getUserSubscriptionAccess(
   supabase: SupabaseServerClient,
-  userId: string
+  userId: string,
 ): Promise<SubscriptionAccess> {
   let { data: subscriptionData } = await supabase
     .from("user_subscriptions")
-    .select("id, user_id, plan_id, status, current_period_start, current_period_end, subscription_plans(*)")
+    .select(
+      "id, user_id, plan_id, status, current_period_start, current_period_end, subscription_plans(*)",
+    )
     .eq("user_id", userId)
     .maybeSingle();
 
@@ -151,7 +173,9 @@ export async function getUserSubscriptionAccess(
 
     const retry = await supabase
       .from("user_subscriptions")
-      .select("id, user_id, plan_id, status, current_period_start, current_period_end, subscription_plans(*)")
+      .select(
+        "id, user_id, plan_id, status, current_period_start, current_period_end, subscription_plans(*)",
+      )
       .eq("user_id", userId)
       .maybeSingle();
 
@@ -176,7 +200,7 @@ export async function getUserSubscriptionAccess(
 
 export async function getUserUsageCounts(
   supabase: SupabaseServerClient,
-  userId: string
+  userId: string,
 ): Promise<UsageCounts> {
   const access = await getUserSubscriptionAccess(supabase, userId);
   const periodStart = access.currentPeriodStart || monthStartIso();
@@ -207,12 +231,13 @@ export async function getUserUsageCounts(
 
 export function canAddWebsite(
   access: SubscriptionAccess,
-  usage: UsageCounts
+  usage: UsageCounts,
 ): LimitDecision {
   if (!access.isUsable) {
     return {
       allowed: false,
-      message: "Your subscription is not active. Please open Subscription and request a plan.",
+      message:
+        "Your subscription is not active. Please open Subscription and request a plan.",
     };
   }
 
@@ -231,12 +256,13 @@ export function canAddWebsite(
 
 export function canRunScan(
   access: SubscriptionAccess,
-  usage: UsageCounts
+  usage: UsageCounts,
 ): LimitDecision {
   if (!access.isUsable) {
     return {
       allowed: false,
-      message: "Your subscription is not active. Please open Subscription and request a plan.",
+      message:
+        "Your subscription is not active. Please open Subscription and request a plan.",
     };
   }
 

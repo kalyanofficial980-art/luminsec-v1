@@ -33,5 +33,7 @@ export async function signup(formData: FormData) {
     redirect(`/signup?message=${encodeURIComponent(error.message)}`);
   }
 
-  redirect("/login?message=Account created. Login now, or confirm your email if Supabase asks.");
+  redirect(
+    "/login?message=Account created. Login now, or confirm your email if Supabase asks.",
+  );
 }

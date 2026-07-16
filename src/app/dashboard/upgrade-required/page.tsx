@@ -67,7 +67,9 @@ export default async function UpgradeRequiredPage({
             <Lock className="h-8 w-8" />
           </div>
 
-          <h1 className="text-4xl font-black tracking-tight">{message.title}</h1>
+          <h1 className="text-4xl font-black tracking-tight">
+            {message.title}
+          </h1>
 
           <p className="mx-auto mt-5 max-w-2xl leading-8 text-amber-50/90">
             {message.description}
@@ -92,7 +94,8 @@ export default async function UpgradeRequiredPage({
           </div>
 
           <p className="mt-8 text-sm text-amber-50/70">
-            Safe passive website trust reports only. Not advanced security testing.
+            Safe passive website trust reports only. Not advanced security
+            testing.
           </p>
         </section>
       </div>

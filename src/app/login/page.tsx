@@ -19,7 +19,9 @@ export default async function LoginPage({
           </div>
           <div>
             <h1 className="text-2xl font-bold">Login to {brand.name}</h1>
-            <p className="text-sm text-slate-400">Access your website trust reports.</p>
+            <p className="text-sm text-slate-400">
+              Access your website trust reports.
+            </p>
           </div>
         </div>
 
@@ -42,7 +44,9 @@ export default async function LoginPage({
           </div>
 
           <div>
-            <label className="mb-2 block text-sm text-slate-300">Password</label>
+            <label className="mb-2 block text-sm text-slate-300">
+              Password
+            </label>
             <input
               name="password"
               type="password"
@@ -62,7 +66,10 @@ export default async function LoginPage({
 
         <p className="mt-6 text-center text-sm text-slate-400">
           New here?{" "}
-          <Link href="/signup" className="font-semibold text-cyan-300 hover:text-cyan-200">
+          <Link
+            href="/signup"
+            className="font-semibold text-cyan-300 hover:text-cyan-200"
+          >
             Create account
           </Link>
         </p>

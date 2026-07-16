@@ -1,9 +1,5 @@
 export type SubscriptionPlanId =
-  | "single_report"
-  | "beginner"
-  | "starter"
-  | "business"
-  | "pro";
+  "single_report" | "beginner" | "starter" | "business" | "pro";
 
 export type SubscriptionPlan = {
   id: string;
@@ -38,7 +34,9 @@ export const customerPlanIds: SubscriptionPlanId[] = [
 ];
 
 export function normalizePlanId(value: unknown): SubscriptionPlanId {
-  const plan = String(value ?? "").trim().toLowerCase();
+  const plan = String(value ?? "")
+    .trim()
+    .toLowerCase();
 
   if (plan === "single_report") return "single_report";
   if (plan === "starter" || plan === "basic") return "starter";
@@ -77,20 +75,34 @@ export function planBadgeClass(value: unknown) {
 }
 
 export function statusBadgeClass(value: unknown) {
-  const status = String(value ?? "").trim().toLowerCase();
+  const status = String(value ?? "")
+    .trim()
+    .toLowerCase();
 
-  if (status === "active") return "border-emerald-400/20 bg-emerald-400/10 text-emerald-100";
-  if (status === "trial") return "border-cyan-400/20 bg-cyan-400/10 text-cyan-100";
-  if (status === "pending") return "border-amber-400/20 bg-amber-400/10 text-amber-100";
-  if (status === "approved") return "border-emerald-400/20 bg-emerald-400/10 text-emerald-100";
-  if (status === "rejected") return "border-red-400/20 bg-red-400/10 text-red-100";
-  if (status === "past_due") return "border-orange-400/20 bg-orange-400/10 text-orange-100";
-  if (status === "cancelled" || status === "expired") return "border-red-400/20 bg-red-400/10 text-red-100";
+  if (status === "active")
+    return "border-emerald-400/20 bg-emerald-400/10 text-emerald-100";
+  if (status === "trial")
+    return "border-cyan-400/20 bg-cyan-400/10 text-cyan-100";
+  if (status === "pending")
+    return "border-amber-400/20 bg-amber-400/10 text-amber-100";
+  if (status === "approved")
+    return "border-emerald-400/20 bg-emerald-400/10 text-emerald-100";
+  if (status === "rejected")
+    return "border-red-400/20 bg-red-400/10 text-red-100";
+  if (status === "past_due")
+    return "border-orange-400/20 bg-orange-400/10 text-orange-100";
+  if (status === "cancelled" || status === "expired")
+    return "border-red-400/20 bg-red-400/10 text-red-100";
 
   return "border-slate-400/20 bg-slate-400/10 text-slate-200";
 }
 
-export function priceText(plan: Pick<SubscriptionPlan, "id" | "monthly_price" | "currency"> | null | undefined) {
+export function priceText(
+  plan:
+    | Pick<SubscriptionPlan, "id" | "monthly_price" | "currency">
+    | null
+    | undefined,
+) {
   if (!plan) return "Price not set";
 
   const price = Number(plan.monthly_price ?? 0);
@@ -135,7 +147,10 @@ export function featureRows(plan: SubscriptionPlan) {
     },
     {
       label: "Scans",
-      value: planId === "single_report" ? "1 report" : `${plan.max_scans_per_month ?? 1} / month`,
+      value:
+        planId === "single_report"
+          ? "1 report"
+          : `${plan.max_scans_per_month ?? 1} / month`,
       enabled: true,
     },
     {
@@ -161,18 +176,26 @@ export function featureRows(plan: SubscriptionPlan) {
   ];
 }
 
-export function hasPdfReports(plan: Pick<SubscriptionPlan, "pdf_reports_enabled"> | null | undefined) {
+export function hasPdfReports(
+  plan: Pick<SubscriptionPlan, "pdf_reports_enabled"> | null | undefined,
+) {
   return Boolean(plan?.pdf_reports_enabled);
 }
 
-export function hasPublicShare(plan: Pick<SubscriptionPlan, "public_share_enabled"> | null | undefined) {
+export function hasPublicShare(
+  plan: Pick<SubscriptionPlan, "public_share_enabled"> | null | undefined,
+) {
   return Boolean(plan?.public_share_enabled);
 }
 
-export function hasManualPayments(plan: Pick<SubscriptionPlan, "manual_payments_enabled"> | null | undefined) {
+export function hasManualPayments(
+  plan: Pick<SubscriptionPlan, "manual_payments_enabled"> | null | undefined,
+) {
   return Boolean(plan?.manual_payments_enabled);
 }
 
-export function hasPrioritySupport(plan: Pick<SubscriptionPlan, "priority_support_enabled"> | null | undefined) {
+export function hasPrioritySupport(
+  plan: Pick<SubscriptionPlan, "priority_support_enabled"> | null | undefined,
+) {
   return Boolean(plan?.priority_support_enabled);
 }

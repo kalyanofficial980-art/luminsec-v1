@@ -44,11 +44,15 @@ export async function requestPlanChange(formData: FormData) {
   });
 
   if (error) {
-    redirect(`/dashboard/subscription?message=${encodeURIComponent(error.message)}`);
+    redirect(
+      `/dashboard/subscription?message=${encodeURIComponent(error.message)}`,
+    );
   }
 
   revalidatePath("/dashboard");
   revalidatePath("/dashboard/subscription");
 
-  redirect("/dashboard/subscription?message=Plan request submitted. Upgrade is manual for now.");
+  redirect(
+    "/dashboard/subscription?message=Plan request submitted. Upgrade is manual for now.",
+  );
 }

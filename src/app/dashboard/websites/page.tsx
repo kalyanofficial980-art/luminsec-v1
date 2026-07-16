@@ -14,7 +14,8 @@ import { formatDateTime } from "@/lib/utils/risk";
 import { startPassiveScan } from "./actions";
 
 function scoreClass(score: number) {
-  if (score >= 80) return "border-emerald-400/20 bg-emerald-400/10 text-emerald-100";
+  if (score >= 80)
+    return "border-emerald-400/20 bg-emerald-400/10 text-emerald-100";
   if (score >= 60) return "border-amber-400/20 bg-amber-400/10 text-amber-100";
   return "border-red-400/20 bg-red-400/10 text-red-100";
 }
@@ -71,7 +72,8 @@ export default async function WebsitesPage() {
                 Websites
               </h1>
               <p className="mt-4 max-w-3xl leading-8 text-slate-300">
-                Manage websites, open website workspaces, and run safe passive trust reports.
+                Manage websites, open website workspaces, and run safe passive
+                trust reports.
               </p>
             </div>
 
@@ -88,9 +90,12 @@ export default async function WebsitesPage() {
         {websiteRows.length === 0 ? (
           <section className="mt-8 rounded-3xl border border-cyan-300/20 bg-cyan-300/10 p-8 text-center">
             <ShieldCheck className="mx-auto mb-4 h-12 w-12 text-cyan-300" />
-            <h2 className="text-3xl font-black text-cyan-100">No websites yet</h2>
+            <h2 className="text-3xl font-black text-cyan-100">
+              No websites yet
+            </h2>
             <p className="mx-auto mt-3 max-w-2xl leading-8 text-cyan-50/90">
-              Add your first customer or demo website to generate a VeyraSec trust report.
+              Add your first customer or demo website to generate a VeyraSec
+              trust report.
             </p>
 
             <Link
@@ -154,7 +159,11 @@ export default async function WebsitesPage() {
                       )}
 
                       <form action={startPassiveScan}>
-                        <input type="hidden" name="website_id" value={website.id} />
+                        <input
+                          type="hidden"
+                          name="website_id"
+                          value={website.id}
+                        />
                         <button
                           type="submit"
                           className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-cyan-300 px-4 py-3 text-sm font-bold text-slate-950 hover:bg-cyan-200"

@@ -60,7 +60,9 @@ function HealthCard({ check }: { check: HealthCheck }) {
           ) : null}
         </div>
 
-        <span className={`inline-flex shrink-0 items-center gap-2 rounded-full border px-3 py-1 text-xs font-black ${levelClass(check.level)}`}>
+        <span
+          className={`inline-flex shrink-0 items-center gap-2 rounded-full border px-3 py-1 text-xs font-black ${levelClass(check.level)}`}
+        >
           <Icon className="h-4 w-4" />
           {levelLabel(check.level)}
         </span>
@@ -75,7 +77,10 @@ export default async function DashboardStatusPage() {
 
   const envChecks: HealthCheck[] = [
     envCheck("NEXT_PUBLIC_SUPABASE_URL", process.env.NEXT_PUBLIC_SUPABASE_URL),
-    envCheck("NEXT_PUBLIC_SUPABASE_ANON_KEY", process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY),
+    envCheck(
+      "NEXT_PUBLIC_SUPABASE_ANON_KEY",
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+    ),
     envCheck("NEXT_PUBLIC_APP_URL", process.env.NEXT_PUBLIC_APP_URL),
   ];
 
@@ -101,8 +106,12 @@ export default async function DashboardStatusPage() {
   const checks = [...envChecks, ...databaseChecks];
   const currentHealth = overallHealth(checks);
 
-  const healthyCount = checks.filter((check) => check.level === "healthy").length;
-  const warningCount = checks.filter((check) => check.level === "warning").length;
+  const healthyCount = checks.filter(
+    (check) => check.level === "healthy",
+  ).length;
+  const warningCount = checks.filter(
+    (check) => check.level === "warning",
+  ).length;
   const errorCount = checks.filter((check) => check.level === "error").length;
 
   return (
@@ -124,11 +133,15 @@ export default async function DashboardStatusPage() {
               </h1>
 
               <p className="mt-5 max-w-3xl text-lg leading-8 text-slate-300">
-                This page checks core SaaS runtime configuration, Supabase database access, report tables, and optional business settings without exposing secrets.
+                This page checks core SaaS runtime configuration, Supabase
+                database access, report tables, and optional business settings
+                without exposing secrets.
               </p>
             </div>
 
-            <div className={`rounded-3xl border p-6 text-center ${levelClass(currentHealth)}`}>
+            <div
+              className={`rounded-3xl border p-6 text-center ${levelClass(currentHealth)}`}
+            >
               <p className="text-sm font-black uppercase tracking-[0.2em]">
                 Overall
               </p>
@@ -136,7 +149,8 @@ export default async function DashboardStatusPage() {
                 {levelLabel(currentHealth)}
               </p>
               <p className="mt-3 text-sm opacity-80">
-                {healthyCount} healthy / {warningCount} warning / {errorCount} error
+                {healthyCount} healthy / {warningCount} warning / {errorCount}{" "}
+                error
               </p>
             </div>
           </div>
@@ -145,20 +159,28 @@ export default async function DashboardStatusPage() {
         <section className="mt-8 grid gap-4 md:grid-cols-3">
           <div className="rounded-3xl border border-emerald-400/20 bg-emerald-400/10 p-6">
             <CheckCircle2 className="h-8 w-8 text-emerald-300" />
-            <p className="mt-4 text-sm font-bold text-emerald-100/80">Healthy checks</p>
-            <p className="mt-2 text-4xl font-black text-emerald-100">{healthyCount}</p>
+            <p className="mt-4 text-sm font-bold text-emerald-100/80">
+              Healthy checks
+            </p>
+            <p className="mt-2 text-4xl font-black text-emerald-100">
+              {healthyCount}
+            </p>
           </div>
 
           <div className="rounded-3xl border border-amber-400/20 bg-amber-400/10 p-6">
             <AlertTriangle className="h-8 w-8 text-amber-300" />
             <p className="mt-4 text-sm font-bold text-amber-100/80">Warnings</p>
-            <p className="mt-2 text-4xl font-black text-amber-100">{warningCount}</p>
+            <p className="mt-2 text-4xl font-black text-amber-100">
+              {warningCount}
+            </p>
           </div>
 
           <div className="rounded-3xl border border-red-400/20 bg-red-400/10 p-6">
             <XCircle className="h-8 w-8 text-red-300" />
             <p className="mt-4 text-sm font-bold text-red-100/80">Errors</p>
-            <p className="mt-2 text-4xl font-black text-red-100">{errorCount}</p>
+            <p className="mt-2 text-4xl font-black text-red-100">
+              {errorCount}
+            </p>
           </div>
         </section>
 
@@ -199,7 +221,9 @@ export default async function DashboardStatusPage() {
               </div>
 
               <p className="mt-4 max-w-3xl leading-8 text-cyan-50/90">
-                Professional reports, action plans, print/PDF pages, public share reports, score explanations, and risk reasons are now part of the production health surface.
+                Professional reports, action plans, print/PDF pages, public
+                share reports, score explanations, and risk reasons are now part
+                of the production health surface.
               </p>
             </div>
 
@@ -224,10 +248,13 @@ export default async function DashboardStatusPage() {
         </section>
 
         <section className="mt-8 rounded-3xl border border-amber-300/20 bg-amber-300/10 p-8">
-          <h2 className="text-2xl font-black text-amber-100">Status logic rule</h2>
+          <h2 className="text-2xl font-black text-amber-100">
+            Status logic rule
+          </h2>
           <p className="mt-4 max-w-4xl leading-8 text-amber-50/90">
-            Missing optional configuration should show a warning, not crash the customer dashboard.
-            Only missing required environment variables or inaccessible core SaaS tables should be treated as errors.
+            Missing optional configuration should show a warning, not crash the
+            customer dashboard. Only missing required environment variables or
+            inaccessible core SaaS tables should be treated as errors.
           </p>
         </section>
       </div>

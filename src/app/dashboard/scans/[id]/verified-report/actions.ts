@@ -43,25 +43,29 @@ export async function requestVerifiedPaidReportAction(formData: FormData) {
     .maybeSingle();
 
   if (existingRequest) {
-    redirect(`/dashboard/scans/${scan.id}/verified-report?message=Verified report request already exists`);
+    redirect(
+      `/dashboard/scans/${scan.id}/verified-report?message=Verified report request already exists`,
+    );
   }
 
-  const { error } = await supabase
-    .from("verified_report_requests")
-    .insert({
-      user_id: ownerId,
-      scan_result_id: scan.id,
-      status: "requested",
-      customer_message: customerMessage || null,
-      updated_at: new Date().toISOString(),
-    });
+  const { error } = await supabase.from("verified_report_requests").insert({
+    user_id: ownerId,
+    scan_result_id: scan.id,
+    status: "requested",
+    customer_message: customerMessage || null,
+    updated_at: new Date().toISOString(),
+  });
 
   if (error) {
-    redirect(`/dashboard/scans/${scan.id}/verified-report?message=${encodeURIComponent(error.message)}`);
+    redirect(
+      `/dashboard/scans/${scan.id}/verified-report?message=${encodeURIComponent(error.message)}`,
+    );
   }
 
   revalidatePath(`/dashboard/scans/${scan.id}/verified-report`);
   revalidatePath("/dashboard/admin/verified-reports");
 
-  redirect(`/dashboard/scans/${scan.id}/verified-report?message=Verified paid report requested`);
+  redirect(
+    `/dashboard/scans/${scan.id}/verified-report?message=Verified paid report requested`,
+  );
 }

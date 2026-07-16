@@ -45,7 +45,8 @@ export async function addWebsite(formData: FormData) {
   try {
     normalizedUrl = normalizeWebsiteUrl(websiteUrlInput);
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Invalid website URL";
+    const message =
+      error instanceof Error ? error.message : "Invalid website URL";
     redirect(`/dashboard/websites/new?message=${encodeURIComponent(message)}`);
   }
 
@@ -67,7 +68,9 @@ export async function addWebsite(formData: FormData) {
     const decision = canAddWebsite(access, usage);
 
     if (!decision.allowed) {
-      redirect(`/dashboard/subscription?message=${encodeLimitMessage(decision.message)}`);
+      redirect(
+        `/dashboard/subscription?message=${encodeLimitMessage(decision.message)}`,
+      );
     }
   }
 
@@ -81,7 +84,9 @@ export async function addWebsite(formData: FormData) {
   });
 
   if (error) {
-    redirect(`/dashboard/websites/new?message=${encodeURIComponent(error.message)}`);
+    redirect(
+      `/dashboard/websites/new?message=${encodeURIComponent(error.message)}`,
+    );
   }
 
   revalidatePath("/dashboard");
@@ -117,7 +122,9 @@ export async function startPassiveScan(formData: FormData) {
     const decision = canRunScan(access, usage);
 
     if (!decision.allowed) {
-      redirect(`/dashboard/subscription?message=${encodeLimitMessage(decision.message)}`);
+      redirect(
+        `/dashboard/subscription?message=${encodeLimitMessage(decision.message)}`,
+      );
     }
   }
 
@@ -151,7 +158,9 @@ export async function startPassiveScan(formData: FormData) {
     .single();
 
   if (scanError || !scanResult) {
-    redirect(`/dashboard/websites?message=${encodeURIComponent(scanError?.message || "Scan could not be saved")}`);
+    redirect(
+      `/dashboard/websites?message=${encodeURIComponent(scanError?.message || "Scan could not be saved")}`,
+    );
   }
 
   if (scan.findings.length > 0) {
@@ -170,7 +179,9 @@ export async function startPassiveScan(formData: FormData) {
       .insert(findingRows);
 
     if (findingsError) {
-      redirect(`/dashboard/scans/${scanResult.id}?message=${encodeURIComponent(findingsError.message)}`);
+      redirect(
+        `/dashboard/scans/${scanResult.id}?message=${encodeURIComponent(findingsError.message)}`,
+      );
     }
   }
 

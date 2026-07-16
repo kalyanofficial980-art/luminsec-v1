@@ -28,7 +28,10 @@ export default function SecurityPage() {
   return (
     <main className="min-h-screen bg-slate-950 px-6 py-16 text-white">
       <div className="mx-auto max-w-6xl">
-        <Link href="/" className="text-sm font-bold text-cyan-300 hover:text-cyan-200">
+        <Link
+          href="/"
+          className="text-sm font-bold text-cyan-300 hover:text-cyan-200"
+        >
           ← Back to home
         </Link>
 
@@ -42,14 +45,18 @@ export default function SecurityPage() {
           </h1>
 
           <p className="mt-5 max-w-3xl text-lg leading-8 text-slate-300">
-            VeyraSec is built for safe, passive website trust reports for small businesses.
-            It helps website owners understand visible trust signals without running intrusive tests.
+            VeyraSec is built for safe, passive website trust reports for small
+            businesses. It helps website owners understand visible trust signals
+            without running intrusive tests.
           </p>
         </section>
 
         <section className="mt-8 grid gap-5 md:grid-cols-2">
           {items.map((item) => (
-            <div key={item.title} className="rounded-3xl border border-white/10 bg-white/[0.04] p-7">
+            <div
+              key={item.title}
+              className="rounded-3xl border border-white/10 bg-white/[0.04] p-7"
+            >
               <item.icon className="h-8 w-8 text-cyan-300" />
               <h2 className="mt-5 text-2xl font-black">{item.title}</h2>
               <p className="mt-3 leading-7 text-slate-300">{item.text}</p>
@@ -60,8 +67,10 @@ export default function SecurityPage() {
         <section className="mt-8 rounded-3xl border border-amber-300/20 bg-amber-300/10 p-8">
           <h2 className="text-2xl font-black text-amber-100">Important note</h2>
           <p className="mt-4 leading-8 text-amber-50/90">
-            VeyraSec reports are informational and based on passive public signals.
-            For high-risk systems, legal compliance, or full security assurance, businesses should work with qualified cybersecurity professionals.
+            VeyraSec reports are informational and based on passive public
+            signals. For high-risk systems, legal compliance, or full security
+            assurance, businesses should work with qualified cybersecurity
+            professionals.
           </p>
         </section>
       </div>

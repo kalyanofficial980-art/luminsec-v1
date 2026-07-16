@@ -68,7 +68,8 @@ export default function PricingPage() {
           </div>
           <h1 className="text-5xl font-black">Simple V1 pricing</h1>
           <p className="mx-auto mt-4 max-w-2xl text-lg leading-8 text-slate-300">
-            {brand.name} V1 is a prototype. Pricing is designed for early pilots, small businesses, and agencies.
+            {brand.name} V1 is a prototype. Pricing is designed for early
+            pilots, small businesses, and agencies.
           </p>
         </section>
 
@@ -112,7 +113,9 @@ export default function PricingPage() {
         <section className="mt-10 rounded-3xl border border-white/10 bg-white/[0.04] p-6 text-sm leading-7 text-slate-400">
           <p className="font-bold text-white">V1 note</p>
           <p>
-            These are early pilot prices. VeyraSec V1 performs starter passive checks only. It does not replace legal advice, a full cybersecurity audit, or penetration testing.
+            These are early pilot prices. VeyraSec V1 performs starter passive
+            checks only. It does not replace legal advice, a full cybersecurity
+            audit, or penetration testing.
           </p>
         </section>
       </div>

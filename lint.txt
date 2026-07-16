@@ -1,0 +1,124 @@
+
+> luminsec-v1@0.1.0 lint
+> eslint
+
+
+C:\Users\ADMIN\Desktop\Startups\luminsec-v1\src\app\app\validation\page.tsx
+  10:3  warning  'ShieldCheck' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\ADMIN\Desktop\Startups\luminsec-v1\src\app\dashboard\admin\subscriptions\page.tsx
+   32:24  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   35:19  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   95:33  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   96:43  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  112:15  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  115:20  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  184:39  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  289:51  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\ADMIN\Desktop\Startups\luminsec-v1\src\app\dashboard\admin\verified-reports\page.tsx
+   38:31  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   77:34  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   79:13  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   81:33  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  194:32  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\ADMIN\Desktop\Startups\luminsec-v1\src\app\dashboard\payments\[id]\receipt\page.tsx
+  6:3  warning  'CheckCircle2' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\ADMIN\Desktop\Startups\luminsec-v1\src\app\dashboard\payments\page.tsx
+  5:3  warning  'CalendarDays' is defined but never used  @typescript-eslint/no-unused-vars
+  8:3  warning  'CreditCard' is defined but never used    @typescript-eslint/no-unused-vars
+
+C:\Users\ADMIN\Desktop\Startups\luminsec-v1\src\app\dashboard\scans\[id]\action-plan\page.tsx
+  14:3  warning  'ShieldCheck' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\ADMIN\Desktop\Startups\luminsec-v1\src\app\dashboard\scans\[id]\verified-report\page.tsx
+  11:3  warning  'XCircle' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\ADMIN\Desktop\Startups\luminsec-v1\src\app\dashboard\status\page.tsx
+  66:12  error  Error: Cannot create components during render
+
+Components created during render will reset their state each time they are created. Declare components outside of render.
+
+C:\Users\ADMIN\Desktop\Startups\luminsec-v1\src\app\dashboard\status\page.tsx:66:12
+  64 |           className={`inline-flex shrink-0 items-center gap-2 rounded-full border px-3 py-1 text-xs font-black ${levelClass(check.level)}`}
+  65 |         >
+> 66 |           <Icon className="h-4 w-4" />
+     |            ^^^^ This component is created during render
+  67 |           {levelLabel(check.level)}
+  68 |         </span>
+  69 |       </div>
+
+C:\Users\ADMIN\Desktop\Startups\luminsec-v1\src\app\dashboard\status\page.tsx:48:16
+  46 |
+  47 | function HealthCard({ check }: { check: HealthCheck }) {
+> 48 |   const Icon = levelIcon(check.level);
+     |                ^^^^^^^^^^^^^^^^^^^^^^ The component is created during render here
+  49 |
+  50 |   return (
+  51 |     <article className="rounded-3xl border border-white/10 bg-white/[0.04] p-6">  react-hooks/static-components
+
+C:\Users\ADMIN\Desktop\Startups\luminsec-v1\src\app\dashboard\subscription\page.tsx
+   56:38  error  Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+  310:9   error  Error: Cannot call impure function during render
+
+`Date.now` is an impure function. Calling an impure function can produce unstable results that update unpredictably when the component happens to re-render. (https://react.dev/reference/rules/components-and-hooks-must-be-pure#components-and-hooks-must-be-idempotent).
+
+C:\Users\ADMIN\Desktop\Startups\luminsec-v1\src\app\dashboard\subscription\page.tsx:310:9
+  308 |       current_period_start: new Date().toISOString(),
+  309 |       current_period_end: new Date(
+> 310 |         Date.now() + 14 * 24 * 60 * 60 * 1000,
+      |         ^^^^^^^^^^ Cannot call impure function
+  311 |       ).toISOString(),
+  312 |     });
+  313 |  react-hooks/purity
+
+C:\Users\ADMIN\Desktop\Startups\luminsec-v1\src\app\dashboard\websites\actions.ts
+  80:10  warning  'normalizeSeverity' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\ADMIN\Desktop\Startups\luminsec-v1\src\app\dashboard\websites\page.tsx
+  53:47  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\ADMIN\Desktop\Startups\luminsec-v1\src\app\demo-script\page.tsx
+  202:15  error  `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`  react/no-unescaped-entities
+  204:62  error  `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`  react/no-unescaped-entities
+  207:15  error  `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`  react/no-unescaped-entities
+  209:25  error  `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`  react/no-unescaped-entities
+  212:15  error  `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`  react/no-unescaped-entities
+  214:34  error  `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`  react/no-unescaped-entities
+  217:15  error  `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`  react/no-unescaped-entities
+  218:48  error  `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`  react/no-unescaped-entities
+  244:13  error  `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`  react/no-unescaped-entities
+  246:26  error  `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`  react/no-unescaped-entities
+
+C:\Users\ADMIN\Desktop\Startups\luminsec-v1\src\app\paid-pilot-checklist\page.tsx
+   12:10  warning  'brand' is defined but never used                                @typescript-eslint/no-unused-vars
+  166:19  error    `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`  react/no-unescaped-entities
+  166:26  error    `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`  react/no-unescaped-entities
+  189:17  error    `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`  react/no-unescaped-entities
+  190:77  error    `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`  react/no-unescaped-entities
+
+C:\Users\ADMIN\Desktop\Startups\luminsec-v1\src\lib\auth\route-access.ts
+  17:44  warning  '_profile' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\ADMIN\Desktop\Startups\luminsec-v1\src\lib\security\niche-scoring.ts
+  382:5  error  Do not assign to the variable `module`. See: https://nextjs.org/docs/messages/no-assign-module-variable  @next/next/no-assign-module-variable
+  534:8  error  Do not assign to the variable `module`. See: https://nextjs.org/docs/messages/no-assign-module-variable  @next/next/no-assign-module-variable
+
+C:\Users\ADMIN\Desktop\Startups\luminsec-v1\src\lib\security\passive-checks.ts
+   7:10  warning  'headerQualityFindingsFromHeaders' is defined but never used  @typescript-eslint/no-unused-vars
+  16:3   warning  'enrichPassiveFinding' is defined but never used              @typescript-eslint/no-unused-vars
+  17:8   warning  'EvidenceConfidence' is defined but never used                @typescript-eslint/no-unused-vars
+  18:8   warning  'EvidenceType' is defined but never used                      @typescript-eslint/no-unused-vars
+  19:8   warning  'FindingEvidence' is defined but never used                   @typescript-eslint/no-unused-vars
+  21:8   warning  'VerificationStatus' is defined but never used                @typescript-eslint/no-unused-vars
+
+C:\Users\ADMIN\Desktop\Startups\luminsec-v1\src\lib\security\safe-crawler.ts
+  91:10  warning  'lower' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\ADMIN\Desktop\Startups\luminsec-v1\src\lib\security\technology-detection.ts
+  131:10  warning  'hasAny' is defined but never used  @typescript-eslint/no-unused-vars
+
+Γ£û 50 problems (33 errors, 17 warnings)
+

@@ -1,6 +1,13 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, CheckCircle2, FileText, ShieldCheck, Target, Wrench } from "lucide-react";
+import {
+  ArrowLeft,
+  CheckCircle2,
+  FileText,
+  ShieldCheck,
+  Target,
+  Wrench,
+} from "lucide-react";
 import { requireDashboardUser } from "@/lib/auth/route-access";
 import { calculateNicheScoring } from "@/lib/security/niche-scoring";
 
@@ -40,10 +47,14 @@ function scoreBorder(score: number) {
 }
 
 function severityClass(value: string) {
-  if (value === "critical") return "border-red-400/40 bg-red-400/10 text-red-100";
-  if (value === "high") return "border-orange-400/40 bg-orange-400/10 text-orange-100";
-  if (value === "medium") return "border-amber-400/40 bg-amber-400/10 text-amber-100";
-  if (value === "low") return "border-emerald-400/40 bg-emerald-400/10 text-emerald-100";
+  if (value === "critical")
+    return "border-red-400/40 bg-red-400/10 text-red-100";
+  if (value === "high")
+    return "border-orange-400/40 bg-orange-400/10 text-orange-100";
+  if (value === "medium")
+    return "border-amber-400/40 bg-amber-400/10 text-amber-100";
+  if (value === "low")
+    return "border-emerald-400/40 bg-emerald-400/10 text-emerald-100";
   return "border-cyan-400/40 bg-cyan-400/10 text-cyan-100";
 }
 
@@ -85,7 +96,9 @@ export default async function NicheScorePage({ params }: PageProps) {
 
   let findingsQuery = supabase
     .from("scan_findings")
-    .select("id, title, category, severity, description, recommendation, evidence")
+    .select(
+      "id, title, category, severity, description, recommendation, evidence",
+    )
     .eq("scan_result_id", scan.id);
 
   if (profile.role !== "admin") {
@@ -148,9 +161,10 @@ export default async function NicheScorePage({ params }: PageProps) {
               </h1>
 
               <p className="mt-5 max-w-4xl text-lg leading-8 text-slate-300">
-                This score is built for Indian small businesses that collect customer data through
-                websites, forms, bookings, or payments. It groups repeated findings and shows the
-                most important fixes first.
+                This score is built for Indian small businesses that collect
+                customer data through websites, forms, bookings, or payments. It
+                groups repeated findings and shows the most important fixes
+                first.
               </p>
 
               <p className="mt-4 text-sm text-slate-500">
@@ -158,12 +172,16 @@ export default async function NicheScorePage({ params }: PageProps) {
               </p>
             </div>
 
-            <div className={`rounded-3xl border p-7 text-center ${scoreBorder(scoring.overallScore)}`}>
+            <div
+              className={`rounded-3xl border p-7 text-center ${scoreBorder(scoring.overallScore)}`}
+            >
               <ShieldCheck className="mx-auto h-10 w-10 text-cyan-300" />
               <p className="mt-3 text-sm font-black uppercase tracking-[0.2em] text-slate-400">
                 Overall readiness
               </p>
-              <p className={`mt-3 text-7xl font-black ${scoreTone(scoring.overallScore)}`}>
+              <p
+                className={`mt-3 text-7xl font-black ${scoreTone(scoring.overallScore)}`}
+              >
                 {scoring.overallScore}
               </p>
               <p className="mt-2 text-sm font-bold text-slate-400">/100</p>
@@ -179,14 +197,25 @@ export default async function NicheScorePage({ params }: PageProps) {
 
           <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
             {scoring.modules.map((module) => (
-              <div key={module.key} className={`rounded-3xl border p-5 ${scoreBorder(module.score)}`}>
-                <p className="text-sm font-black text-slate-300">{module.label}</p>
-                <p className={`mt-3 text-5xl font-black ${scoreTone(module.score)}`}>
+              <div
+                key={module.key}
+                className={`rounded-3xl border p-5 ${scoreBorder(module.score)}`}
+              >
+                <p className="text-sm font-black text-slate-300">
+                  {module.label}
+                </p>
+                <p
+                  className={`mt-3 text-5xl font-black ${scoreTone(module.score)}`}
+                >
                   {module.score}
                 </p>
-                <p className="mt-3 text-sm leading-6 text-slate-400">{module.explanation}</p>
+                <p className="mt-3 text-sm leading-6 text-slate-400">
+                  {module.explanation}
+                </p>
                 <p className="mt-4 text-xs font-bold text-slate-500">
-                  {module.findingCount} grouped item{module.findingCount === 1 ? "" : "s"} · penalty cap {module.maxWeight}
+                  {module.findingCount} grouped item
+                  {module.findingCount === 1 ? "" : "s"} · penalty cap{" "}
+                  {module.maxWeight}
                 </p>
               </div>
             ))}
@@ -203,12 +232,17 @@ export default async function NicheScorePage({ params }: PageProps) {
             <div className="mt-6 grid gap-4">
               {scoring.topFixes.length > 0 ? (
                 scoring.topFixes.map((finding, index) => (
-                  <article key={finding.id} className="rounded-3xl border border-white/10 bg-slate-950 p-5">
+                  <article
+                    key={finding.id}
+                    className="rounded-3xl border border-white/10 bg-slate-950 p-5"
+                  >
                     <div className="flex flex-wrap gap-2">
                       <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-black text-slate-300">
                         #{index + 1}
                       </span>
-                      <span className={`rounded-full border px-3 py-1 text-xs font-black ${severityClass(finding.severity)}`}>
+                      <span
+                        className={`rounded-full border px-3 py-1 text-xs font-black ${severityClass(finding.severity)}`}
+                      >
                         {finding.severity.toUpperCase()}
                       </span>
                       <span className="rounded-full border border-cyan-300/20 bg-cyan-300/10 px-3 py-1 text-xs font-black text-cyan-100">
@@ -219,37 +253,57 @@ export default async function NicheScorePage({ params }: PageProps) {
                       </span>
                     </div>
 
-                    <h3 className="mt-4 text-xl font-black text-white">{finding.title}</h3>
+                    <h3 className="mt-4 text-xl font-black text-white">
+                      {finding.title}
+                    </h3>
 
-                    <p className="mt-3 leading-7 text-slate-300">{finding.businessImpact}</p>
+                    <p className="mt-3 leading-7 text-slate-300">
+                      {finding.businessImpact}
+                    </p>
 
                     <div className="mt-4 rounded-2xl border border-cyan-300/20 bg-cyan-300/10 p-4">
-                      <p className="text-sm font-black text-cyan-100">Developer action</p>
-                      <p className="mt-2 leading-7 text-cyan-50/90">{finding.developerAction}</p>
+                      <p className="text-sm font-black text-cyan-100">
+                        Developer action
+                      </p>
+                      <p className="mt-2 leading-7 text-cyan-50/90">
+                        {finding.developerAction}
+                      </p>
                     </div>
 
-                    <p className="mt-4 leading-7 text-slate-400">{finding.recommendation}</p>
+                    <p className="mt-4 leading-7 text-slate-400">
+                      {finding.recommendation}
+                    </p>
 
                     {finding.evidenceSamples.length > 0 ? (
                       <div className="mt-4 rounded-2xl border border-white/10 bg-white/[0.03] p-4">
-                        <p className="text-sm font-black text-slate-300">Evidence samples</p>
+                        <p className="text-sm font-black text-slate-300">
+                          Evidence samples
+                        </p>
                         <ul className="mt-2 list-disc space-y-2 pl-5 text-sm leading-6 text-slate-400">
-                          {finding.evidenceSamples.map((evidence, evidenceIndex) => (
-                            <li key={`${finding.id}-${evidenceIndex}`}>{evidence}</li>
-                          ))}
+                          {finding.evidenceSamples.map(
+                            (evidence, evidenceIndex) => (
+                              <li key={`${finding.id}-${evidenceIndex}`}>
+                                {evidence}
+                              </li>
+                            ),
+                          )}
                         </ul>
                       </div>
                     ) : null}
 
                     <p className="mt-4 text-xs font-bold text-slate-500">
-                      Grouped {finding.findingCount} related item{finding.findingCount === 1 ? "" : "s"} · scoring penalty {finding.penalty}
+                      Grouped {finding.findingCount} related item
+                      {finding.findingCount === 1 ? "" : "s"} · scoring penalty{" "}
+                      {finding.penalty}
                     </p>
                   </article>
                 ))
               ) : (
                 <div className="rounded-3xl border border-emerald-300/20 bg-emerald-300/10 p-6">
                   <CheckCircle2 className="h-8 w-8 text-emerald-300" />
-                  <h3 className="mt-3 text-xl font-black text-emerald-100">No priority fixes found</h3>
+                  <h3 className="mt-3 text-xl font-black text-emerald-100">
+                    No priority fixes found
+                  </h3>
                   <p className="mt-2 leading-7 text-emerald-50/90">
                     This scan did not produce items that need priority scoring.
                   </p>
@@ -291,7 +345,10 @@ export default async function NicheScorePage({ params }: PageProps) {
               <h2 className="text-xl font-black">Score explanation</h2>
               <ul className="mt-4 space-y-3 text-sm leading-6 text-slate-300">
                 {scoring.summary.scoreExplanation.map((item, index) => (
-                  <li key={`${item}-${index}`} className="rounded-2xl border border-white/10 bg-slate-950 p-3">
+                  <li
+                    key={`${item}-${index}`}
+                    className="rounded-2xl border border-white/10 bg-slate-950 p-3"
+                  >
                     {item}
                   </li>
                 ))}
@@ -303,8 +360,9 @@ export default async function NicheScorePage({ params }: PageProps) {
         <section className="mt-8 rounded-3xl border border-amber-300/20 bg-amber-300/10 p-6">
           <h2 className="text-xl font-black text-amber-100">Important note</h2>
           <p className="mt-3 leading-8 text-amber-50/90">
-            This is a customer-data security and readiness score based on visible signals. It is
-            not legal advice, not DPDP/CERT-In certification, and not a penetration test.
+            This is a customer-data security and readiness score based on
+            visible signals. It is not legal advice, not DPDP/CERT-In
+            certification, and not a penetration test.
           </p>
         </section>
       </div>

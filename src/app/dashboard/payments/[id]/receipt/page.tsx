@@ -54,10 +54,12 @@ function statusLabel(status?: string | null) {
 }
 
 function statusClass(status?: string | null) {
-  if (status === "received") return "border-emerald-200 bg-emerald-50 text-emerald-900";
+  if (status === "received")
+    return "border-emerald-200 bg-emerald-50 text-emerald-900";
   if (status === "partial") return "border-cyan-200 bg-cyan-50 text-cyan-900";
   if (status === "failed") return "border-red-200 bg-red-50 text-red-900";
-  if (status === "refunded") return "border-slate-200 bg-slate-50 text-slate-800";
+  if (status === "refunded")
+    return "border-slate-200 bg-slate-50 text-slate-800";
   return "border-amber-200 bg-amber-50 text-amber-900";
 }
 
@@ -105,7 +107,9 @@ export default async function PaymentReceiptPage({
 
   const { data: businessSettings } = await supabase
     .from("business_settings")
-    .select("business_name, owner_name, email, phone, website, address, report_footer_note")
+    .select(
+      "business_name, owner_name, email, phone, website, address, report_footer_note",
+    )
     .eq("user_id", user.id)
     .maybeSingle();
 
@@ -175,14 +179,20 @@ export default async function PaymentReceiptPage({
                 </div>
               </div>
 
-              <h1 className="text-5xl font-black tracking-tight">{documentTitle}</h1>
+              <h1 className="text-5xl font-black tracking-tight">
+                {documentTitle}
+              </h1>
 
               <p className="mt-4 text-slate-300">
-                Document No: <span className="font-bold text-white">{documentNumber}</span>
+                Document No:{" "}
+                <span className="font-bold text-white">{documentNumber}</span>
               </p>
 
               <p className="mt-1 text-slate-300">
-                Created: <span className="font-bold text-white">{formatDateTime(paymentRow.created_at)}</span>
+                Created:{" "}
+                <span className="font-bold text-white">
+                  {formatDateTime(paymentRow.created_at)}
+                </span>
               </p>
             </div>
 
@@ -212,8 +222,12 @@ export default async function PaymentReceiptPage({
               <p>{businessSettings?.owner_name || "Business owner"}</p>
               {businessSettings?.email ? <p>{businessSettings.email}</p> : null}
               {businessSettings?.phone ? <p>{businessSettings.phone}</p> : null}
-              {businessSettings?.website ? <p className="break-all">{businessSettings.website}</p> : null}
-              {businessSettings?.address ? <p className="leading-7">{businessSettings.address}</p> : null}
+              {businessSettings?.website ? (
+                <p className="break-all">{businessSettings.website}</p>
+              ) : null}
+              {businessSettings?.address ? (
+                <p className="leading-7">{businessSettings.address}</p>
+              ) : null}
             </div>
           </div>
 
@@ -224,11 +238,17 @@ export default async function PaymentReceiptPage({
             </div>
 
             <div className="space-y-2 text-slate-700">
-              <p className="text-xl font-black text-slate-950">{paymentRow.payer_name}</p>
+              <p className="text-xl font-black text-slate-950">
+                {paymentRow.payer_name}
+              </p>
               {paymentRow.payer_email ? <p>{paymentRow.payer_email}</p> : null}
               {paymentRow.payer_phone ? <p>{paymentRow.payer_phone}</p> : null}
-              {linkedLead?.business_name ? <p>CRM lead: {linkedLead.business_name}</p> : null}
-              {linkedLead?.website_url ? <p className="break-all">{linkedLead.website_url}</p> : null}
+              {linkedLead?.business_name ? (
+                <p>CRM lead: {linkedLead.business_name}</p>
+              ) : null}
+              {linkedLead?.website_url ? (
+                <p className="break-all">{linkedLead.website_url}</p>
+              ) : null}
             </div>
           </div>
         </section>
@@ -252,14 +272,20 @@ export default async function PaymentReceiptPage({
               <tbody>
                 <tr className="border-t border-slate-200 align-top">
                   <td className="p-4">
-                    <p className="font-bold text-slate-950">VeyraSec website trust report / pilot service</p>
+                    <p className="font-bold text-slate-950">
+                      VeyraSec website trust report / pilot service
+                    </p>
                     <p className="mt-1 text-slate-600">
                       Manual payment record. No online gateway collection.
                     </p>
                   </td>
-                  <td className="p-4 text-slate-700">{methodLabel(paymentRow.payment_method)}</td>
+                  <td className="p-4 text-slate-700">
+                    {methodLabel(paymentRow.payment_method)}
+                  </td>
                   <td className="p-4">
-                    <span className={`rounded-full border px-3 py-1 text-xs font-bold ${statusClass(paymentRow.payment_status)}`}>
+                    <span
+                      className={`rounded-full border px-3 py-1 text-xs font-bold ${statusClass(paymentRow.payment_status)}`}
+                    >
                       {paymentRow.payment_status || "pending"}
                     </span>
                   </td>
@@ -278,7 +304,9 @@ export default async function PaymentReceiptPage({
               <CreditCard className="h-5 w-5" />
               <p className="font-bold">Reference</p>
             </div>
-            <p className="break-all text-slate-900">{paymentRow.payment_reference || "Not added"}</p>
+            <p className="break-all text-slate-900">
+              {paymentRow.payment_reference || "Not added"}
+            </p>
           </div>
 
           <div className="rounded-3xl border border-slate-200 bg-slate-50 p-5">
@@ -286,7 +314,9 @@ export default async function PaymentReceiptPage({
               <CalendarDays className="h-5 w-5" />
               <p className="font-bold">Payment date</p>
             </div>
-            <p className="text-slate-900">{paymentRow.payment_date || "Not received yet"}</p>
+            <p className="text-slate-900">
+              {paymentRow.payment_date || "Not received yet"}
+            </p>
           </div>
 
           <div className="rounded-3xl border border-slate-200 bg-slate-50 p-5">
@@ -294,7 +324,9 @@ export default async function PaymentReceiptPage({
               <IndianRupee className="h-5 w-5" />
               <p className="font-bold">Due date</p>
             </div>
-            <p className="text-slate-900">{paymentRow.due_date || "Not added"}</p>
+            <p className="text-slate-900">
+              {paymentRow.due_date || "Not added"}
+            </p>
           </div>
         </section>
 
@@ -308,17 +340,19 @@ export default async function PaymentReceiptPage({
         <section className="mt-8 rounded-3xl border border-amber-200 bg-amber-50 p-6 text-amber-950 print:mt-6">
           <h2 className="text-2xl font-black">Important note</h2>
           <p className="mt-3 leading-8">
-            This is a manually generated payment document from VeyraSec. It does not collect money,
-            verify bank transactions, generate GST/tax-compliant invoices automatically, or replace
-            accounting records. Confirm payment manually and take advice from a CA or trusted adult
-            guardian for tax/legal setup.
+            This is a manually generated payment document from VeyraSec. It does
+            not collect money, verify bank transactions, generate
+            GST/tax-compliant invoices automatically, or replace accounting
+            records. Confirm payment manually and take advice from a CA or
+            trusted adult guardian for tax/legal setup.
           </p>
         </section>
 
         <footer className="mt-8 border-t border-slate-200 pt-5 text-sm text-slate-500">
           <div className="flex flex-col justify-between gap-3 md:flex-row md:items-center">
             <p>
-              Prepared with {brand.name} {brand.version}. Manual payment tracking only.
+              Prepared with {brand.name} {brand.version}. Manual payment
+              tracking only.
             </p>
             <p className="break-all">
               {businessSettings?.email || brand.supportEmail}

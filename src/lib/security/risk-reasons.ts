@@ -60,7 +60,7 @@ function strongestScore(score: ScoreBreakdown) {
 export function buildRiskReason(
   score: ScoreBreakdown,
   riskLevel: SecuritySeverity,
-  findings: ProfessionalFinding[]
+  findings: ProfessionalFinding[],
 ) {
   const [weakestLabel, weakestValue] = weakestScore(score);
   const majorFindings = topFindings(findings, 3);
@@ -86,7 +86,7 @@ export function buildRiskReason(
 
 export function buildScoreExplanation(
   score: ScoreBreakdown,
-  findings: ProfessionalFinding[]
+  findings: ProfessionalFinding[],
 ) {
   const [weakestLabel, weakestValue] = weakestScore(score);
   const [strongestLabel, strongestValue] = strongestScore(score);
@@ -102,7 +102,7 @@ export function buildScoreExplanation(
     lines.push(
       `Most findings are related to ${categories
         .map(([category, count]) => `${categoryLabel(category)} (${count})`)
-        .join(", ")}.`
+        .join(", ")}.`,
     );
   }
 
@@ -118,7 +118,7 @@ export function buildScoreDrivers(findings: ProfessionalFinding[]) {
 
   return majorFindings.map((finding) => {
     return `${finding.title} reduced the score because it affects ${categoryLabel(
-      finding.category
+      finding.category,
     )} with ${finding.severity} severity.`;
   });
 }

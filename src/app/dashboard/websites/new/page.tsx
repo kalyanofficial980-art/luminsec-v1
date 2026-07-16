@@ -41,7 +41,9 @@ export default async function NewWebsitePage({
             </div>
             <div>
               <h1 className="text-4xl font-black">Add website</h1>
-              <p className="text-slate-400">Add a website before running a passive trust scan.</p>
+              <p className="text-slate-400">
+                Add a website before running a passive trust scan.
+              </p>
             </div>
           </div>
 
@@ -78,7 +80,9 @@ export default async function NewWebsitePage({
           {decision.allowed ? (
             <form action={addWebsite} className="grid gap-5">
               <label className="grid gap-2">
-                <span className="text-sm font-semibold text-slate-300">Website name</span>
+                <span className="text-sm font-semibold text-slate-300">
+                  Website name
+                </span>
                 <input
                   name="name"
                   placeholder="Example: Client website"
@@ -87,7 +91,9 @@ export default async function NewWebsitePage({
               </label>
 
               <label className="grid gap-2">
-                <span className="text-sm font-semibold text-slate-300">Website URL *</span>
+                <span className="text-sm font-semibold text-slate-300">
+                  Website URL *
+                </span>
                 <input
                   name="url"
                   placeholder="https://example.com"
@@ -97,8 +103,9 @@ export default async function NewWebsitePage({
               </label>
 
               <div className="rounded-2xl border border-cyan-300/20 bg-cyan-300/10 p-4 text-sm leading-7 text-cyan-50/90">
-                VeyraSec only performs safe passive checks. No login testing, no exploit testing,
-                no brute force, no port scanning, and no penetration testing.
+                VeyraSec only performs safe passive checks. No login testing, no
+                exploit testing, no brute force, no port scanning, and no
+                penetration testing.
               </div>
 
               <button

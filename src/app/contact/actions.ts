@@ -74,5 +74,7 @@ export async function submitPilotLead(formData: FormData) {
     redirect(`/pilot?message=${encodeURIComponent(error.message)}`);
   }
 
-  redirect("/pilot?message=Pilot request submitted. We will review your website and contact you.");
+  redirect(
+    "/pilot?message=Pilot request submitted. We will review your website and contact you.",
+  );
 }

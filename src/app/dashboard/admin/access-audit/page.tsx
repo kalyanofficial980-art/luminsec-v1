@@ -26,7 +26,9 @@ export default async function AccessAuditPage() {
 
   const { data: plans } = await supabase
     .from("subscription_plans")
-    .select("id, name, max_websites, max_scans_per_month, pdf_reports_enabled, public_share_enabled, agency_mode_enabled, manual_payments_enabled, is_active")
+    .select(
+      "id, name, max_websites, max_scans_per_month, pdf_reports_enabled, public_share_enabled, agency_mode_enabled, manual_payments_enabled, is_active",
+    )
     .order("sort_order", { ascending: true });
 
   const { count: adminCount } = await supabase
@@ -45,22 +47,60 @@ export default async function AccessAuditPage() {
 
   const planRows = plans ?? [];
   const planIds = planRows.map((plan) => plan.id);
-  const requiredPlans = ["single_report", "beginner", "starter", "business", "pro"];
+  const requiredPlans = [
+    "single_report",
+    "beginner",
+    "starter",
+    "business",
+    "pro",
+  ];
   const missingPlans = requiredPlans.filter((plan) => !planIds.includes(plan));
 
   const planConfigOk =
     missingPlans.length === 0 &&
-    planRows.some((plan) => plan.id === "single_report" && plan.pdf_reports_enabled && !plan.public_share_enabled && !plan.agency_mode_enabled) &&
-    planRows.some((plan) => plan.id === "beginner" && plan.pdf_reports_enabled && !plan.public_share_enabled && !plan.agency_mode_enabled) &&
-    planRows.some((plan) => plan.id === "starter" && plan.pdf_reports_enabled && plan.public_share_enabled && !plan.agency_mode_enabled) &&
-    planRows.some((plan) => plan.id === "business" && plan.pdf_reports_enabled && plan.public_share_enabled && !plan.agency_mode_enabled) &&
-    planRows.some((plan) => plan.id === "pro" && plan.pdf_reports_enabled && plan.public_share_enabled && !plan.agency_mode_enabled);
+    planRows.some(
+      (plan) =>
+        plan.id === "single_report" &&
+        plan.pdf_reports_enabled &&
+        !plan.public_share_enabled &&
+        !plan.agency_mode_enabled,
+    ) &&
+    planRows.some(
+      (plan) =>
+        plan.id === "beginner" &&
+        plan.pdf_reports_enabled &&
+        !plan.public_share_enabled &&
+        !plan.agency_mode_enabled,
+    ) &&
+    planRows.some(
+      (plan) =>
+        plan.id === "starter" &&
+        plan.pdf_reports_enabled &&
+        plan.public_share_enabled &&
+        !plan.agency_mode_enabled,
+    ) &&
+    planRows.some(
+      (plan) =>
+        plan.id === "business" &&
+        plan.pdf_reports_enabled &&
+        plan.public_share_enabled &&
+        !plan.agency_mode_enabled,
+    ) &&
+    planRows.some(
+      (plan) =>
+        plan.id === "pro" &&
+        plan.pdf_reports_enabled &&
+        plan.public_share_enabled &&
+        !plan.agency_mode_enabled,
+    );
 
   const auditCards = [
     {
       label: "Plan configuration",
       ok: planConfigOk,
-      message: planConfigOk ? "Single-time Report, Beginner, Starter, Business, and Pro rules are aligned." : `Missing/misaligned: ${missingPlans.join(", ") || "plan settings"}`,
+      message: planConfigOk
+        ? "Single-time Report, Beginner, Starter, Business, and Pro rules are aligned."
+        : `Missing/misaligned: ${missingPlans.join(", ") || "plan settings"}`,
     },
     {
       label: "Admin account",
@@ -137,7 +177,8 @@ export default async function AccessAuditPage() {
               </h1>
 
               <p className="mt-4 max-w-3xl leading-8 text-slate-300">
-                Admin-only audit for customer access, subscription rules, protected pages, and launch readiness.
+                Admin-only audit for customer access, subscription rules,
+                protected pages, and launch readiness.
               </p>
             </div>
 
@@ -153,15 +194,22 @@ export default async function AccessAuditPage() {
 
         <section className="mt-8 grid gap-4 md:grid-cols-4">
           {auditCards.map((card) => (
-            <div key={card.label} className={`rounded-3xl border p-6 ${statusClass(card.ok)}`}>
+            <div
+              key={card.label}
+              className={`rounded-3xl border p-6 ${statusClass(card.ok)}`}
+            >
               {card.ok ? (
                 <CheckCircle2 className="mb-4 h-7 w-7" />
               ) : (
                 <XCircle className="mb-4 h-7 w-7" />
               )}
               <p className="text-sm opacity-80">{card.label}</p>
-              <p className="mt-2 text-lg font-black">{card.ok ? "OK" : "Check"}</p>
-              <p className="mt-2 text-sm leading-6 opacity-80">{card.message}</p>
+              <p className="mt-2 text-lg font-black">
+                {card.ok ? "OK" : "Check"}
+              </p>
+              <p className="mt-2 text-sm leading-6 opacity-80">
+                {card.message}
+              </p>
             </div>
           ))}
         </section>
@@ -177,20 +225,35 @@ export default async function AccessAuditPage() {
               <thead className="bg-slate-950 text-slate-300">
                 <tr>
                   <th className="border-b border-white/10 p-4">Feature</th>
-                  <th className="border-b border-white/10 p-4">Single-time</th><th className="border-b border-white/10 p-4">Beginner</th>
+                  <th className="border-b border-white/10 p-4">Single-time</th>
+                  <th className="border-b border-white/10 p-4">Beginner</th>
                   <th className="border-b border-white/10 p-4">Starter</th>
                   <th className="border-b border-white/10 p-4">Pro</th>
-                  <th className="border-b border-white/10 p-4">Business</th><th className="border-b border-white/10 p-4">Pro</th>
+                  <th className="border-b border-white/10 p-4">Business</th>
+                  <th className="border-b border-white/10 p-4">Pro</th>
                   <th className="border-b border-white/10 p-4">Admin</th>
                 </tr>
               </thead>
               <tbody>
                 {accessMatrix.map((row) => (
                   <tr key={row.feature} className="bg-slate-950/60">
-                    <td className="border-b border-white/10 p-4 font-bold text-white">{row.feature}</td>
-                    {(["single_report", "beginner", "starter", "business", "pro", "admin"] as const).map((plan) => (
+                    <td className="border-b border-white/10 p-4 font-bold text-white">
+                      {row.feature}
+                    </td>
+                    {(
+                      [
+                        "single_report",
+                        "beginner",
+                        "starter",
+                        "business",
+                        "pro",
+                        "admin",
+                      ] as const
+                    ).map((plan) => (
                       <td key={plan} className="border-b border-white/10 p-4">
-                        <span className={`inline-flex rounded-full border px-3 py-1 text-xs font-bold ${accessValueClass(row[plan])}`}>
+                        <span
+                          className={`inline-flex rounded-full border px-3 py-1 text-xs font-bold ${accessValueClass(row[plan])}`}
+                        >
                           {accessValueText(row[plan])}
                         </span>
                       </td>
@@ -211,7 +274,10 @@ export default async function AccessAuditPage() {
 
             <div className="grid gap-3">
               {protectedPages.map((page) => (
-                <div key={page.page} className="rounded-2xl border border-white/10 bg-slate-950 p-4">
+                <div
+                  key={page.page}
+                  className="rounded-2xl border border-white/10 bg-slate-950 p-4"
+                >
                   <p className="font-bold text-white">{page.page}</p>
                   <p className="mt-1 text-sm text-slate-400">{page.access}</p>
                 </div>
@@ -238,7 +304,10 @@ export default async function AccessAuditPage() {
                 "Scan limit blocks correctly.",
                 "Plan approval changes customer access.",
               ].map((item, index) => (
-                <div key={item} className="rounded-2xl border border-white/10 bg-slate-950 p-4">
+                <div
+                  key={item}
+                  className="rounded-2xl border border-white/10 bg-slate-950 p-4"
+                >
                   <div className="flex gap-3">
                     <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-cyan-300 text-xs font-black text-slate-950">
                       {index + 1}
@@ -254,8 +323,9 @@ export default async function AccessAuditPage() {
         <section className="mt-8 rounded-3xl border border-amber-300/20 bg-amber-300/10 p-8">
           <h2 className="text-2xl font-black text-amber-100">Launch rule</h2>
           <p className="mt-4 max-w-4xl leading-8 text-amber-50/90">
-            Account type only personalizes the dashboard. Subscription plan controls feature access.
-            Admin accounts are for internal operations only.
+            Account type only personalizes the dashboard. Subscription plan
+            controls feature access. Admin accounts are for internal operations
+            only.
           </p>
         </section>
       </div>

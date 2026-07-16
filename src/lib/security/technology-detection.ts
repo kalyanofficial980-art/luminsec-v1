@@ -73,17 +73,14 @@ function confidenceLabel(confidence: TechnologyConfidence) {
   return "Low confidence";
 }
 
-function addTechnology(
-  items: TechnologySignal[],
-  signal: TechnologySignal
-) {
+function addTechnology(items: TechnologySignal[], signal: TechnologySignal) {
   const key = `${signal.name}:${signal.category}:${signal.version || ""}`;
 
   if (
     items.some(
       (item) =>
         `${item.name}:${item.category}:${item.version || ""}`.toLowerCase() ===
-        key.toLowerCase()
+        key.toLowerCase(),
     )
   ) {
     return;
@@ -94,7 +91,7 @@ function addTechnology(
 
 function extractGenerator(body: string) {
   const match = body.match(
-    /<meta[^>]+name=["']generator["'][^>]+content=["']([^"']+)["'][^>]*>/i
+    /<meta[^>]+name=["']generator["'][^>]+content=["']([^"']+)["'][^>]*>/i,
   );
 
   return normalize(match?.[1]);
@@ -109,7 +106,9 @@ function extractVersion(text: string, product: string) {
 
 function extractScriptHosts(body: string, baseUrl: string) {
   const hosts: string[] = [];
-  const scriptMatches = body.matchAll(/<script\b[^>]*\bsrc=["']([^"']+)["'][^>]*>/gi);
+  const scriptMatches = body.matchAll(
+    /<script\b[^>]*\bsrc=["']([^"']+)["'][^>]*>/gi,
+  );
 
   for (const match of scriptMatches) {
     const src = normalize(match[1]);
@@ -167,7 +166,8 @@ export function detectTechnologySignals(input: {
       category: "cms",
       confidence: htmlLower.includes("/wp-content/") ? "high" : "medium",
       evidence:
-        generator || "Visible WordPress asset/API signal found in homepage HTML.",
+        generator ||
+        "Visible WordPress asset/API signal found in homepage HTML.",
       version: extractVersion(generator, "wordpress") || undefined,
       riskNote:
         "Keep WordPress core, themes, and plugins updated. Avoid exposing unnecessary version details.",
@@ -183,7 +183,9 @@ export function detectTechnologySignals(input: {
     addTechnology(technologies, {
       name: "WooCommerce",
       category: "ecommerce",
-      confidence: htmlLower.includes("wp-content/plugins/woocommerce") ? "high" : "medium",
+      confidence: htmlLower.includes("wp-content/plugins/woocommerce")
+        ? "high"
+        : "medium",
       evidence: "Visible WooCommerce signal found in homepage HTML.",
       version: extractVersion(generator, "woocommerce") || undefined,
       riskNote:
@@ -356,7 +358,10 @@ export function detectTechnologySignals(input: {
 
   const paymentSignals: TechnologySignal[] = [];
 
-  if (htmlLower.includes("checkout.razorpay.com") || htmlLower.includes("razorpay")) {
+  if (
+    htmlLower.includes("checkout.razorpay.com") ||
+    htmlLower.includes("razorpay")
+  ) {
     paymentSignals.push({
       name: "Razorpay",
       category: "payment",
@@ -378,14 +383,16 @@ export function detectTechnologySignals(input: {
     });
   }
 
-  if (htmlLower.includes("paypal.com/sdk/js") || htmlLower.includes("paypalobjects.com")) {
+  if (
+    htmlLower.includes("paypal.com/sdk/js") ||
+    htmlLower.includes("paypalobjects.com")
+  ) {
     paymentSignals.push({
       name: "PayPal",
       category: "payment",
       confidence: "high",
       evidence: "Visible PayPal script/domain signal found.",
-      riskNote:
-        "Review payment integration and privacy disclosures.",
+      riskNote: "Review payment integration and privacy disclosures.",
     });
   }
 
@@ -419,8 +426,11 @@ export function detectTechnologySignals(input: {
       hosting: firstByCategory("hosting"),
       cdn: firstByCategory("cdn"),
       server: firstByCategory("server"),
-      analyticsCount: technologies.filter((item) => item.category === "analytics").length,
-      paymentCount: technologies.filter((item) => item.category === "payment").length,
+      analyticsCount: technologies.filter(
+        (item) => item.category === "analytics",
+      ).length,
+      paymentCount: technologies.filter((item) => item.category === "payment")
+        .length,
       exposedVersions,
     },
     raw: {
@@ -440,7 +450,7 @@ export function detectTechnologySignals(input: {
 }
 
 export function technologyFindingsFromSignals(
-  detection: TechnologyDetectionResult
+  detection: TechnologyDetectionResult,
 ): TechnologyFinding[] {
   const findings: TechnologyFinding[] = [];
 

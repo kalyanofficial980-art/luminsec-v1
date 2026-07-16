@@ -1,5 +1,6 @@
 export type AccessValue = "yes" | "limited" | "no" | "admin";
-export type AccessPlan = "single_report" | "beginner" | "starter" | "business" | "pro" | "admin";
+export type AccessPlan =
+  "single_report" | "beginner" | "starter" | "business" | "pro" | "admin";
 
 export type AccessMatrixRow = {
   feature: string;
@@ -85,8 +86,11 @@ export function accessValueText(value: AccessValue) {
 }
 
 export function accessValueClass(value: AccessValue) {
-  if (value === "yes") return "border-emerald-400/20 bg-emerald-400/10 text-emerald-100";
-  if (value === "limited") return "border-amber-400/20 bg-amber-400/10 text-amber-100";
-  if (value === "admin") return "border-cyan-400/20 bg-cyan-400/10 text-cyan-100";
+  if (value === "yes")
+    return "border-emerald-400/20 bg-emerald-400/10 text-emerald-100";
+  if (value === "limited")
+    return "border-amber-400/20 bg-amber-400/10 text-amber-100";
+  if (value === "admin")
+    return "border-cyan-400/20 bg-cyan-400/10 text-cyan-100";
   return "border-slate-400/20 bg-slate-400/10 text-slate-300";
 }

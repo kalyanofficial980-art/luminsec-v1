@@ -32,7 +32,9 @@ export async function enablePublicReport(formData: FormData) {
   const allowed = await userCanAccessFeature(supabase, user.id, "public_share");
 
   if (!allowed) {
-    redirect(`/dashboard/subscription?message=${encodeURIComponent(featureMessage("public_share"))}`);
+    redirect(
+      `/dashboard/subscription?message=${encodeURIComponent(featureMessage("public_share"))}`,
+    );
   }
 
   const { data: scan } = await supabase
@@ -58,7 +60,9 @@ export async function enablePublicReport(formData: FormData) {
     .eq("user_id", user.id);
 
   if (error) {
-    redirect(`/dashboard/scans/${scanId}/share?message=${encodeURIComponent(error.message)}`);
+    redirect(
+      `/dashboard/scans/${scanId}/share?message=${encodeURIComponent(error.message)}`,
+    );
   }
 
   revalidatePath(`/dashboard/scans/${scanId}`);
@@ -105,7 +109,9 @@ export async function disablePublicReport(formData: FormData) {
     .eq("user_id", user.id);
 
   if (error) {
-    redirect(`/dashboard/scans/${scanId}/share?message=${encodeURIComponent(error.message)}`);
+    redirect(
+      `/dashboard/scans/${scanId}/share?message=${encodeURIComponent(error.message)}`,
+    );
   }
 
   revalidatePath(`/dashboard/scans/${scanId}`);

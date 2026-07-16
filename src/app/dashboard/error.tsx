@@ -17,12 +17,15 @@ export default function DashboardError({
         <h1 className="text-4xl font-black">Dashboard could not load</h1>
 
         <p className="mx-auto mt-4 max-w-2xl leading-8 text-red-50/90">
-          This can happen if a table is missing, an environment variable is missing,
-          or Supabase returned an error. Try again or open production status.
+          This can happen if a table is missing, an environment variable is
+          missing, or Supabase returned an error. Try again or open production
+          status.
         </p>
 
         {error.digest ? (
-          <p className="mt-4 text-xs text-red-100/70">Error reference: {error.digest}</p>
+          <p className="mt-4 text-xs text-red-100/70">
+            Error reference: {error.digest}
+          </p>
         ) : null}
 
         <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">

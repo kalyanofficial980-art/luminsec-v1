@@ -1,4 +1,7 @@
-import { enrichPassiveFinding, rootCauseForFinding } from "./accuracy-foundation";
+import {
+  enrichPassiveFinding,
+  rootCauseForFinding,
+} from "./accuracy-foundation";
 
 type Severity = "info" | "low" | "medium" | "high" | "critical";
 type Confidence = "high" | "medium" | "low";
@@ -95,7 +98,13 @@ function normalizedConfidence(value: unknown): Confidence {
 }
 
 function evidenceSample(finding: GuardableFinding) {
-  const value = String(finding.observed_value || finding.evidence || finding.description || finding.title || "")
+  const value = String(
+    finding.observed_value ||
+      finding.evidence ||
+      finding.description ||
+      finding.title ||
+      "",
+  )
     .replace(/\s+/g, " ")
     .trim();
 
@@ -105,11 +114,11 @@ function evidenceSample(finding: GuardableFinding) {
 function hasCustomerDataCollectionSignal(findings: GuardableFinding[]) {
   return findings.some((finding) => {
     const haystack = lower(
-      `${finding.id} ${finding.title} ${finding.category} ${finding.description} ${finding.evidence} ${finding.root_cause}`
+      `${finding.id} ${finding.title} ${finding.category} ${finding.description} ${finding.evidence} ${finding.root_cause}`,
     );
 
     return /form|lead|booking|appointment|checkout|payment|razorpay|stripe|paypal|password|login|cookie|tracking|analytics|tag manager|customer data|student|patient|phone|email/.test(
-      haystack
+      haystack,
     );
   });
 }
@@ -128,7 +137,11 @@ function addGuardNote<T extends GuardableFinding>(finding: T, note: string): T {
   };
 }
 
-function capSeverity<T extends GuardableFinding>(finding: T, maxSeverity: Severity, note: string): T {
+function capSeverity<T extends GuardableFinding>(
+  finding: T,
+  maxSeverity: Severity,
+  note: string,
+): T {
   const currentSeverity = normalizedSeverity(finding.severity);
 
   if (SEVERITY_RANK[currentSeverity] <= SEVERITY_RANK[maxSeverity]) {
@@ -147,7 +160,7 @@ function capSeverity<T extends GuardableFinding>(finding: T, maxSeverity: Severi
 
 function applySingleFindingGuard<T extends GuardableFinding>(
   finding: T,
-  context: { hasCustomerDataSignal: boolean }
+  context: { hasCustomerDataSignal: boolean },
 ): T {
   let guarded = {
     ...finding,
@@ -158,14 +171,14 @@ function applySingleFindingGuard<T extends GuardableFinding>(
   } as T;
 
   const haystack = lower(
-    `${guarded.id} ${guarded.title} ${guarded.category} ${guarded.description} ${guarded.evidence} ${guarded.recommendation} ${guarded.evidence_type} ${guarded.verification_status}`
+    `${guarded.id} ${guarded.title} ${guarded.category} ${guarded.description} ${guarded.evidence} ${guarded.recommendation} ${guarded.evidence_type} ${guarded.verification_status}`,
   );
 
   if (guarded.verification_status === "needs_confirmation") {
     guarded = capSeverity(
       guarded,
       "low",
-      "Needs-confirmation items are not treated as verified failures until business/developer confirmation."
+      "Needs-confirmation items are not treated as verified failures until business/developer confirmation.",
     );
   }
 
@@ -173,7 +186,7 @@ function applySingleFindingGuard<T extends GuardableFinding>(
     guarded = capSeverity(
       guarded,
       "low",
-      "Low-confidence signals are capped to reduce false-positive risk."
+      "Low-confidence signals are capped to reduce false-positive risk.",
     );
   }
 
@@ -181,15 +194,18 @@ function applySingleFindingGuard<T extends GuardableFinding>(
     guarded = capSeverity(
       guarded,
       "low",
-      "Technology detection is advisory and should not be treated as a confirmed vulnerability."
+      "Technology detection is advisory and should not be treated as a confirmed vulnerability.",
     );
   }
 
-  if (guarded.evidence_type === "known_risk_advisory" || /known risk|advisory|potential|review recommended/.test(haystack)) {
+  if (
+    guarded.evidence_type === "known_risk_advisory" ||
+    /known risk|advisory|potential|review recommended/.test(haystack)
+  ) {
     guarded = capSeverity(
       guarded,
       "low",
-      "Known-risk intelligence is advisory unless manually confirmed with stronger evidence."
+      "Known-risk intelligence is advisory unless manually confirmed with stronger evidence.",
     );
   }
 
@@ -197,7 +213,7 @@ function applySingleFindingGuard<T extends GuardableFinding>(
     guarded = capSeverity(
       guarded,
       "info",
-      "robots.txt and sitemap.xml are hygiene signals, not direct security failures."
+      "robots.txt and sitemap.xml are hygiene signals, not direct security failures.",
     );
   }
 
@@ -205,15 +221,18 @@ function applySingleFindingGuard<T extends GuardableFinding>(
     guarded = capSeverity(
       guarded,
       "info",
-      "Missing contact signal is a trust issue, not a direct technical vulnerability."
+      "Missing contact signal is a trust issue, not a direct technical vulnerability.",
     );
   }
 
-  if (/missing_privacy_policy/.test(guarded.id) && !context.hasCustomerDataSignal) {
+  if (
+    /missing_privacy_policy/.test(guarded.id) &&
+    !context.hasCustomerDataSignal
+  ) {
     guarded = capSeverity(
       guarded,
       "low",
-      "Privacy-policy absence is less severe when no customer-data collection signal was observed."
+      "Privacy-policy absence is less severe when no customer-data collection signal was observed.",
     );
   }
 
@@ -221,7 +240,7 @@ function applySingleFindingGuard<T extends GuardableFinding>(
     guarded = capSeverity(
       guarded,
       "low",
-      "High script count is an attack-surface signal, not a confirmed vulnerability."
+      "High script count is an attack-surface signal, not a confirmed vulnerability.",
     );
   }
 
@@ -299,22 +318,33 @@ function mergeRootCauseDuplicates<T extends GuardableFinding>(findings: T[]) {
   return [...groups.values()];
 }
 
-export function applyFalsePositiveGuard<T extends GuardableFinding>(findings: T[]): T[] {
+export function applyFalsePositiveGuard<T extends GuardableFinding>(
+  findings: T[],
+): T[] {
   const safeFindings = Array.isArray(findings) ? findings : [];
-  const enrichedFindings = safeFindings.map((finding) => enrichPassiveFinding(finding) as T);
+  const enrichedFindings = safeFindings.map(
+    (finding) => enrichPassiveFinding(finding) as T,
+  );
   const context = {
     hasCustomerDataSignal: hasCustomerDataCollectionSignal(enrichedFindings),
   };
 
-  const guardedFindings = enrichedFindings.map((finding) => applySingleFindingGuard(finding, context));
+  const guardedFindings = enrichedFindings.map((finding) =>
+    applySingleFindingGuard(finding, context),
+  );
 
   return mergeRootCauseDuplicates(guardedFindings).sort((a, b) => {
-    const severityDiff = SEVERITY_RANK[normalizedSeverity(b.severity)] - SEVERITY_RANK[normalizedSeverity(a.severity)];
+    const severityDiff =
+      SEVERITY_RANK[normalizedSeverity(b.severity)] -
+      SEVERITY_RANK[normalizedSeverity(a.severity)];
 
     if (severityDiff !== 0) {
       return severityDiff;
     }
 
-    return CONFIDENCE_RANK[normalizedConfidence(b.confidence)] - CONFIDENCE_RANK[normalizedConfidence(a.confidence)];
+    return (
+      CONFIDENCE_RANK[normalizedConfidence(b.confidence)] -
+      CONFIDENCE_RANK[normalizedConfidence(a.confidence)]
+    );
   });
 }

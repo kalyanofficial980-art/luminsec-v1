@@ -63,11 +63,16 @@ export async function addCustomerFeedback(formData: FormData) {
     is_paid_pilot: isPaidPilot,
     demo_completed: demoCompleted,
     testimonial_received: testimonialReceived,
-    last_contacted_at: status === "contacted" || status === "replied" ? new Date().toISOString() : null,
+    last_contacted_at:
+      status === "contacted" || status === "replied"
+        ? new Date().toISOString()
+        : null,
   });
 
   if (error) {
-    redirect(`/dashboard/validation?message=${encodeURIComponent(error.message)}`);
+    redirect(
+      `/dashboard/validation?message=${encodeURIComponent(error.message)}`,
+    );
   }
 
   revalidatePath("/dashboard");
@@ -114,7 +119,9 @@ export async function updateLeadStatus(formData: FormData) {
     .eq("user_id", user.id);
 
   if (error) {
-    redirect(`/dashboard/validation?message=${encodeURIComponent(error.message)}`);
+    redirect(
+      `/dashboard/validation?message=${encodeURIComponent(error.message)}`,
+    );
   }
 
   revalidatePath("/dashboard");

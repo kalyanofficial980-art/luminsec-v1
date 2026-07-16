@@ -10,7 +10,8 @@ export type DnsTrustFinding = {
   evidence: string;
   recommendation: string;
   confidence?: "high" | "medium" | "low";
-  verification_status?: "verified_by_scan" | "likely_signal" | "needs_confirmation" | "not_visible";
+  verification_status?:
+    "verified_by_scan" | "likely_signal" | "needs_confirmation" | "not_visible";
   evidence_type?: "http_probe" | "scan_quality" | "unknown";
   source_url?: string;
   observed_value?: string;
@@ -38,7 +39,7 @@ function finding(
   recommendation: string,
   description: string,
   sourceUrl: string,
-  observedValue: string
+  observedValue: string,
 ): DnsTrustFinding {
   return {
     id,
@@ -54,15 +55,19 @@ function finding(
     evidence_type: "http_probe",
     source_url: sourceUrl,
     observed_value: observedValue,
-    expected_value: "Domain should have visible DNS trust records such as MX, SPF, DMARC, and CAA where appropriate.",
-    limitation: "Passive DNS lookup only. This does not verify mailbox configuration, email delivery, or full DNSSEC posture.",
+    expected_value:
+      "Domain should have visible DNS trust records such as MX, SPF, DMARC, and CAA where appropriate.",
+    limitation:
+      "Passive DNS lookup only. This does not verify mailbox configuration, email delivery, or full DNSSEC posture.",
     root_cause: "dns_trust_records",
   };
 }
 
 function parseInput(inputUrl: string) {
   try {
-    const url = new URL(inputUrl.startsWith("http") ? inputUrl : `https://${inputUrl}`);
+    const url = new URL(
+      inputUrl.startsWith("http") ? inputUrl : `https://${inputUrl}`,
+    );
 
     return {
       checkedUrl: url.toString(),
@@ -71,7 +76,10 @@ function parseInput(inputUrl: string) {
   } catch {
     return {
       checkedUrl: inputUrl,
-      host: String(inputUrl || "").replace(/^https?:\/\//i, "").split("/")[0].toLowerCase(),
+      host: String(inputUrl || "")
+        .replace(/^https?:\/\//i, "")
+        .split("/")[0]
+        .toLowerCase(),
     };
   }
 }
@@ -131,7 +139,9 @@ async function resolveMxSafe(domain: string) {
     const dns = await import("node:dns/promises");
     const records = await dns.resolveMx(domain);
     return {
-      records: records.map((record) => `${record.exchange} priority=${record.priority}`),
+      records: records.map(
+        (record) => `${record.exchange} priority=${record.priority}`,
+      ),
       error: "",
     };
   } catch (error) {
@@ -147,7 +157,10 @@ async function resolveCaaSafe(domain: string) {
     const dns = await import("node:dns/promises");
     const records = await dns.resolveCaa(domain);
     return {
-      records: records.map((record) => `${record.critical ? "critical " : ""}${record.issue || record.issuewild || record.iodef || "unknown"}`),
+      records: records.map(
+        (record) =>
+          `${record.critical ? "critical " : ""}${record.issue || record.issuewild || record.iodef || "unknown"}`,
+      ),
       error: "",
     };
   } catch (error) {
@@ -189,7 +202,9 @@ function evidence(result: DnsProbeResult) {
     `SPF records: ${result.spf.length > 0 ? result.spf.join(" | ") : "not visible"}`,
     `DMARC records: ${result.dmarc.length > 0 ? result.dmarc.join(" | ") : "not visible"}`,
     `CAA records: ${result.caa.length > 0 ? result.caa.join(" | ") : "not visible"}`,
-    result.txtErrors.length > 0 ? `Lookup notes: ${result.txtErrors.join(" | ")}` : "",
+    result.txtErrors.length > 0
+      ? `Lookup notes: ${result.txtErrors.join(" | ")}`
+      : "",
     "Limitation: DNS visibility can vary by resolver and propagation. This is not email delivery verification.",
   ]
     .filter(Boolean)
@@ -218,12 +233,25 @@ async function probeDnsTrust(inputUrl: string): Promise<DnsProbeResult> {
       spf: spfRecords(txtResult.records),
       dmarc: dmarcRecords(dmarcTxtResult.records),
       caa: caaResult.records,
-      txtErrors: [txtResult.error, dmarcTxtResult.error, mxResult.error, caaResult.error].filter(Boolean),
+      txtErrors: [
+        txtResult.error,
+        dmarcTxtResult.error,
+        mxResult.error,
+        caaResult.error,
+      ].filter(Boolean),
     };
 
-    const score = result.mx.length + result.spf.length + result.dmarc.length + result.caa.length;
+    const score =
+      result.mx.length +
+      result.spf.length +
+      result.dmarc.length +
+      result.caa.length;
 
-    if (!best || score > best.mx.length + best.spf.length + best.dmarc.length + best.caa.length) {
+    if (
+      !best ||
+      score >
+        best.mx.length + best.spf.length + best.dmarc.length + best.caa.length
+    ) {
       best = result;
     }
 
@@ -244,7 +272,9 @@ async function probeDnsTrust(inputUrl: string): Promise<DnsProbeResult> {
   );
 }
 
-export async function dnsTrustFindingsForUrl(inputUrl: string): Promise<DnsTrustFinding[]> {
+export async function dnsTrustFindingsForUrl(
+  inputUrl: string,
+): Promise<DnsTrustFinding[]> {
   const result = await probeDnsTrust(inputUrl);
   const findings: DnsTrustFinding[] = [];
   const proof = evidence(result);
@@ -259,8 +289,8 @@ export async function dnsTrustFindingsForUrl(inputUrl: string): Promise<DnsTrust
         "Add MX records if the domain sends or receives business email. Ignore this only if the domain intentionally does not use email.",
         "The DNS lookup did not find visible MX records for the checked domain.",
         result.checkedUrl,
-        "MX not visible"
-      )
+        "MX not visible",
+      ),
     );
   }
 
@@ -274,8 +304,8 @@ export async function dnsTrustFindingsForUrl(inputUrl: string): Promise<DnsTrust
         "Add an SPF TXT record that lists approved email senders for the domain.",
         "SPF helps receiving mail servers understand which systems are allowed to send email for the domain.",
         result.checkedUrl,
-        "SPF not visible"
-      )
+        "SPF not visible",
+      ),
     );
   } else if (result.spf.length > 1) {
     findings.push(
@@ -287,8 +317,8 @@ export async function dnsTrustFindingsForUrl(inputUrl: string): Promise<DnsTrust
         "Keep only one SPF record and combine all approved senders into that single record.",
         "Multiple SPF records can cause email authentication failures.",
         result.checkedUrl,
-        `${result.spf.length} SPF records`
-      )
+        `${result.spf.length} SPF records`,
+      ),
     );
   } else if (spfTooPermissive(result.spf[0])) {
     findings.push(
@@ -300,8 +330,8 @@ export async function dnsTrustFindingsForUrl(inputUrl: string): Promise<DnsTrust
         "Avoid +all or ?all in SPF. Use a stricter all mechanism after confirming authorized senders.",
         "The visible SPF policy appears permissive and may reduce spoofing protection.",
         result.checkedUrl,
-        result.spf[0]
-      )
+        result.spf[0],
+      ),
     );
   } else if (spfSoftFail(result.spf[0])) {
     findings.push(
@@ -313,8 +343,8 @@ export async function dnsTrustFindingsForUrl(inputUrl: string): Promise<DnsTrust
         "Review whether SPF can safely move from ~all to -all after confirming all legitimate senders.",
         "The visible SPF policy uses softfail. This can be acceptable during rollout, but should be reviewed.",
         result.checkedUrl,
-        result.spf[0]
-      )
+        result.spf[0],
+      ),
     );
   }
 
@@ -328,8 +358,8 @@ export async function dnsTrustFindingsForUrl(inputUrl: string): Promise<DnsTrust
         "Add a DMARC TXT record at _dmarc.domain with reporting and an appropriate policy.",
         "DMARC helps protect the domain from spoofed email when aligned with SPF or DKIM.",
         result.checkedUrl,
-        "DMARC not visible"
-      )
+        "DMARC not visible",
+      ),
     );
   } else {
     const policy = dmarcPolicy(result.dmarc[0]);
@@ -344,8 +374,8 @@ export async function dnsTrustFindingsForUrl(inputUrl: string): Promise<DnsTrust
           "Set a clear DMARC policy such as p=none for monitoring or p=quarantine/reject after rollout.",
           "The visible DMARC record does not clearly expose a p= policy.",
           result.checkedUrl,
-          result.dmarc[0]
-        )
+          result.dmarc[0],
+        ),
       );
     } else if (policy === "none") {
       findings.push(
@@ -357,8 +387,8 @@ export async function dnsTrustFindingsForUrl(inputUrl: string): Promise<DnsTrust
           "Use p=none for monitoring, then move to quarantine or reject after confirming legitimate mail alignment.",
           "The domain has DMARC, but the policy does not yet enforce blocking or quarantine.",
           result.checkedUrl,
-          result.dmarc[0]
-        )
+          result.dmarc[0],
+        ),
       );
     }
   }
@@ -373,8 +403,8 @@ export async function dnsTrustFindingsForUrl(inputUrl: string): Promise<DnsTrust
         "Add CAA records to specify which certificate authorities may issue certificates for the domain.",
         "CAA records can reduce unauthorized certificate issuance risk.",
         result.checkedUrl,
-        "CAA not visible"
-      )
+        "CAA not visible",
+      ),
     );
   }
 

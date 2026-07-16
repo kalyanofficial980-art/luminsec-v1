@@ -3,7 +3,11 @@ import { redirect } from "next/navigation";
 import { ArrowLeft, FileText, Globe2, ShieldCheck } from "lucide-react";
 import { brand } from "@/config/brand";
 import { createClient } from "@/lib/supabase/server";
-import { formatDateTime, getRiskBadgeClass, getRiskLabel } from "@/lib/utils/risk";
+import {
+  formatDateTime,
+  getRiskBadgeClass,
+  getRiskLabel,
+} from "@/lib/utils/risk";
 
 export default async function ScansPage() {
   const supabase = await createClient();
@@ -18,7 +22,8 @@ export default async function ScansPage() {
 
   const { data: scans, error } = await supabase
     .from("scan_results")
-    .select(`
+    .select(
+      `
       id,
       overall_score,
       security_score,
@@ -32,7 +37,8 @@ export default async function ScansPage() {
         domain,
         label
       )
-    `)
+    `,
+    )
     .eq("user_id", user.id)
     .order("created_at", { ascending: false });
 
@@ -98,7 +104,9 @@ export default async function ScansPage() {
                           {website?.label || website?.domain || "Website"}
                         </h2>
                       </div>
-                      <p className="break-all text-sm text-slate-400">{website?.url}</p>
+                      <p className="break-all text-sm text-slate-400">
+                        {website?.url}
+                      </p>
                       <p className="mt-2 text-sm text-slate-500">
                         Scanned {formatDateTime(scan.created_at)}
                       </p>
@@ -107,11 +115,13 @@ export default async function ScansPage() {
                     <div className="flex flex-wrap items-center gap-3">
                       <div className="rounded-2xl border border-white/10 bg-slate-950 px-5 py-3 text-center">
                         <p className="text-xs text-slate-400">Score</p>
-                        <p className="text-2xl font-black">{scan.overall_score}</p>
+                        <p className="text-2xl font-black">
+                          {scan.overall_score}
+                        </p>
                       </div>
                       <span
                         className={`rounded-full border px-4 py-2 text-sm font-bold ${getRiskBadgeClass(
-                          scan.risk_level
+                          scan.risk_level,
                         )}`}
                       >
                         {getRiskLabel(scan.risk_level)}

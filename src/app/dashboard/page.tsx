@@ -22,7 +22,8 @@ import {
 } from "@/lib/auth/profile";
 
 function scoreClass(score: number) {
-  if (score >= 80) return "border-emerald-400/20 bg-emerald-400/10 text-emerald-100";
+  if (score >= 80)
+    return "border-emerald-400/20 bg-emerald-400/10 text-emerald-100";
   if (score >= 60) return "border-amber-400/20 bg-amber-400/10 text-amber-100";
   return "border-red-400/20 bg-red-400/10 text-red-100";
 }
@@ -76,7 +77,9 @@ export default async function DashboardPage() {
 
   const { data: profileData } = await supabase
     .from("profiles")
-    .select("id, email, full_name, business_name, website_url, role, account_type, onboarding_completed")
+    .select(
+      "id, email, full_name, business_name, website_url, role, account_type, onboarding_completed",
+    )
     .eq("id", user.id)
     .maybeSingle();
 
@@ -115,7 +118,8 @@ export default async function DashboardPage() {
     },
     {
       title: "View reports",
-      description: "Open scan reports, PDF pages, action plans, and comparisons.",
+      description:
+        "Open scan reports, PDF pages, action plans, and comparisons.",
       href: "/dashboard/scans",
       icon: FileText,
     },
@@ -142,13 +146,15 @@ export default async function DashboardPage() {
     ? [
         {
           title: "Validation CRM",
-          description: "Track leads, demos, objections, and paid pilot feedback.",
+          description:
+            "Track leads, demos, objections, and paid pilot feedback.",
           href: "/dashboard/validation",
           icon: Users,
         },
         {
           title: "V2 launch page",
-          description: "Open founder launch readiness and production checklist.",
+          description:
+            "Open founder launch readiness and production checklist.",
           href: "/dashboard/v2-launch",
           icon: Rocket,
         },
@@ -227,7 +233,9 @@ export default async function DashboardPage() {
             <p className="mt-2 text-4xl font-black">{scanRows.length}</p>
           </div>
 
-          <div className={`rounded-3xl border p-6 ${latestScan ? scoreClass(latestScore) : "border-slate-400/20 bg-slate-400/10 text-slate-100"}`}>
+          <div
+            className={`rounded-3xl border p-6 ${latestScan ? scoreClass(latestScore) : "border-slate-400/20 bg-slate-400/10 text-slate-100"}`}
+          >
             <Target className="mb-4 h-7 w-7" />
             <p className="text-sm opacity-80">Latest score</p>
             <p className="mt-2 text-4xl font-black">
@@ -245,7 +253,10 @@ export default async function DashboardPage() {
 
             <div className="grid gap-3">
               {nextSteps.map((step, index) => (
-                <div key={step} className="rounded-2xl border border-white/10 bg-slate-950 p-4">
+                <div
+                  key={step}
+                  className="rounded-2xl border border-white/10 bg-slate-950 p-4"
+                >
                   <div className="flex gap-3">
                     <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-cyan-300 text-xs font-black text-slate-950">
                       {index + 1}
@@ -264,33 +275,40 @@ export default async function DashboardPage() {
             </div>
 
             <div className="grid gap-4 md:grid-cols-2">
-              {[...commonActions, ...agencyActions, ...adminActions].map((action) => {
-                const Icon = action.icon;
+              {[...commonActions, ...agencyActions, ...adminActions].map(
+                (action) => {
+                  const Icon = action.icon;
 
-                return (
-                  <Link
-                    key={action.href}
-                    href={action.href}
-                    className="rounded-3xl border border-white/10 bg-slate-950 p-6 hover:bg-white/[0.05]"
-                  >
-                    <Icon className="mb-4 h-7 w-7 text-cyan-300" />
-                    <h3 className="text-xl font-black">{action.title}</h3>
-                    <p className="mt-3 text-sm leading-6 text-slate-400">{action.description}</p>
-                    <p className="mt-4 inline-flex items-center gap-2 text-sm font-bold text-cyan-300">
-                      Open <ArrowRight className="h-4 w-4" />
-                    </p>
-                  </Link>
-                );
-              })}
+                  return (
+                    <Link
+                      key={action.href}
+                      href={action.href}
+                      className="rounded-3xl border border-white/10 bg-slate-950 p-6 hover:bg-white/[0.05]"
+                    >
+                      <Icon className="mb-4 h-7 w-7 text-cyan-300" />
+                      <h3 className="text-xl font-black">{action.title}</h3>
+                      <p className="mt-3 text-sm leading-6 text-slate-400">
+                        {action.description}
+                      </p>
+                      <p className="mt-4 inline-flex items-center gap-2 text-sm font-bold text-cyan-300">
+                        Open <ArrowRight className="h-4 w-4" />
+                      </p>
+                    </Link>
+                  );
+                },
+              )}
             </div>
           </div>
         </section>
 
         <section className="mt-8 rounded-3xl border border-amber-300/20 bg-amber-300/10 p-8">
-          <h2 className="text-2xl font-black text-amber-100">Product safety note</h2>
+          <h2 className="text-2xl font-black text-amber-100">
+            Product safety note
+          </h2>
           <p className="mt-3 max-w-4xl leading-8 text-amber-50/90">
-            VeyraSec performs safe passive website trust checks only. It is not a penetration
-            testing platform, not a vulnerability exploitation tool, and not legal compliance certification.
+            VeyraSec performs safe passive website trust checks only. It is not
+            a penetration testing platform, not a vulnerability exploitation
+            tool, and not legal compliance certification.
           </p>
         </section>
       </div>

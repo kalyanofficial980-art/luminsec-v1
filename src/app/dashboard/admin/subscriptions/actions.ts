@@ -30,11 +30,15 @@ export async function approveSubscriptionRequest(formData: FormData) {
     .maybeSingle();
 
   if (requestError || !request) {
-    redirect("/dashboard/admin/subscriptions?message=Subscription request not found");
+    redirect(
+      "/dashboard/admin/subscriptions?message=Subscription request not found",
+    );
   }
 
   if (request.status !== "pending") {
-    redirect("/dashboard/admin/subscriptions?message=Request already processed");
+    redirect(
+      "/dashboard/admin/subscriptions?message=Request already processed",
+    );
   }
 
   const { error: subscriptionError } = await supabase
@@ -51,11 +55,13 @@ export async function approveSubscriptionRequest(formData: FormData) {
       },
       {
         onConflict: "user_id",
-      }
+      },
     );
 
   if (subscriptionError) {
-    redirect(`/dashboard/admin/subscriptions?message=${encodeURIComponent(subscriptionError.message)}`);
+    redirect(
+      `/dashboard/admin/subscriptions?message=${encodeURIComponent(subscriptionError.message)}`,
+    );
   }
 
   const { error: updateRequestError } = await supabase
@@ -66,14 +72,18 @@ export async function approveSubscriptionRequest(formData: FormData) {
     .eq("id", requestId);
 
   if (updateRequestError) {
-    redirect(`/dashboard/admin/subscriptions?message=${encodeURIComponent(updateRequestError.message)}`);
+    redirect(
+      `/dashboard/admin/subscriptions?message=${encodeURIComponent(updateRequestError.message)}`,
+    );
   }
 
   revalidatePath("/dashboard");
   revalidatePath("/dashboard/subscription");
   revalidatePath("/dashboard/admin/subscriptions");
 
-  redirect("/dashboard/admin/subscriptions?message=Subscription request approved");
+  redirect(
+    "/dashboard/admin/subscriptions?message=Subscription request approved",
+  );
 }
 
 export async function rejectSubscriptionRequest(formData: FormData) {
@@ -93,12 +103,16 @@ export async function rejectSubscriptionRequest(formData: FormData) {
     .eq("id", requestId);
 
   if (error) {
-    redirect(`/dashboard/admin/subscriptions?message=${encodeURIComponent(error.message)}`);
+    redirect(
+      `/dashboard/admin/subscriptions?message=${encodeURIComponent(error.message)}`,
+    );
   }
 
   revalidatePath("/dashboard/admin/subscriptions");
 
-  redirect("/dashboard/admin/subscriptions?message=Subscription request rejected");
+  redirect(
+    "/dashboard/admin/subscriptions?message=Subscription request rejected",
+  );
 }
 
 export async function manuallySetSubscription(formData: FormData) {
@@ -106,10 +120,18 @@ export async function manuallySetSubscription(formData: FormData) {
   const planId = clean(formData.get("plan_id"));
   const status = clean(formData.get("status"));
 
-  const allowedStatuses = ["trial", "active", "past_due", "cancelled", "expired"];
+  const allowedStatuses = [
+    "trial",
+    "active",
+    "past_due",
+    "cancelled",
+    "expired",
+  ];
 
   if (!userId || !planId || !allowedStatuses.includes(status)) {
-    redirect("/dashboard/admin/subscriptions?message=User, plan, and valid status are required");
+    redirect(
+      "/dashboard/admin/subscriptions?message=User, plan, and valid status are required",
+    );
   }
 
   const { supabase } = await requireAdmin();
@@ -125,33 +147,33 @@ export async function manuallySetSubscription(formData: FormData) {
   }
 
   const periodEnd =
-    status === "active" || status === "trial"
-      ? nextMonthIso()
-      : null;
+    status === "active" || status === "trial" ? nextMonthIso() : null;
 
-  const { error } = await supabase
-    .from("user_subscriptions")
-    .upsert(
-      {
-        user_id: userId,
-        plan_id: planId,
-        status,
-        current_period_start: new Date().toISOString(),
-        current_period_end: periodEnd,
-        updated_at: new Date().toISOString(),
-      },
-      {
-        onConflict: "user_id",
-      }
-    );
+  const { error } = await supabase.from("user_subscriptions").upsert(
+    {
+      user_id: userId,
+      plan_id: planId,
+      status,
+      current_period_start: new Date().toISOString(),
+      current_period_end: periodEnd,
+      updated_at: new Date().toISOString(),
+    },
+    {
+      onConflict: "user_id",
+    },
+  );
 
   if (error) {
-    redirect(`/dashboard/admin/subscriptions?message=${encodeURIComponent(error.message)}`);
+    redirect(
+      `/dashboard/admin/subscriptions?message=${encodeURIComponent(error.message)}`,
+    );
   }
 
   revalidatePath("/dashboard");
   revalidatePath("/dashboard/subscription");
   revalidatePath("/dashboard/admin/subscriptions");
 
-  redirect("/dashboard/admin/subscriptions?message=Subscription updated manually");
+  redirect(
+    "/dashboard/admin/subscriptions?message=Subscription updated manually",
+  );
 }

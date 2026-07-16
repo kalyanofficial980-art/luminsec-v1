@@ -43,7 +43,9 @@ export async function addCustomerFeedback(formData: FormData) {
   });
 
   if (error) {
-    redirect(`/dashboard/validation?message=${encodeURIComponent(error.message)}`);
+    redirect(
+      `/dashboard/validation?message=${encodeURIComponent(error.message)}`,
+    );
   }
 
   revalidatePath("/dashboard");

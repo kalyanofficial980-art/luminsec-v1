@@ -30,7 +30,7 @@ async function countTable(
   supabase: SupabaseClient,
   table: string,
   userId: string,
-  label: string
+  label: string,
 ): Promise<CountResult> {
   try {
     const { count, error } = await supabase
@@ -70,7 +70,8 @@ function statusClass(ok: boolean) {
 }
 
 function readinessClass(score: number) {
-  if (score >= 90) return "border-emerald-400/20 bg-emerald-400/10 text-emerald-100";
+  if (score >= 90)
+    return "border-emerald-400/20 bg-emerald-400/10 text-emerald-100";
   if (score >= 70) return "border-amber-400/20 bg-amber-400/10 text-amber-100";
   return "border-red-400/20 bg-red-400/10 text-red-100";
 }
@@ -113,56 +114,64 @@ export default async function V2LaunchReadinessPage() {
   const featureChecks = [
     {
       title: "Public website",
-      description: "Landing page, pricing, sample report, security page, pilot form, and contact page are ready.",
+      description:
+        "Landing page, pricing, sample report, security page, pilot form, and contact page are ready.",
       href: "/",
       icon: Globe2,
       ok: true,
     },
     {
       title: "Protected dashboard",
-      description: "Logged-in users can manage websites, scans, reports, CRM, payments, and agency clients.",
+      description:
+        "Logged-in users can manage websites, scans, reports, CRM, payments, and agency clients.",
       href: "/dashboard",
       icon: ShieldCheck,
       ok: true,
     },
     {
       title: "Passive scanner",
-      description: "Safe passive checks only: headers, privacy/trust signals, robots, sitemap, cookies, and redirects.",
+      description:
+        "Safe passive checks only: headers, privacy/trust signals, robots, sitemap, cookies, and redirects.",
       href: "/dashboard/websites",
       icon: Activity,
       ok: true,
     },
     {
       title: "Reports and PDF",
-      description: "Client-ready reports, print/PDF view, action plan, comparison, and public sharing are available.",
+      description:
+        "Client-ready reports, print/PDF view, action plan, comparison, and public sharing are available.",
       href: "/dashboard/scans",
       icon: FileText,
       ok: true,
     },
     {
       title: "Customer validation CRM",
-      description: "Lead tracking, follow-ups, objections, paid pilots, demo status, and testimonials are tracked.",
+      description:
+        "Lead tracking, follow-ups, objections, paid pilots, demo status, and testimonials are tracked.",
       href: "/dashboard/validation",
       icon: Users,
       ok: true,
     },
     {
       title: "Manual payments",
-      description: "Manual payment tracking and printable receipt/invoice pages are available without Razorpay.",
+      description:
+        "Manual payment tracking and printable receipt/invoice pages are available without Razorpay.",
       href: "/dashboard/payments",
       icon: CreditCard,
       ok: true,
     },
     {
       title: "Agency mode",
-      description: "Agency clients can be added and linked to websites with client-level report overview.",
+      description:
+        "Agency clients can be added and linked to websites with client-level report overview.",
       href: "/dashboard/agency",
       icon: BriefcaseBusiness,
       ok: true,
     },
     {
       title: "Reliability status",
-      description: "Health check, dashboard status page, loading screens, error screens, and 404 page are added.",
+      description:
+        "Health check, dashboard status page, loading screens, error screens, and 404 page are added.",
       href: "/dashboard/status",
       icon: ClipboardCheck,
       ok: true,
@@ -216,12 +225,15 @@ export default async function V2LaunchReadinessPage() {
               </h1>
 
               <p className="mt-4 max-w-3xl leading-8 text-slate-300">
-                Final readiness dashboard for {brand.name} {brand.version}. Use this page before
-                customer demos, paid pilots, and production outreach.
+                Final readiness dashboard for {brand.name} {brand.version}. Use
+                this page before customer demos, paid pilots, and production
+                outreach.
               </p>
             </div>
 
-            <div className={`rounded-3xl border p-6 text-center ${readinessClass(readinessScore)}`}>
+            <div
+              className={`rounded-3xl border p-6 text-center ${readinessClass(readinessScore)}`}
+            >
               <Rocket className="mx-auto mb-3 h-9 w-9" />
               <p className="text-sm opacity-80">Readiness score</p>
               <p className="mt-2 text-5xl font-black">{readinessScore}%</p>
@@ -230,22 +242,34 @@ export default async function V2LaunchReadinessPage() {
         </section>
 
         <section className="mt-8 grid gap-4 md:grid-cols-3">
-          <div className={`rounded-3xl border p-6 ${statusClass(environmentReady)}`}>
+          <div
+            className={`rounded-3xl border p-6 ${statusClass(environmentReady)}`}
+          >
             <ShieldCheck className="mb-4 h-7 w-7" />
             <p className="text-sm opacity-80">Environment</p>
-            <p className="mt-2 text-3xl font-black">{environmentReady ? "Ready" : "Check"}</p>
+            <p className="mt-2 text-3xl font-black">
+              {environmentReady ? "Ready" : "Check"}
+            </p>
           </div>
 
-          <div className={`rounded-3xl border p-6 ${statusClass(databaseReady)}`}>
+          <div
+            className={`rounded-3xl border p-6 ${statusClass(databaseReady)}`}
+          >
             <Activity className="mb-4 h-7 w-7" />
             <p className="text-sm opacity-80">Database</p>
-            <p className="mt-2 text-3xl font-black">{databaseReady ? "Ready" : "Check"}</p>
+            <p className="mt-2 text-3xl font-black">
+              {databaseReady ? "Ready" : "Check"}
+            </p>
           </div>
 
-          <div className={`rounded-3xl border p-6 ${statusClass(featureReady)}`}>
+          <div
+            className={`rounded-3xl border p-6 ${statusClass(featureReady)}`}
+          >
             <CheckCircle2 className="mb-4 h-7 w-7" />
             <p className="text-sm opacity-80">Features</p>
-            <p className="mt-2 text-3xl font-black">{featureReady ? "Ready" : "Check"}</p>
+            <p className="mt-2 text-3xl font-black">
+              {featureReady ? "Ready" : "Check"}
+            </p>
           </div>
         </section>
 
@@ -258,7 +282,10 @@ export default async function V2LaunchReadinessPage() {
 
             <div className="grid gap-3">
               {launchChecklist.map((item, index) => (
-                <div key={item} className="rounded-2xl border border-white/10 bg-slate-950 p-4">
+                <div
+                  key={item}
+                  className="rounded-2xl border border-white/10 bg-slate-950 p-4"
+                >
                   <div className="flex gap-3">
                     <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-cyan-300 text-xs font-black text-slate-950">
                       {index + 1}
@@ -278,18 +305,25 @@ export default async function V2LaunchReadinessPage() {
 
             <div className="grid gap-3">
               {checks.map((check) => (
-                <div key={check.label} className="rounded-2xl border border-white/10 bg-slate-950 p-4">
+                <div
+                  key={check.label}
+                  className="rounded-2xl border border-white/10 bg-slate-950 p-4"
+                >
                   <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
                     <div>
                       <p className="font-bold text-white">{check.label}</p>
-                      <p className="mt-1 text-sm text-slate-500">{check.message}</p>
+                      <p className="mt-1 text-sm text-slate-500">
+                        {check.message}
+                      </p>
                     </div>
 
                     <div className="flex items-center gap-2">
                       <span className="rounded-full border border-white/10 px-3 py-1 text-xs font-bold text-slate-300">
                         {check.count}
                       </span>
-                      <span className={`rounded-full border px-3 py-1 text-xs font-bold ${statusClass(check.ok)}`}>
+                      <span
+                        className={`rounded-full border px-3 py-1 text-xs font-bold ${statusClass(check.ok)}`}
+                      >
                         {check.ok ? "OK" : "Error"}
                       </span>
                     </div>
@@ -299,7 +333,8 @@ export default async function V2LaunchReadinessPage() {
             </div>
 
             <div className="mt-6 rounded-2xl border border-amber-300/20 bg-amber-300/10 p-4 text-sm leading-6 text-amber-50">
-              Empty record counts are okay. Error status means SQL migration may not be completed.
+              Empty record counts are okay. Error status means SQL migration may
+              not be completed.
             </div>
           </div>
         </section>
@@ -322,7 +357,9 @@ export default async function V2LaunchReadinessPage() {
                 >
                   <Icon className="mb-4 h-7 w-7 text-cyan-300" />
                   <h3 className="text-xl font-black">{feature.title}</h3>
-                  <p className="mt-3 text-sm leading-6 text-slate-400">{feature.description}</p>
+                  <p className="mt-3 text-sm leading-6 text-slate-400">
+                    {feature.description}
+                  </p>
                   <p className="mt-4 inline-flex items-center gap-2 text-sm font-bold text-cyan-300">
                     Open <ArrowRight className="h-4 w-4" />
                   </p>
@@ -333,11 +370,14 @@ export default async function V2LaunchReadinessPage() {
         </section>
 
         <section className="mt-8 rounded-3xl border border-cyan-300/20 bg-cyan-300/10 p-8">
-          <h2 className="text-3xl font-black text-cyan-100">V2 launch instruction</h2>
+          <h2 className="text-3xl font-black text-cyan-100">
+            V2 launch instruction
+          </h2>
           <p className="mt-4 max-w-4xl leading-8 text-cyan-50/90">
-            V2 is ready for pilot launch after build success, health check success, dashboard status success,
-            and secret scan success. Do not add Razorpay or paid APIs yet. First goal is customer validation:
-            10 leads, 3 demos, 1 paid pilot.
+            V2 is ready for pilot launch after build success, health check
+            success, dashboard status success, and secret scan success. Do not
+            add Razorpay or paid APIs yet. First goal is customer validation: 10
+            leads, 3 demos, 1 paid pilot.
           </p>
 
           <div className="mt-6 flex flex-col gap-3 sm:flex-row">
@@ -360,10 +400,13 @@ export default async function V2LaunchReadinessPage() {
         </section>
 
         <section className="mt-8 rounded-3xl border border-amber-300/20 bg-amber-300/10 p-8">
-          <h2 className="text-2xl font-black text-amber-100">Final safety note</h2>
+          <h2 className="text-2xl font-black text-amber-100">
+            Final safety note
+          </h2>
           <p className="mt-3 max-w-4xl leading-8 text-amber-50/90">
-            VeyraSec V2 is a safe passive website trust report SaaS. It is not advanced security testing,
-            not a vulnerability exploitation tool, not a legal compliance certificate, and not a replacement for
+            VeyraSec V2 is a safe passive website trust report SaaS. It is not
+            advanced security testing, not a vulnerability exploitation tool,
+            not a legal compliance certificate, and not a replacement for
             professional legal, tax, or cybersecurity advice.
           </p>
         </section>

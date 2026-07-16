@@ -18,7 +18,9 @@ type SummaryInput = {
   language: ReportLanguage;
 };
 
-export function getReportLanguage(value: string | undefined | null): ReportLanguage {
+export function getReportLanguage(
+  value: string | undefined | null,
+): ReportLanguage {
   return value === "te" ? "te" : "en";
 }
 
@@ -124,7 +126,10 @@ export function getAiStyleSummary(input: SummaryInput) {
   return `This website appears high risk based on the basic passive checks. Overall score is ${input.overallScore}/100. Review HTTPS, security headers, privacy policy visibility, and contact-form privacy wording before using it for customer data collection.`;
 }
 
-export function explainFinding(finding: FindingInput, language: ReportLanguage) {
+export function explainFinding(
+  finding: FindingInput,
+  language: ReportLanguage,
+) {
   const category = finding.category.toLowerCase();
   const severity = finding.severity.toLowerCase();
 

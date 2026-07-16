@@ -107,7 +107,8 @@ export default async function LaunchChecklistPage() {
               </h1>
 
               <p className="mt-4 max-w-3xl leading-8 text-slate-300">
-                Admin-only production checklist for VeyraSec public launch readiness.
+                Admin-only production checklist for VeyraSec public launch
+                readiness.
               </p>
             </div>
 
@@ -137,7 +138,10 @@ export default async function LaunchChecklistPage() {
             { label: "Websites", value: websiteCount ?? 0, icon: Globe },
             { label: "Scans", value: scanCount ?? 0, icon: Activity },
           ].map((item) => (
-            <div key={item.label} className="rounded-3xl border border-white/10 bg-white/[0.04] p-6">
+            <div
+              key={item.label}
+              className="rounded-3xl border border-white/10 bg-white/[0.04] p-6"
+            >
               <item.icon className="h-7 w-7 text-cyan-300" />
               <p className="mt-5 text-sm text-slate-400">{item.label}</p>
               <p className="mt-2 text-3xl font-black">{item.value}</p>
@@ -153,12 +157,17 @@ export default async function LaunchChecklistPage() {
 
           <div className="grid gap-4 md:grid-cols-2">
             {checks.map((check) => (
-              <div key={check.label} className={`rounded-3xl border p-5 ${statusPill(check.ok)}`}>
+              <div
+                key={check.label}
+                className={`rounded-3xl border p-5 ${statusPill(check.ok)}`}
+              >
                 <div className="flex items-start gap-3">
                   <CheckCircle2 className="mt-1 h-6 w-6 shrink-0" />
                   <div>
                     <p className="font-black">{check.label}</p>
-                    <p className="mt-2 text-sm leading-6 opacity-80">{check.detail}</p>
+                    <p className="mt-2 text-sm leading-6 opacity-80">
+                      {check.detail}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -171,7 +180,10 @@ export default async function LaunchChecklistPage() {
 
           <div className="mt-6 grid gap-3 md:grid-cols-2">
             {manualChecks.map((item, index) => (
-              <div key={item} className="rounded-2xl border border-white/10 bg-slate-950 p-4">
+              <div
+                key={item}
+                className="rounded-2xl border border-white/10 bg-slate-950 p-4"
+              >
                 <div className="flex gap-3">
                   <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-cyan-300 text-xs font-black text-slate-950">
                     {index + 1}
@@ -184,10 +196,13 @@ export default async function LaunchChecklistPage() {
         </section>
 
         <section className="mt-8 rounded-3xl border border-emerald-300/20 bg-emerald-300/10 p-8">
-          <h2 className="text-2xl font-black text-emerald-100">Launch decision rule</h2>
+          <h2 className="text-2xl font-black text-emerald-100">
+            Launch decision rule
+          </h2>
           <p className="mt-4 max-w-4xl leading-8 text-emerald-50/90">
-            Launch only after build passes, production deploy works, scan/report flow works,
-            and a normal customer account cannot access admin or paid-only pages.
+            Launch only after build passes, production deploy works, scan/report
+            flow works, and a normal customer account cannot access admin or
+            paid-only pages.
           </p>
         </section>
       </div>

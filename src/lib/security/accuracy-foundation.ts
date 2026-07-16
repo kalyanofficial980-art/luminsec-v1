@@ -1,10 +1,7 @@
 export type EvidenceConfidence = "high" | "medium" | "low";
 
 export type VerificationStatus =
-  | "verified_by_scan"
-  | "likely_signal"
-  | "needs_confirmation"
-  | "not_visible";
+  "verified_by_scan" | "likely_signal" | "needs_confirmation" | "not_visible";
 
 export type EvidenceType =
   | "response_header"
@@ -81,15 +78,33 @@ function firstUrl(value: string) {
 }
 
 function evidenceTypeForFinding(finding: PassiveFindingBase): EvidenceType {
-  const haystack = `${finding.id} ${finding.title} ${finding.category} ${finding.evidence}`.toLowerCase();
+  const haystack =
+    `${finding.id} ${finding.title} ${finding.category} ${finding.evidence}`.toLowerCase();
 
   if (/set-cookie|cookie/.test(haystack)) return "set_cookie";
-  if (/header|strict-transport-security|content-security-policy|x-frame-options|x-content-type-options|referrer-policy|permissions-policy/.test(haystack)) return "response_header";
+  if (
+    /header|strict-transport-security|content-security-policy|x-frame-options|x-content-type-options|referrer-policy|permissions-policy/.test(
+      haystack,
+    )
+  )
+    return "response_header";
   if (/http probe|http redirect|https|tls/.test(haystack)) return "http_probe";
-  if (/security\.txt|robots\.txt|sitemap\.xml/.test(haystack)) return "well_known_file";
-  if (/wordpress|woocommerce|shopify|next\.js|react|vercel|cloudflare|technology|x-powered-by|generator/.test(haystack)) return "technology_signal";
-  if (/known risk|review recommended|advisory|potential/.test(haystack)) return "known_risk_advisory";
-  if (/crawler|page|form|privacy|contact|script|mixed content|homepage|html/.test(haystack)) return "html_signal";
+  if (/security\.txt|robots\.txt|sitemap\.xml/.test(haystack))
+    return "well_known_file";
+  if (
+    /wordpress|woocommerce|shopify|next\.js|react|vercel|cloudflare|technology|x-powered-by|generator/.test(
+      haystack,
+    )
+  )
+    return "technology_signal";
+  if (/known risk|review recommended|advisory|potential/.test(haystack))
+    return "known_risk_advisory";
+  if (
+    /crawler|page|form|privacy|contact|script|mixed content|homepage|html/.test(
+      haystack,
+    )
+  )
+    return "html_signal";
 
   return "unknown";
 }
@@ -110,7 +125,10 @@ function expectedValueForFinding(finding: PassiveFindingBase) {
     return "X-Frame-Options or CSP frame-ancestors present.";
   }
 
-  if (id.includes("x_content_type") || title.includes("x-content-type-options")) {
+  if (
+    id.includes("x_content_type") ||
+    title.includes("x-content-type-options")
+  ) {
     return "X-Content-Type-Options: nosniff present.";
   }
 
@@ -151,7 +169,8 @@ function expectedValueForFinding(finding: PassiveFindingBase) {
 
 function confidenceForFinding(finding: PassiveFindingBase): EvidenceConfidence {
   const evidenceType = evidenceTypeForFinding(finding);
-  const haystack = `${finding.id} ${finding.title} ${finding.category} ${finding.evidence}`.toLowerCase();
+  const haystack =
+    `${finding.id} ${finding.title} ${finding.category} ${finding.evidence}`.toLowerCase();
 
   if (
     evidenceType === "response_header" ||
@@ -166,18 +185,28 @@ function confidenceForFinding(finding: PassiveFindingBase): EvidenceConfidence {
     return "medium";
   }
 
-  if (evidenceType === "known_risk_advisory" || /potential|review|advisory|may|could/.test(haystack)) {
+  if (
+    evidenceType === "known_risk_advisory" ||
+    /potential|review|advisory|may|could/.test(haystack)
+  ) {
     return "low";
   }
 
   return "medium";
 }
 
-function verificationStatusForFinding(finding: PassiveFindingBase): VerificationStatus {
+function verificationStatusForFinding(
+  finding: PassiveFindingBase,
+): VerificationStatus {
   const confidence = confidenceForFinding(finding);
-  const haystack = `${finding.id} ${finding.title} ${finding.category} ${finding.evidence}`.toLowerCase();
+  const haystack =
+    `${finding.id} ${finding.title} ${finding.category} ${finding.evidence}`.toLowerCase();
 
-  if (/log retention|incident owner|backup|cert-in|cert in|breach process|internal process/.test(haystack)) {
+  if (
+    /log retention|incident owner|backup|cert-in|cert in|breach process|internal process/.test(
+      haystack,
+    )
+  ) {
     return "needs_confirmation";
   }
 
@@ -188,10 +217,14 @@ function verificationStatusForFinding(finding: PassiveFindingBase): Verification
 }
 
 export function rootCauseForFinding(finding: PassiveFindingBase) {
-  const haystack = `${finding.id} ${finding.title} ${finding.category} ${finding.description} ${finding.recommendation} ${finding.evidence}`.toLowerCase();
+  const haystack =
+    `${finding.id} ${finding.title} ${finding.category} ${finding.description} ${finding.recommendation} ${finding.evidence}`.toLowerCase();
 
   const rules: Array<[string, RegExp]> = [
-    ["https_transport", /https|http to https|redirect|hsts|strict-transport-security/],
+    [
+      "https_transport",
+      /https|http to https|redirect|hsts|strict-transport-security/,
+    ],
     ["content_security_policy", /\bcsp\b|content-security-policy/],
     ["clickjacking_headers", /x-frame-options|frame-ancestors|clickjack/],
     ["content_type_header", /x-content-type-options|nosniff/],
@@ -201,9 +234,15 @@ export function rootCauseForFinding(finding: PassiveFindingBase) {
     ["privacy_policy", /privacy policy|privacy signal|privacy link/],
     ["contact_grievance", /contact|support|grievance/],
     ["consent_purpose", /consent|purpose/],
-    ["data_request_deletion", /data deletion|data request|delete data|access request/],
+    [
+      "data_request_deletion",
+      /data deletion|data request|delete data|access request/,
+    ],
     ["breach_readiness", /breach|notification/],
-    ["cert_incident_reporting", /cert|incident reporting|6 hour|6-hour|six hour/],
+    [
+      "cert_incident_reporting",
+      /cert|incident reporting|6 hour|6-hour|six hour/,
+    ],
     ["log_retention", /log retention|180 day|180-day|logs/],
     ["security_contact", /security contact|incident contact/],
     ["backup_restore", /backup|restore|recovery/],
@@ -212,9 +251,15 @@ export function rootCauseForFinding(finding: PassiveFindingBase) {
     ["cookie_security", /cookie|secure flag|httponly|samesite/],
     ["payment_scripts", /payment|razorpay|stripe|paypal|checkout/],
     ["tracking_scripts", /tracking|analytics|tag manager|meta pixel|hotjar/],
-    ["third_party_scripts", /third-party|third party|external script|script count/],
+    [
+      "third_party_scripts",
+      /third-party|third party|external script|script count/,
+    ],
     ["mixed_content", /mixed content|http asset|insecure asset/],
-    ["technology_review", /wordpress|woocommerce|shopify|next\.js|react|vercel|netlify|cloudflare|nginx|apache|technology|x-powered-by|generator/],
+    [
+      "technology_review",
+      /wordpress|woocommerce|shopify|next\.js|react|vercel|netlify|cloudflare|nginx|apache|technology|x-powered-by|generator/,
+    ],
     ["page_metadata", /title tag|meta description|page title/],
     ["public_page_error", /page error|broken link|404|availability/],
   ];
@@ -225,7 +270,9 @@ export function rootCauseForFinding(finding: PassiveFindingBase) {
     }
   }
 
-  return lower(finding.category).replace(/[^a-z0-9]+/g, "_") || "general_review";
+  return (
+    lower(finding.category).replace(/[^a-z0-9]+/g, "_") || "general_review"
+  );
 }
 
 function limitationForFinding(finding: PassiveFindingBase) {
@@ -240,14 +287,19 @@ function limitationForFinding(finding: PassiveFindingBase) {
     return "This evidence is based on public HTML observed during the scan. JavaScript-rendered or authenticated content may not be fully visible.";
   }
 
-  if (evidenceType === "technology_signal" || evidenceType === "known_risk_advisory") {
+  if (
+    evidenceType === "technology_signal" ||
+    evidenceType === "known_risk_advisory"
+  ) {
     return "Technology signals are advisory and may be incomplete if the website hides or changes implementation details.";
   }
 
   return "This evidence is based on public, non-authenticated scan data captured at scan time.";
 }
 
-export function buildFindingEvidence(finding: PassiveFindingBase): FindingEvidence {
+export function buildFindingEvidence(
+  finding: PassiveFindingBase,
+): FindingEvidence {
   const confidence = confidenceForFinding(finding);
 
   return {
@@ -306,7 +358,9 @@ function isTimeout(result: MinimalFetchResult) {
 }
 
 function isBlocked(result: MinimalFetchResult) {
-  return result.status === 401 || result.status === 403 || result.status === 429;
+  return (
+    result.status === 401 || result.status === 403 || result.status === 429
+  );
 }
 
 export function calculateScanQuality(input: {
@@ -321,9 +375,16 @@ export function calculateScanQuality(input: {
   const reachable = input.target.ok;
   const headersCaptured = Boolean(input.target.headers);
   const htmlCaptured = cleanText(input.target.body).length > 0;
-  const httpProbeCompleted = input.httpProbe.status !== null || input.httpProbe.error === undefined;
+  const httpProbeCompleted =
+    input.httpProbe.status !== null || input.httpProbe.error === undefined;
   const crawlerPages = crawlerPagesCount(input.crawlerSummary);
-  const results = [input.target, input.httpProbe, input.securityTxt, input.robotsTxt, input.sitemapXml];
+  const results = [
+    input.target,
+    input.httpProbe,
+    input.securityTxt,
+    input.robotsTxt,
+    input.sitemapXml,
+  ];
   const timeoutCount = results.filter(isTimeout).length;
   const blockedResult = results.find(isBlocked);
   const blocked = Boolean(blockedResult);
@@ -357,19 +418,26 @@ export function calculateScanQuality(input: {
 
   if (timeoutCount > 0) {
     score -= Math.min(20, timeoutCount * 7);
-    notes.push(`${timeoutCount} request${timeoutCount === 1 ? "" : "s"} timed out during scan.`);
+    notes.push(
+      `${timeoutCount} request${timeoutCount === 1 ? "" : "s"} timed out during scan.`,
+    );
   }
 
   if (blocked) {
     score -= 15;
-    notes.push(`One or more requests appeared blocked with status ${blockedResult?.status}.`);
+    notes.push(
+      `One or more requests appeared blocked with status ${blockedResult?.status}.`,
+    );
   }
 
   const boundedScore = Math.max(0, Math.min(100, Math.round(score)));
-  const level: ScanQualityLevel = boundedScore >= 80 ? "high" : boundedScore >= 55 ? "medium" : "low";
+  const level: ScanQualityLevel =
+    boundedScore >= 80 ? "high" : boundedScore >= 55 ? "medium" : "low";
 
   if (notes.length === 0) {
-    notes.push("Scan captured the main public evidence needed for a readiness report.");
+    notes.push(
+      "Scan captured the main public evidence needed for a readiness report.",
+    );
   }
 
   return {

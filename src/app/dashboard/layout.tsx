@@ -46,10 +46,22 @@ function normalizeNavSubscription(value: unknown): DashboardNavSubscription {
     planId,
     planName: text(plan?.name, planId === "trial" ? "Trial" : planId),
     status: text(row.status, fallbackNavSubscription.status),
-    agencyModeEnabled: boolValue(plan?.agency_mode_enabled, fallbackNavSubscription.agencyModeEnabled),
-    manualPaymentsEnabled: boolValue(plan?.manual_payments_enabled, fallbackNavSubscription.manualPaymentsEnabled),
-    publicShareEnabled: boolValue(plan?.public_share_enabled, fallbackNavSubscription.publicShareEnabled),
-    pdfReportsEnabled: boolValue(plan?.pdf_reports_enabled, fallbackNavSubscription.pdfReportsEnabled),
+    agencyModeEnabled: boolValue(
+      plan?.agency_mode_enabled,
+      fallbackNavSubscription.agencyModeEnabled,
+    ),
+    manualPaymentsEnabled: boolValue(
+      plan?.manual_payments_enabled,
+      fallbackNavSubscription.manualPaymentsEnabled,
+    ),
+    publicShareEnabled: boolValue(
+      plan?.public_share_enabled,
+      fallbackNavSubscription.publicShareEnabled,
+    ),
+    pdfReportsEnabled: boolValue(
+      plan?.pdf_reports_enabled,
+      fallbackNavSubscription.pdfReportsEnabled,
+    ),
   };
 }
 
@@ -70,7 +82,9 @@ export default async function DashboardLayout({
 
   const { data: profileData } = await supabase
     .from("profiles")
-    .select("id, email, full_name, business_name, website_url, role, account_type, onboarding_completed")
+    .select(
+      "id, email, full_name, business_name, website_url, role, account_type, onboarding_completed",
+    )
     .eq("id", user.id)
     .maybeSingle();
 
@@ -82,7 +96,9 @@ export default async function DashboardLayout({
 
   const { data: subscriptionData } = await supabase
     .from("user_subscriptions")
-    .select("plan_id, status, subscription_plans(name, agency_mode_enabled, manual_payments_enabled, public_share_enabled, pdf_reports_enabled)")
+    .select(
+      "plan_id, status, subscription_plans(name, agency_mode_enabled, manual_payments_enabled, public_share_enabled, pdf_reports_enabled)",
+    )
     .eq("user_id", user.id)
     .maybeSingle();
 

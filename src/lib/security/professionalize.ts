@@ -55,10 +55,19 @@ function normalizeSeverity(value: unknown): SecuritySeverity {
   return "info";
 }
 
-function normalizeCategory(value: unknown, title: string, description: string): SecurityCategory {
+function normalizeCategory(
+  value: unknown,
+  title: string,
+  description: string,
+): SecurityCategory {
   const raw = `${String(value ?? "")} ${title} ${description}`.toLowerCase();
 
-  if (raw.includes("hsts") || raw.includes("csp") || raw.includes("header") || raw.includes("frame")) {
+  if (
+    raw.includes("hsts") ||
+    raw.includes("csp") ||
+    raw.includes("header") ||
+    raw.includes("frame")
+  ) {
     return "security_headers";
   }
 
@@ -74,11 +83,20 @@ function normalizeCategory(value: unknown, title: string, description: string): 
     return "https_tls";
   }
 
-  if (raw.includes("wordpress") || raw.includes("shopify") || raw.includes("technology") || raw.includes("cms")) {
+  if (
+    raw.includes("wordpress") ||
+    raw.includes("shopify") ||
+    raw.includes("technology") ||
+    raw.includes("cms")
+  ) {
     return "technology";
   }
 
-  if (raw.includes("contact") || raw.includes("trust") || raw.includes("business")) {
+  if (
+    raw.includes("contact") ||
+    raw.includes("trust") ||
+    raw.includes("business")
+  ) {
     return "trust_signals";
   }
 
@@ -86,14 +104,21 @@ function normalizeCategory(value: unknown, title: string, description: string): 
     return "forms";
   }
 
-  if (raw.includes("exposed") || raw.includes("debug") || raw.includes("stack trace")) {
+  if (
+    raw.includes("exposed") ||
+    raw.includes("debug") ||
+    raw.includes("stack trace")
+  ) {
     return "exposure";
   }
 
   return "general";
 }
 
-function inferCatalogItem(title: string, description: string): FindingCatalogItem | null {
+function inferCatalogItem(
+  title: string,
+  description: string,
+): FindingCatalogItem | null {
   const raw = `${title} ${description}`.toLowerCase();
 
   if (raw.includes("strict-transport-security") || raw.includes("hsts")) {
@@ -104,7 +129,11 @@ function inferCatalogItem(title: string, description: string): FindingCatalogIte
     return findingCatalog.missing_csp;
   }
 
-  if (raw.includes("x-frame-options") || raw.includes("clickjacking") || raw.includes("frame protection")) {
+  if (
+    raw.includes("x-frame-options") ||
+    raw.includes("clickjacking") ||
+    raw.includes("frame protection")
+  ) {
     return findingCatalog.missing_x_frame_options;
   }
 
@@ -112,14 +141,21 @@ function inferCatalogItem(title: string, description: string): FindingCatalogIte
     return findingCatalog.missing_privacy_policy;
   }
 
-  if (raw.includes("contact") || raw.includes("business trust") || raw.includes("trust signal")) {
+  if (
+    raw.includes("contact") ||
+    raw.includes("business trust") ||
+    raw.includes("trust signal")
+  ) {
     return findingCatalog.missing_contact_trust;
   }
 
   return null;
 }
 
-function confidenceFromFinding(severity: SecuritySeverity, hasEvidence: boolean): SecurityConfidence {
+function confidenceFromFinding(
+  severity: SecuritySeverity,
+  hasEvidence: boolean,
+): SecurityConfidence {
   if (hasEvidence) return "high";
   if (severity === "critical" || severity === "high") return "medium";
   return "medium";
@@ -133,7 +169,11 @@ function priorityFromSeverity(severity: SecuritySeverity): RemediationPriority {
 }
 
 function effortFromCategory(category: SecurityCategory): EstimatedEffort {
-  if (category === "security_headers" || category === "https_tls" || category === "technology") {
+  if (
+    category === "security_headers" ||
+    category === "https_tls" ||
+    category === "technology"
+  ) {
     return "medium";
   }
 
@@ -144,10 +184,14 @@ function effortFromCategory(category: SecurityCategory): EstimatedEffort {
   return "quick";
 }
 
-function buildEvidence(checkedUrl: string, legacy: LegacyFinding, title: string): SecurityEvidence[] {
+function buildEvidence(
+  checkedUrl: string,
+  legacy: LegacyFinding,
+  title: string,
+): SecurityEvidence[] {
   const observed = text(
     legacy.evidence,
-    `Scanner observed this issue while reviewing ${checkedUrl}.`
+    `Scanner observed this issue while reviewing ${checkedUrl}.`,
   );
 
   return [
@@ -160,15 +204,18 @@ function buildEvidence(checkedUrl: string, legacy: LegacyFinding, title: string)
   ];
 }
 
-function genericFinding(checkedUrl: string, legacy: LegacyFinding): ProfessionalFinding {
+function genericFinding(
+  checkedUrl: string,
+  legacy: LegacyFinding,
+): ProfessionalFinding {
   const title = text(legacy.title, "Website security posture item");
   const description = text(
     legacy.description,
-    "VeyraSec detected a visible website security posture item that should be reviewed."
+    "VeyraSec detected a visible website security posture item that should be reviewed.",
   );
   const recommendation = text(
     legacy.recommendation,
-    "Review this item and ask your developer to fix it if it applies to your website."
+    "Review this item and ask your developer to fix it if it applies to your website.",
   );
   const severity = normalizeSeverity(legacy.severity);
   const category = normalizeCategory(legacy.category, title, description);
@@ -183,29 +230,42 @@ function genericFinding(checkedUrl: string, legacy: LegacyFinding): Professional
     confidence: confidenceFromFinding(severity, evidence.length > 0),
     title,
     whatWeFound: description,
-    whyItMatters: "This visible signal can affect website security posture, customer trust, or technical hygiene.",
-    businessImpact: "If ignored, this may reduce customer confidence or make the website look less security-ready.",
-    technicalImpact: "The technical impact depends on the website setup and should be reviewed by the website owner or developer.",
+    whyItMatters:
+      "This visible signal can affect website security posture, customer trust, or technical hygiene.",
+    businessImpact:
+      "If ignored, this may reduce customer confidence or make the website look less security-ready.",
+    technicalImpact:
+      "The technical impact depends on the website setup and should be reviewed by the website owner or developer.",
     fixSummary: recommendation,
     developerFix: recommendation,
     priority,
     estimatedEffort,
-    retestInstruction: "Run a new VeyraSec scan after applying the fix and confirm this finding no longer appears.",
+    retestInstruction:
+      "Run a new VeyraSec scan after applying the fix and confirm this finding no longer appears.",
     evidence,
   };
 }
 
-function catalogFinding(checkedUrl: string, legacy: LegacyFinding, catalogItem: FindingCatalogItem): ProfessionalFinding {
+function catalogFinding(
+  checkedUrl: string,
+  legacy: LegacyFinding,
+  catalogItem: FindingCatalogItem,
+): ProfessionalFinding {
   const evidence = buildEvidence(checkedUrl, legacy, catalogItem.title);
 
   return {
     ...catalogItem,
-    confidence: confidenceFromFinding(catalogItem.severity, evidence.length > 0),
+    confidence: confidenceFromFinding(
+      catalogItem.severity,
+      evidence.length > 0,
+    ),
     evidence,
   };
 }
 
-export function professionalizeLegacyFindings(input: ProfessionalizeInput): ProfessionalFinding[] {
+export function professionalizeLegacyFindings(
+  input: ProfessionalizeInput,
+): ProfessionalFinding[] {
   return input.findings.map((legacy, index) => {
     const title = text(legacy.title, `Finding ${index + 1}`);
     const description = text(legacy.description);
@@ -255,7 +315,9 @@ function recommendationToText(finding: ProfessionalFinding) {
   ].join("\n\n");
 }
 
-export function professionalFindingToDatabaseFinding(input: DatabaseFindingInput) {
+export function professionalFindingToDatabaseFinding(
+  input: DatabaseFindingInput,
+) {
   const finding = input.finding;
 
   return {

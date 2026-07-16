@@ -62,7 +62,9 @@ export async function addManualPayment(formData: FormData) {
   });
 
   if (error) {
-    redirect(`/dashboard/payments?message=${encodeURIComponent(error.message)}`);
+    redirect(
+      `/dashboard/payments?message=${encodeURIComponent(error.message)}`,
+    );
   }
 
   revalidatePath("/dashboard");
@@ -105,7 +107,9 @@ export async function updateManualPaymentStatus(formData: FormData) {
     .eq("user_id", user.id);
 
   if (error) {
-    redirect(`/dashboard/payments?message=${encodeURIComponent(error.message)}`);
+    redirect(
+      `/dashboard/payments?message=${encodeURIComponent(error.message)}`,
+    );
   }
 
   revalidatePath("/dashboard");
