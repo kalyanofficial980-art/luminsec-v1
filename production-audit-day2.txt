@@ -1,0 +1,69 @@
+
+> luminsec-v1@0.1.0 lint
+> eslint
+
+
+C:\Users\ADMIN\Desktop\Startups\luminsec-v1\src\app\app\validation\page.tsx
+  10:3  warning  'ShieldCheck' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\ADMIN\Desktop\Startups\luminsec-v1\src\app\dashboard\admin\subscriptions\page.tsx
+   30:31  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   32:24  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   35:19  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   95:33  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   96:43  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  112:15  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  115:20  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  184:39  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  289:51  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\ADMIN\Desktop\Startups\luminsec-v1\src\app\dashboard\admin\verified-reports\page.tsx
+   26:22  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   31:26  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   38:31  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   77:34  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   79:13  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   81:33  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  194:32  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\ADMIN\Desktop\Startups\luminsec-v1\src\app\dashboard\payments\[id]\receipt\page.tsx
+  6:3  warning  'CheckCircle2' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\ADMIN\Desktop\Startups\luminsec-v1\src\app\dashboard\payments\page.tsx
+  5:3  warning  'CalendarDays' is defined but never used  @typescript-eslint/no-unused-vars
+  8:3  warning  'CreditCard' is defined but never used    @typescript-eslint/no-unused-vars
+
+C:\Users\ADMIN\Desktop\Startups\luminsec-v1\src\app\dashboard\scans\[id]\action-plan\page.tsx
+  14:3  warning  'ShieldCheck' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\ADMIN\Desktop\Startups\luminsec-v1\src\app\dashboard\scans\[id]\verified-report\page.tsx
+  11:3  warning  'XCircle' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\ADMIN\Desktop\Startups\luminsec-v1\src\app\dashboard\status\page.tsx
+  35:10  warning  'levelIcon' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\ADMIN\Desktop\Startups\luminsec-v1\src\app\dashboard\websites\actions.ts
+  80:10  warning  'normalizeSeverity' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\ADMIN\Desktop\Startups\luminsec-v1\src\app\paid-pilot-checklist\page.tsx
+  13:10  warning  'brand' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\ADMIN\Desktop\Startups\luminsec-v1\src\lib\auth\route-access.ts
+  17:44  warning  '_profile' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\ADMIN\Desktop\Startups\luminsec-v1\src\lib\security\passive-checks.ts
+   7:10  warning  'headerQualityFindingsFromHeaders' is defined but never used  @typescript-eslint/no-unused-vars
+  16:3   warning  'enrichPassiveFinding' is defined but never used              @typescript-eslint/no-unused-vars
+  17:8   warning  'EvidenceConfidence' is defined but never used                @typescript-eslint/no-unused-vars
+  18:8   warning  'EvidenceType' is defined but never used                      @typescript-eslint/no-unused-vars
+  19:8   warning  'FindingEvidence' is defined but never used                   @typescript-eslint/no-unused-vars
+  21:8   warning  'VerificationStatus' is defined but never used                @typescript-eslint/no-unused-vars
+
+C:\Users\ADMIN\Desktop\Startups\luminsec-v1\src\lib\security\safe-crawler.ts
+  91:10  warning  'lower' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\ADMIN\Desktop\Startups\luminsec-v1\src\lib\security\technology-detection.ts
+  131:10  warning  'hasAny' is defined but never used  @typescript-eslint/no-unused-vars
+
+Γ£û 34 problems (16 errors, 18 warnings)
+
