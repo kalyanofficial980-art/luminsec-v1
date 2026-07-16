@@ -23,19 +23,19 @@ type PageProps = {
   }>;
 };
 
-function text(value: unknown, fallback = "") {
+function text(value: any, fallback = "") {
   const normalized = String(value ?? "").trim();
   return normalized.length > 0 ? normalized : fallback;
 }
 
-function safeDate(value: unknown) {
+function safeDate(value: any) {
   const date = value ? new Date(String(value)) : null;
   return date && !Number.isNaN(date.getTime())
     ? date.toLocaleString("en-IN")
     : "Not available";
 }
 
-function getJoinedScan(value: unknown) {
+function getJoinedScan(value: any) {
   if (Array.isArray(value)) return value[0];
   return value;
 }
@@ -191,11 +191,11 @@ export default async function AdminVerifiedReportsPage({
 
         <section className="mt-8 grid gap-6">
           {rows.length > 0 ? (
-            rows.map((request: unknown, index: number) => {
+            rows.map((request: any, index: number) => {
               const scan = getJoinedScan(request.scan_results);
               const website = text(
                 scan?.domain || scan?.url,
-                "Unknown website",
+                "any website",
               );
 
               return (
@@ -340,3 +340,4 @@ export default async function AdminVerifiedReportsPage({
     </main>
   );
 }
+
