@@ -1,4 +1,4 @@
-﻿"use server";
+"use server";
 
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
@@ -37,3 +37,5 @@ export async function signup(formData: FormData) {
     "/login?message=Account created. Login now, or confirm your email if Supabase asks.",
   );
 }
+
+

@@ -1,4 +1,4 @@
-﻿export function normalizeWebsiteUrl(input: string) {
+export function normalizeWebsiteUrl(input: string) {
   const trimmed = input.trim();
 
   if (!trimmed) {
@@ -29,3 +29,5 @@
     domain: parsed.hostname.replace(/^www\./, ""),
   };
 }
+
+

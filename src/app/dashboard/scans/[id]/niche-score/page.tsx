@@ -246,7 +246,7 @@ export default async function NicheScorePage({ params }: PageProps) {
                         {finding.severity.toUpperCase()}
                       </span>
                       <span className="rounded-full border border-cyan-300/20 bg-cyan-300/10 px-3 py-1 text-xs font-black text-cyan-100">
-                        {moduleLabel(finding.module)}
+                        {moduleLabel(finding.module || finding.securityModule)}
                       </span>
                       <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-black text-slate-300">
                         {finding.confidence} confidence
@@ -369,3 +369,5 @@ export default async function NicheScorePage({ params }: PageProps) {
     </main>
   );
 }
+
+

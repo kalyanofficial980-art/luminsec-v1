@@ -134,3 +134,5 @@ export function buildScoreImprovements(findings: ProfessionalFinding[]) {
     return `${finding.fixSummary} Retest after the fix to confirm score improvement.`;
   });
 }
+
+

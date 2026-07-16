@@ -9,3 +9,5 @@ export default async function DashboardStartPage() {
 
   redirect(getDashboardHomeForProfile(profile));
 }
+
+

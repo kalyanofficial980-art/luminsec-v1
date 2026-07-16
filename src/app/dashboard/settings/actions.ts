@@ -113,3 +113,5 @@ export async function updateReportSettings(formData: FormData) {
 
   redirect("/dashboard/settings?message=Report settings updated");
 }
+
+

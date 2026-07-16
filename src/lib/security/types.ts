@@ -36,6 +36,7 @@ export type SecurityEvidence = {
 };
 
 export type ProfessionalFinding = {
+  module?: string;
   id: string;
   category: SecurityCategory;
   severity: SecuritySeverity;
@@ -99,3 +100,6 @@ export function priorityLabel(priority: RemediationPriority) {
   if (priority === "monitor") return "Monitor";
   return "Optional";
 }
+
+
+

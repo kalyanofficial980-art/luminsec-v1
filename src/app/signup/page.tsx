@@ -1,4 +1,4 @@
-﻿import Link from "next/link";
+import Link from "next/link";
 import { ShieldCheck } from "lucide-react";
 import { signup } from "./actions";
 import { brand } from "@/config/brand";
@@ -89,3 +89,5 @@ export default async function SignupPage({
     </main>
   );
 }
+
+

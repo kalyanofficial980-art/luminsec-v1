@@ -1,0 +1,32 @@
+
+> luminsec-v1@0.1.0 build
+> next build
+
+Γû▓ Next.js 16.2.10 (Turbopack)
+- Environments: .env.local
+
+  Creating an optimized production build ...
+
+> Build error occurred
+Error: Turbopack build failed with 1 errors:
+./src/lib/security/types.ts:38:13
+Expected '{', got 'ident'
+  36 | };
+  37 |
+> 38 | export type ProfessionalFinding = {`n  module?: string;
+     |             ^^^^^^^^^^^^^^^^^^^
+  39 |   id: string;
+  40 |   category: SecurityCategory;
+  41 |   severity: SecuritySeverity;
+
+Parsing ecmascript source code failed
+
+Import trace:
+  Server Component:
+    ./src/lib/security/types.ts
+    ./src/lib/security/professionalize.ts
+    ./src/app/dashboard/websites/actions.ts
+    ./src/app/dashboard/websites/new/page.tsx
+
+
+    at <unknown> (./src/lib/security/types.ts:38:13)

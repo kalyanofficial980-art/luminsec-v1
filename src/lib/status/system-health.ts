@@ -99,3 +99,5 @@ export function countToCheck(result: CountResult): HealthCheck {
     detail: result.message,
   };
 }
+
+

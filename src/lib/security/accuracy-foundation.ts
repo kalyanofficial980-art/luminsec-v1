@@ -455,3 +455,5 @@ export function calculateScanQuality(input: {
     notes,
   };
 }
+
+

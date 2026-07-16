@@ -78,3 +78,5 @@ export async function submitPilotLead(formData: FormData) {
     "/pilot?message=Pilot request submitted. We will review your website and contact you.",
   );
 }
+
+

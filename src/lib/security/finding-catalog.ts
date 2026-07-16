@@ -137,3 +137,5 @@ export const findingCatalog: Record<string, FindingCatalogItem> = {
     retestInstruction: "Run a new scan and confirm trust signals are detected.",
   },
 };
+
+

@@ -27,7 +27,7 @@ type ProfileRow = {
   account_type: string | null;
 };
 
-function getJoinedPlan(value: unknown) {
+function getJoinedPlan(value: any) {
   if (Array.isArray(value)) {
     return value[0] as any;
   }
@@ -387,3 +387,6 @@ export default async function AdminSubscriptionsPage({
     </main>
   );
 }
+
+
+

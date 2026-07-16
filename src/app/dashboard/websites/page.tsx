@@ -50,7 +50,7 @@ export default async function WebsitesPage() {
           .order("created_at", { ascending: false })
       : { data: [] };
 
-  const latestScanByWebsite = new Map<string, unknown>();
+  const latestScanByWebsite = new Map<string, { id: string; overall_score: number | null }>();
 
   for (const scan of scans ?? []) {
     if (!latestScanByWebsite.has(scan.website_id)) {
@@ -200,3 +200,6 @@ export default async function WebsitesPage() {
     </main>
   );
 }
+
+
+

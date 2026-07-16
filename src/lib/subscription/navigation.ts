@@ -44,3 +44,5 @@ export function canShowFounderNavigation(profile: DashboardProfile) {
 export function planStatusLabel(subscription: DashboardNavSubscription) {
   return `${subscription.planName} · ${subscription.status}`;
 }
+
+

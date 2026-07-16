@@ -596,3 +596,5 @@ export function technologyFindingsFromSignals(
 
   return findings;
 }
+
+

@@ -57,3 +57,5 @@ export function normalizeProfile(
     onboarding_completed: Boolean(input.onboarding_completed),
   };
 }
+
+

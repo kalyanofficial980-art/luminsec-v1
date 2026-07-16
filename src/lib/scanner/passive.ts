@@ -779,3 +779,5 @@ export async function runPassiveScan(
 export const runPassiveWebsiteScan = runPassiveScan;
 export const scanWebsitePassively = runPassiveScan;
 export const createPassiveScanReport = runPassiveScan;
+
+

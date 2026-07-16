@@ -470,3 +470,5 @@ export function attachEvidenceBasedScoring<T extends object>(
     evidence_based_scoring: calculateEvidenceBasedScoring(findings),
   };
 }
+
+

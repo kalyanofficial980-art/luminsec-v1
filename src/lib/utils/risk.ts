@@ -1,4 +1,4 @@
-﻿export function getRiskLabel(riskLevel: string | null | undefined) {
+export function getRiskLabel(riskLevel: string | null | undefined) {
   const labels: Record<string, string> = {
     good: "Good",
     needs_improvement: "Needs improvement",
@@ -31,3 +31,5 @@ export function formatDateTime(value: string | null | undefined) {
   if (!value) return "Unknown date";
   return new Date(value).toLocaleString();
 }
+
+

@@ -163,3 +163,5 @@ export function explainFinding(
 
   return `This is a basic readiness finding. Following the recommendation can improve website trust and safety.`;
 }
+
+

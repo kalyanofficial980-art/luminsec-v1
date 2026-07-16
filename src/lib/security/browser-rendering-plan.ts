@@ -175,3 +175,5 @@ export const A12_BROWSER_RENDERING_ENGINE_PLAN = {
 export function browserRenderingIsPlannedButDisabled() {
   return A12_BROWSER_RENDERING_ENGINE_PLAN.currentMode === "disabled";
 }
+
+

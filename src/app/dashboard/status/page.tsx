@@ -45,7 +45,7 @@ function levelLabel(level: HealthLevel) {
 }
 
 function HealthCard({ check }: { check: HealthCheck }) {
-  const Icon = levelIcons[check.level];
+  const Icon = levelIcon(check.level);
 
   return (
     <article className="rounded-3xl border border-white/10 bg-white/[0.04] p-6">
@@ -261,3 +261,6 @@ export default async function DashboardStatusPage() {
     </main>
   );
 }
+
+
+

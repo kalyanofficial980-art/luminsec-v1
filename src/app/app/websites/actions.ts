@@ -193,3 +193,5 @@ export async function startPassiveScan(formData: FormData) {
 
   redirect(`/dashboard/scans/${scanResult.id}`);
 }
+
+

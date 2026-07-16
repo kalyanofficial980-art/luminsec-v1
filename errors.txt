@@ -1,0 +1,3 @@
+src/app/dashboard/subscription/page.tsx(57,30): error TS2339: Property 'subscription_plans' does not exist on type '{}'.
+src/app/dashboard/websites/page.tsx(113,54): error TS2339: Property 'overall_score' does not exist on type '{}'.
+src/app/dashboard/websites/page.tsx(148,64): error TS2339: Property 'id' does not exist on type '{}'.

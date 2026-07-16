@@ -282,3 +282,5 @@ export function canRunScan(
 export function encodeLimitMessage(message: string) {
   return encodeURIComponent(message);
 }
+
+

@@ -27,6 +27,7 @@ export type NicheScoreModule = {
 };
 
 export type DeduplicatedFindingGroup = {
+  module?: string;
   id: string;
   securityModule: NicheModuleKey;
   title: string;
@@ -569,3 +570,7 @@ export function calculateNicheScoring(
     },
   };
 }
+
+
+
+
