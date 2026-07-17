@@ -3,10 +3,24 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 
+const signupAttempts = new Map<string,{count:number,time:number}>();
+
 export async function signup(formData: FormData) {
   const fullName = String(formData.get("full_name") ?? "").trim();
-  const email = String(formData.get("email") ?? "").trim();
+  const email = String(formData.get("email") ?? "").trim().toLowerCase();
   const password = String(formData.get("password") ?? "");
+
+  const now = Date.now();
+  const limit = signupAttempts.get(email);
+
+  if (limit && now - limit.time < 10 * 60 * 1000 && limit.count >= 5) {
+    redirect("/signup?message=Too many signup attempts. Try again later.");
+  }
+
+  signupAttempts.set(email,{
+    count: limit ? limit.count + 1 : 1,
+    time: now
+  });
 
   if (!email || !password) {
     redirect("/signup?message=Email and password are required");
@@ -30,12 +44,22 @@ export async function signup(formData: FormData) {
   });
 
   if (error) {
-    redirect(`/signup?message=${encodeURIComponent(error.message)}`);
+
+    if (
+      error.message.toLowerCase().includes("already registered") ||
+      error.message.toLowerCase().includes("already exists")
+    ) {
+      redirect(
+      "/signup?message=Unable to create account. Please try another email."
+    );
+    }
+
+    redirect(
+      "/signup?message=Signup failed. Please try again later."
+    );
   }
 
-  redirect(
-    "/login?message=Account created. Login now, or confirm your email if Supabase asks.",
-  );
+  redirect("/verify-email?message=Account created. Verify your email before login.");
 }
 
 

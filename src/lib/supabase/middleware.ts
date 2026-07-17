@@ -31,7 +31,34 @@ export async function updateSession(request: NextRequest) {
     },
   );
 
-  await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  const pathname = request.nextUrl.pathname;
+
+  const protectedRoutes = [
+    "/dashboard",
+    "/app",
+  ];
+
+  const isProtected = protectedRoutes.some((route) =>
+    pathname.startsWith(route)
+  );
+
+  if (isProtected && !user) {
+    return NextResponse.redirect(
+      new URL("/login", request.url)
+    );
+  }
+
+  supabaseResponse.cookies.getAll().forEach((cookie) => {
+    supabaseResponse.cookies.set(cookie.name, cookie.value, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+    });
+  });
 
   return supabaseResponse;
 }

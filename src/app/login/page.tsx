@@ -64,15 +64,26 @@ export default async function LoginPage({
           </button>
         </form>
 
-        <p className="mt-6 text-center text-sm text-slate-400">
-          New here?{" "}
-          <Link
-            href="/signup"
-            className="font-semibold text-cyan-300 hover:text-cyan-200"
-          >
-            Create account
-          </Link>
-        </p>
+        <div className="mt-6 space-y-3 text-center text-sm text-slate-400">
+          <p>
+            <Link
+              href="/forgot-password"
+              className="font-semibold text-cyan-300 hover:text-cyan-200"
+            >
+              Forgot password?
+            </Link>
+          </p>
+
+          <p>
+            New here?{" "}
+            <Link
+              href="/signup"
+              className="font-semibold text-cyan-300 hover:text-cyan-200"
+            >
+              Create account
+            </Link>
+          </p>
+        </div>
       </div>
     </main>
   );

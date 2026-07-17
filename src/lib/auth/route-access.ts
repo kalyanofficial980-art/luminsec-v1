@@ -29,6 +29,10 @@ export async function requireDashboardUser(): Promise<DashboardAuthContext> {
     redirect("/login");
   }
 
+  if (!user.email_confirmed_at) {
+    redirect("/verify-email?message=Please verify your email first.");
+  }
+
   const { data: profileData } = await supabase
     .from("profiles")
     .select(

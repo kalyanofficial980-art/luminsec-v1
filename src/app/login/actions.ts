@@ -19,7 +19,7 @@ export async function login(formData: FormData) {
   });
 
   if (error) {
-    redirect(`/login?message=${encodeURIComponent(error.message)}`);
+    redirect("/login?message=Email or password is incorrect. Try again or reset your password.");
   }
 
   redirect("/dashboard");
